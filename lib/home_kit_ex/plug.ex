@@ -1,15 +1,21 @@
 defmodule HomeKitEx.Plug do
-  import Plug.Conn
+  use Plug.Router
+
+  plug(:match)
+  plug(Plug.Parsers, parsers: [HomeKitEx.TLVParser])
+  plug(:dispatch)
 
   def init(options) do
     options
   end
 
-  def call(conn, _opts) do
-    IO.inspect(conn)
+  post "/pair-setup" do
+    IO.inspect(conn.body_params)
+    send_resp(conn, 200, "OK")
+  end
 
-    conn
-    |> put_resp_content_type("text/plain")
-    |> send_resp(200, "Hello world")
+  match _ do
+    IO.inspect(conn)
+    send_resp(conn, 404, "Not Found")
   end
 end
