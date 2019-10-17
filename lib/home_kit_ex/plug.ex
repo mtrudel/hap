@@ -2,7 +2,6 @@ defmodule HomeKitEx.Plug do
   import Plug.Conn
 
   def init(options) do
-    # initialize options
     options
   end
 

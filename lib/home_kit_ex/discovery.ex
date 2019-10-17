@@ -10,16 +10,23 @@ defmodule HomeKitEx.Discovery do
   end
 
   def start_link(opts) do
+    accessory_pid = Keyword.get(opts, :accessory)
+    config_number = HomeKitEx.Accessory.config_number(accessory_pid)
+    identifier = HomeKitEx.Accessory.identifier(accessory_pid)
+    name = HomeKitEx.Accessory.name(accessory_pid)
+    status_flag = if HomeKitEx.Accessory.paired?(accessory_pid), do: "0", else: "1"
+    accessory_type = HomeKitEx.Accessory.accessory_type(accessory_pid)
+
     txts = [
-      "c#": "1",
+      "c#": to_string(config_number),
       ff: "1",
-      id: "00:11:22:33:44:55",
-      md: Keyword.get(opts, :name),
+      id: to_string(identifier),
+      md: name,
       "s#": "1",
-      sf: "1",
-      ci: "12"
+      sf: status_flag,
+      ci: to_string(accessory_type)
     ]
 
-    Nerves.Dnssd.register(Keyword.get(opts, :name), "_hap._tcp", Keyword.get(opts, :port), txts)
+    Nerves.Dnssd.register(name, "_hap._tcp", Keyword.get(opts, :port), txts)
   end
 end
