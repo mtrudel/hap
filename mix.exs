@@ -23,8 +23,9 @@ defmodule HomeKitEx.MixProject do
   defp deps do
     [
       {:nerves_dnssd, "~> 0.3.1"},
-      {:srp, "~> 0.2.0"},
-      {:plug_cowboy, "~> 2.0"}
+      {:strap, "~> 0.1.1"},
+      {:plug_cowboy, "~> 2.0"},
+      {:mix_test_watch, "~> 0.8", only: :dev, runtime: false}
     ]
   end
 end

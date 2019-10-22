@@ -19,7 +19,8 @@ defmodule HomeKitEx.Discovery do
 
     txts = [
       "c#": to_string(config_number),
-      ff: "1",
+      ff: "0",
+      pv: "1.0",
       id: to_string(identifier),
       md: name,
       "s#": "1",

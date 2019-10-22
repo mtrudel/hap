@@ -15,7 +15,7 @@ defmodule HomeKitEx.Application do
     dns_sd_spec = {HomeKitEx.Discovery, accessory: accessory_pid, port: port}
     Supervisor.start_child(sup, dns_sd_spec)
 
-    plug_spec = {Plug.Cowboy, scheme: :http, plug: {HomeKitEx.Plug, accessory_pid}, options: [port: port]}
+    plug_spec = {Plug.Cowboy, scheme: :http, plug: {HomeKitEx.Plug, accessory: accessory_pid}, options: [port: port]}
     Supervisor.start_child(sup, plug_spec)
 
     {:ok, sup}
