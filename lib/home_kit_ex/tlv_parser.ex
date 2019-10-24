@@ -1,8 +1,15 @@
 defmodule HomeKitEx.TLVParser do
+  @moduledoc """
+  A `Plug.Parsers` compliant parser for TLV payloads as described in the Appendix of 
+  Apple's [HomeKit Accessory Protocol Specification](https://developer.apple.com/homekit/). 
+  """
+
   @behaviour Plug.Parsers
 
+  @impl Plug.Parsers
   def init(opts), do: opts
 
+  @impl Plug.Parsers
   def parse(conn, "application", "pairing+tlv8", _params, _opts) do
     {:ok, body, conn} = Plug.Conn.read_body(conn)
     {:ok, parse_tlv(body), conn}
@@ -10,7 +17,7 @@ defmodule HomeKitEx.TLVParser do
 
   def parse(conn, _type, _subtype, _params, _opts), do: {:next, conn}
 
-  def parse_tlv(str) do
+  defp parse_tlv(str) do
     str
     |> Stream.unfold(&next_tag/1)
     |> Map.new()

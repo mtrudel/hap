@@ -1,4 +1,8 @@
 defmodule HomeKitEx.PairSetup do
+  @moduledoc """
+  Implements the Pair Setup flow described in section 4.7 of Apple's [HomeKit Accessory Protocol Specification](https://developer.apple.com/homekit/). 
+  """
+
   use Bitwise
 
   @kTLVType_Method 0x00
@@ -10,6 +14,9 @@ defmodule HomeKitEx.PairSetup do
 
   @kTLVError_Authentication <<0x02>>
 
+  @doc """
+  Handles `<M1>` messages and returns `<M2>` messages
+  """
   def handle_message(%{@kTLVType_State => <<1>>, @kTLVType_Method => <<0>>}, _state) do
     username = "Pair-Setup"
     {prime, group} = Strap.prime_group(3072)
@@ -39,6 +46,9 @@ defmodule HomeKitEx.PairSetup do
     {:ok, response, new_pairing_state}
   end
 
+  @doc """
+  Handles `<M3>` messages and returns `<M4>` messages
+  """
   def handle_message(%{@kTLVType_State => <<3>>, @kTLVType_PublicKey => client_public_key, @kTLVType_Proof => proof}, %{
         server: server,
         prime: prime,

@@ -1,4 +1,8 @@
-defmodule HomeKitEx.Plug do
+defmodule HomeKitEx.HTTPServer do
+  @moduledoc """
+  Defines the HTTP interface for a HomeKit Accessory
+  """
+
   use Plug.Router
 
   alias HomeKitEx.{Accessory, PairSetup, TLVParser, TLVEncoder}

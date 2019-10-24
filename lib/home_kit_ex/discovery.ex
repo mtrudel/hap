@@ -1,4 +1,11 @@
 defmodule HomeKitEx.Discovery do
+  @moduledoc """
+  Defines a process that advertises a `HomeKitEx.Accessory` via multicast DNS
+  according to Section 6 of Apple's [HomeKit Accessory Protocol Specification](https://developer.apple.com/homekit/). 
+  """
+
+  # TODO this will need to become a full blown GenServer in order to receive 
+  # updates about an Accessory's pairing state
   def child_spec(opts) do
     %{
       id: __MODULE__,

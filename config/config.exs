@@ -1,5 +1,6 @@
 use Mix.Config
 
+# TODO this is only needed in desktop environments
 config :nerves_dnssd,
   daemon_restart: :ignore
 
