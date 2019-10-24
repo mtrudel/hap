@@ -65,7 +65,14 @@ defmodule HAP.Accessory do
   end
 
   def init(config) do
-    {:ok, %{config: config, config_number: 1, pairing_state: nil}}
+    # TODO Read pairing state from persistent storage if it exists
+    pairing_state = HAP.PairingStates.Unpaired.new()
+
+    IO.puts("************************** ")
+    IO.puts("Pair using code #{pairing_state.pairing_code}")
+    IO.puts("************************** ")
+
+    {:ok, %{config: config, config_number: 1, pairing_state: pairing_state}}
   end
 
   def handle_call(:config_number, _from, state) do

@@ -5,6 +5,8 @@ defmodule HAP.PairSetup do
 
   use Bitwise
 
+  require Logger
+
   @kTLVType_Method 0x00
   @kTLVType_Salt 0x02
   @kTLVType_PublicKey 0x03
@@ -13,93 +15,90 @@ defmodule HAP.PairSetup do
   @kTLVType_Error 0x07
 
   @kTLVError_Authentication <<0x02>>
+  @kTLVError_Unavailable <<0x06>>
+  @kTLVError_Busy <<0x07>>
 
   @doc """
   Handles `<M1>` messages and returns `<M2>` messages
   """
-  def handle_message(%{@kTLVType_State => <<1>>, @kTLVType_Method => <<0>>}, _state) do
-    username = "Pair-Setup"
-    {prime, group} = Strap.prime_group(3072)
-    protocol = Strap.protocol(:srp6a, prime, group, :sha512)
-    salt = :crypto.strong_rand_bytes(16)
-    verifier = Strap.verifier(protocol, username, "111-22-333", salt)
-    server = Strap.server(protocol, verifier)
-    public = Strap.public_value(server)
+  def handle_message(%{@kTLVType_State => <<1>>, @kTLVType_Method => <<0>>}, %HAP.PairingStates.Unpaired{
+        username: i,
+        pairing_code: p
+      }) do
+    {n, g} = Strap.prime_group(3072)
+    protocol = Strap.protocol(:srp6a, n, g, :sha512)
+    s = :crypto.strong_rand_bytes(16)
+    v = Strap.verifier(protocol, i, p, s)
+    server = Strap.server(protocol, v)
+    b = Strap.public_value(server)
 
-    # TODO better errors & parameterization of above
+    response = %{@kTLVType_State => <<2>>, @kTLVType_PublicKey => b, @kTLVType_Salt => s}
+    state = %HAP.PairingStates.PairingM2{server: server, username: i, salt: s}
+    {:ok, response, state}
+  end
 
-    response = %{
-      @kTLVType_State => <<2>>,
-      @kTLVType_PublicKey => public,
-      @kTLVType_Salt => salt
-    }
+  def handle_message(%{@kTLVType_State => <<1>>, @kTLVType_Method => <<0>>}, %HAP.PairingStates.Paired{} = state) do
+    response = %{@kTLVType_State => <<2>>, @kTLVType_Error => @kTLVError_Unavailable}
+    {:ok, response, state}
+  end
 
-    new_pairing_state = %{
-      server: server,
-      prime: prime,
-      group: group,
-      username: username,
-      salt: salt,
-      verifier: verifier
-    }
-
-    {:ok, response, new_pairing_state}
+  def handle_message(%{@kTLVType_State => <<1>>, @kTLVType_Method => <<0>>}, state) do
+    response = %{@kTLVType_State => <<2>>, @kTLVType_Error => @kTLVError_Busy}
+    {:ok, response, state}
   end
 
   @doc """
   Handles `<M3>` messages and returns `<M4>` messages
   """
-  def handle_message(%{@kTLVType_State => <<3>>, @kTLVType_PublicKey => client_public_key, @kTLVType_Proof => proof}, %{
-        server: server,
-        prime: prime,
-        group: group,
-        username: username,
-        salt: salt
-      }) do
-    {:ok, shared_key} = Strap.session_key(server, client_public_key)
-
+  def handle_message(
+        %{@kTLVType_State => <<3>>, @kTLVType_PublicKey => a, @kTLVType_Proof => proof},
+        %HAP.PairingStates.PairingM2{
+          server: server,
+          username: i,
+          salt: s
+        } = state
+      ) do
+    # Strap doesn't implement M1 / M2 management, so we need to do it ourselves
+    #
     # M_1 = H(H(N) xor H(g), H(I), s, A, B, K)
+    # M_2 = H(A, M_1, K)
 
-    hashed_prime = prime |> hash |> to_int
-    hashed_group = group |> to_bin |> hash |> to_int
-    xor = bxor(hashed_prime, hashed_group) |> to_bin
+    {n, g} = Strap.prime_group(3072)
+    h_n = n |> hash |> to_int
+    h_g = g |> to_bin |> hash |> to_int
+    xor = bxor(h_n, h_g) |> to_bin
+    h_i = i |> hash
+    b = server |> Strap.public_value()
+    {:ok, shared_key} = Strap.session_key(server, a)
+    k = shared_key |> hash
+    m_1 = hash(xor <> h_i <> s <> a <> b <> k)
 
-    hashed_identity = username |> hash
-    server_public_key = server |> Strap.public_value()
-    hashed_shared_key = shared_key |> hash
+    case proof do
+      ^m_1 ->
+        response = %{@kTLVType_State => <<4>>, @kTLVType_Proof => hash(a <> m_1 <> k)}
+        state = %HAP.PairingStates.PairingM4{}
+        {:ok, response, state}
 
-    my_proof = hash(xor <> hashed_identity <> salt <> client_public_key <> server_public_key <> hashed_shared_key)
-
-    response =
-      case proof do
-        ^my_proof ->
-          %{
-            @kTLVType_State => <<4>>,
-            @kTLVType_Proof => hash(client_public_key <> my_proof <> hashed_shared_key)
-          }
-
-        _ ->
-          %{
-            @kTLVType_State => <<4>>,
-            @kTLVType_Error => @kTLVError_Authentication
-          }
-      end
-
-    new_pairing_state = %{}
-    {:ok, response, new_pairing_state}
+      _ ->
+        response = %{@kTLVType_State => <<4>>, @kTLVType_Error => @kTLVError_Authentication}
+        {:ok, response, state}
+    end
   end
 
-  def handle_message(%{@kTLVType_State => <<5>>} = request, _) do
+  @doc """
+  Handles `<M5>` messages and returns `<M6>` messages
+  """
+  def handle_message(%{@kTLVType_State => <<5>>} = request, %HAP.PairingStates.PairingM4{}) do
     IO.inspect(request)
 
     response = %{@kTLVType_State => <<6>>}
-    new_pairing_state = %{}
-    {:ok, response, new_pairing_state}
+    state = %{}
+    {:ok, response, state}
   end
 
-  # TODO return proper errors per 5.6.2.{1,2,3}
-  def handle_message(_tlv, _pairing_state) do
-    {:error, "Invalid pairing state"}
+  def handle_message(tlv, state) do
+    Logger.error("Received unexpected message for pairing state. Message: #{inspect(tlv)}, state: #{inspect(state)}")
+    {:error, "Unexpected message for pairing state"}
   end
 
   defp hash(x), do: :crypto.hash(:sha512, x)

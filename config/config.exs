@@ -6,6 +6,7 @@ config :nerves_dnssd,
 
 config :hap,
   port: 4000,
+  pairing_code: "111-22-333",
   accessory: %{
     identifier: "11:22:33:44:55:66",
     name: "MatDevice",
