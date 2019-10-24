@@ -1,6 +1,6 @@
-# HomeKitEx
+# HAP
 
-HomeKitEx is a framework for builting HAP (aka HomeKit) devices under Apple's
+HAP is a framework for builting HAP (aka HomeKit) devices under Apple's
 'Hobbyists and Makers' guidelines. You can think of it as [homebridge](https://www.github.com/nfarina/homebridge)
 for Elixir. 
 

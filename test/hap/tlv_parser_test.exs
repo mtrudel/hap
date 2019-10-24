@@ -1,4 +1,4 @@
-defmodule HomeKitEx.TLVParserTest do
+defmodule HAP.TLVParserTest do
   use ExUnit.Case
 
   test "parses multi-segment entries properly" do
@@ -9,6 +9,6 @@ defmodule HomeKitEx.TLVParserTest do
 
     expected = :binary.copy(<<0xAA>>, 255) <> :binary.copy(<<0xAB>>, 255) <> :binary.copy(<<0xBA>>, 10)
 
-    assert HomeKitEx.TLVParser.parse_tlv(data) == %{1 => expected, 2 => <<3>>}
+    assert HAP.TLVParser.parse_tlv(data) == %{1 => expected, 2 => <<3>>}
   end
 end

@@ -1,8 +1,8 @@
-defmodule HomeKitEx.Accessory do
+defmodule HAP.Accessory do
   @moduledoc """
   Manages high-level concerns of a HomeKit Accessory construct, including
   aspects of message handling and pairing state tracking. This module is the 
-  principal holder of state within the `HomeKitEx` application
+  principal holder of state within the `HAP` application
   """
 
   use GenServer

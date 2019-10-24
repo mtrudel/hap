@@ -1,9 +1,9 @@
-defmodule HomeKitEx.MixProject do
+defmodule HAP.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :home_kit_ex,
+      app: :hap,
       version: "0.1.0",
       elixir: "~> 1.9",
       start_permanent: Mix.env() == :prod,
@@ -14,7 +14,7 @@ defmodule HomeKitEx.MixProject do
   def application do
     [
       extra_applications: [:logger],
-      mod: {HomeKitEx.Application, []}
+      mod: {HAP.Application, []}
     ]
   end
 

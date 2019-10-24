@@ -1,8 +1,10 @@
-defmodule HomeKitEx.Discovery do
+defmodule HAP.Discovery do
   @moduledoc """
-  Defines a process that advertises a `HomeKitEx.Accessory` via multicast DNS
+  Defines a process that advertises a `HAP.Accessory` via multicast DNS
   according to Section 6 of Apple's [HomeKit Accessory Protocol Specification](https://developer.apple.com/homekit/). 
   """
+
+  alias HAP.Accessory
 
   # TODO this will need to become a full blown GenServer in order to receive 
   # updates about an Accessory's pairing state
@@ -18,11 +20,11 @@ defmodule HomeKitEx.Discovery do
 
   def start_link(opts) do
     accessory_pid = Keyword.get(opts, :accessory)
-    config_number = HomeKitEx.Accessory.config_number(accessory_pid)
-    identifier = HomeKitEx.Accessory.identifier(accessory_pid)
-    name = HomeKitEx.Accessory.name(accessory_pid)
-    status_flag = if HomeKitEx.Accessory.paired?(accessory_pid), do: "0", else: "1"
-    accessory_type = HomeKitEx.Accessory.accessory_type(accessory_pid)
+    config_number = Accessory.config_number(accessory_pid)
+    identifier = Accessory.identifier(accessory_pid)
+    name = Accessory.name(accessory_pid)
+    status_flag = if Accessory.paired?(accessory_pid), do: "0", else: "1"
+    accessory_type = Accessory.accessory_type(accessory_pid)
 
     txts = [
       "c#": to_string(config_number),

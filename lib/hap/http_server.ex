@@ -1,11 +1,11 @@
-defmodule HomeKitEx.HTTPServer do
+defmodule HAP.HTTPServer do
   @moduledoc """
   Defines the HTTP interface for a HomeKit Accessory
   """
 
   use Plug.Router
 
-  alias HomeKitEx.{Accessory, PairSetup, TLVParser, TLVEncoder}
+  alias HAP.{Accessory, PairSetup, TLVParser, TLVEncoder}
 
   plug(Plug.Logger)
   plug(:match)

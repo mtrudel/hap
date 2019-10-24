@@ -1,4 +1,4 @@
-defmodule HomeKitEx.PairSetup do
+defmodule HAP.PairSetup do
   @moduledoc """
   Implements the Pair Setup flow described in section 4.7 of Apple's [HomeKit Accessory Protocol Specification](https://developer.apple.com/homekit/). 
   """
