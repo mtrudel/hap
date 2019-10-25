@@ -10,7 +10,7 @@ defmodule HAP.Application do
     accessory_spec = {HAP.Accessory, Application.get_env(:hap, :accessory)}
     {:ok, accessory_pid} = Supervisor.start_child(sup, accessory_spec)
 
-    port = Application.get_env(:hap, :port)
+    port = Application.get_env(:hap, :port, 4000)
 
     dns_sd_spec = {HAP.Discovery, accessory: accessory_pid, port: port}
     Supervisor.start_child(sup, dns_sd_spec)
