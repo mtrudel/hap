@@ -44,6 +44,13 @@ defmodule HAP.Accessory do
   end
 
   @doc """
+  Returns the setup ID of this accessory
+  """
+  def setup_id(accessory_pid) do
+    GenServer.call(accessory_pid, :setup_id)
+  end
+
+  @doc """
   Returns whether or not this accessory is paired
   """
   def paired?(accessory_pid) do
@@ -66,13 +73,12 @@ defmodule HAP.Accessory do
 
   def init(config) do
     # TODO Read pairing state from persistent storage if it exists
+    # TODO Read setup code from persistent storage if it exists
     pairing_state = HAP.PairingStates.Unpaired.new()
+    setup_id = random_setup_id()
 
-    IO.puts("************************** ")
-    IO.puts("Pair using code #{pairing_state.pairing_code}")
-    IO.puts("************************** ")
-
-    {:ok, %{config: config, config_number: 1, pairing_state: pairing_state}}
+    {:ok, %{config: config, config_number: 1, pairing_state: pairing_state, setup_id: setup_id},
+     {:continue, :display_pairing_code}}
   end
 
   def handle_call(:config_number, _from, state) do
@@ -91,6 +97,10 @@ defmodule HAP.Accessory do
     {:reply, state.config.accessory_type, state}
   end
 
+  def handle_call(:setup_id, _from, state) do
+    {:reply, state.setup_id, state}
+  end
+
   def handle_call(:paired?, _from, state) do
     {:reply, false, state}
   end
@@ -101,5 +111,24 @@ defmodule HAP.Accessory do
 
   def handle_call({:set_pairing_state, pairing_state}, _from, state) do
     {:reply, :ok, %{state | pairing_state: pairing_state}}
+  end
+
+  def handle_continue(
+        :display_pairing_code,
+        %{
+          config: config,
+          setup_id: setup_id,
+          pairing_state: %HAP.PairingStates.Unpaired{pairing_code: pairing_code}
+        } = state
+      ) do
+    accessory_type = config |> Map.get(:accessory_type)
+    HAP.Display.display_pairing_code(accessory_type, pairing_code, setup_id)
+    {:noreply, state}
+  end
+
+  def handle_continue(:display_pairing_code, state), do: {:noreply, state}
+
+  def random_setup_id do
+    Stream.repeatedly(fn -> <<Enum.random(?A..?Z)>> end) |> Enum.take(4) |> Enum.join()
   end
 end

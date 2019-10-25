@@ -5,7 +5,7 @@ defmodule HAP.PairingStates.Unpaired do
     %__MODULE__{pairing_code: generate_pairing_code()}
   end
 
-  def generate_pairing_code do
+  defp generate_pairing_code do
     Application.get_env(:hap, :pairing_code, random_pairing_code())
   end
 

@@ -23,6 +23,8 @@ defmodule HAP.MixProject do
       {:nerves_dnssd, "~> 0.3.1"},
       {:strap, "~> 0.1.1"},
       {:plug_cowboy, "~> 2.0"},
+      {:eqrcode, github: "mtrudel/eqrcode"},
+      {:base36, "~> 1.0"},
       {:mix_test_watch, "~> 0.8", only: :dev, runtime: false}
     ]
   end

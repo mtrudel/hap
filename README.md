@@ -1,7 +1,8 @@
 # HAP
 
 HAP is a framework for building DIY HomeKit accessories based on Apple's [HomeKit Accessory Protocol Specification](https://developer.apple.com/homekit/). 
-You can think of it as [homebridge](https://www.github.com/nfarina/homebridge) for Elixir.
+You can think of it as [homebridge](https://www.github.com/nfarina/homebridge) for Elixir (and therefore also for
+Nerves)
 
 HAP is **very** much a work in progress:
 

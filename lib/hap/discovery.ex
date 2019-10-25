@@ -25,6 +25,9 @@ defmodule HAP.Discovery do
     name = Accessory.name(accessory_pid)
     status_flag = if Accessory.paired?(accessory_pid), do: "0", else: "1"
     accessory_type = Accessory.accessory_type(accessory_pid)
+    setup_id = Accessory.setup_id(accessory_pid)
+    <<setup_hash::binary-size(4), _rest::binary>> = :crypto.hash(:sha512, setup_id <> identifier)
+    setup_hash = Base.encode64(setup_hash)
 
     txts = [
       "c#": to_string(config_number),
@@ -34,7 +37,8 @@ defmodule HAP.Discovery do
       md: name,
       "s#": "1",
       sf: status_flag,
-      ci: to_string(accessory_type)
+      ci: to_string(accessory_type),
+      sh: setup_hash
     ]
 
     Nerves.Dnssd.register(name, "_hap._tcp", Keyword.get(opts, :port), txts)
