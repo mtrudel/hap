@@ -12,53 +12,14 @@ defmodule HAP.Accessory do
   end
 
   @doc """
-  The configuration number. Per the HomeKit spec, this should increment by one
-  whenever "an accessory, service, or characteristic is added or removed on the accessory server",
-  as well as after a firmware update. 
-
-  In actuality, this returns `1` in all cases
+  Returns the information required to advertise this accessory via mDNS
   """
-  def config_number(accessory_pid) do
-    GenServer.call(accessory_pid, :config_number)
+  def discovery_state(accessory_pid) do
+    GenServer.call(accessory_pid, :discovery_state)
   end
 
   @doc """
-  The identifier of this accessory as described in config
-  """
-  def identifier(accessory_pid) do
-    GenServer.call(accessory_pid, :identifier)
-  end
-
-  @doc """
-  The name of this accessory as described in config
-  """
-  def name(accessory_pid) do
-    GenServer.call(accessory_pid, :name)
-  end
-
-  @doc """
-  The accessory type of this accessory as described in config
-  """
-  def accessory_type(accessory_pid) do
-    GenServer.call(accessory_pid, :accessory_type)
-  end
-
-  @doc """
-  Returns the setup ID of this accessory
-  """
-  def setup_id(accessory_pid) do
-    GenServer.call(accessory_pid, :setup_id)
-  end
-
-  @doc """
-  Returns whether or not this accessory is paired
-  """
-  def paired?(accessory_pid) do
-    GenServer.call(accessory_pid, :paired?)
-  end
-
-  @doc """
-  Returns the specific pairing state of this accessory
+  Returns the pairing state of this accessory
   """
   def pairing_state(accessory_pid) do
     GenServer.call(accessory_pid, :pairing_state)
@@ -77,32 +38,20 @@ defmodule HAP.Accessory do
     pairing_state = HAP.PairingStates.Unpaired.new()
     setup_id = random_setup_id()
 
-    {:ok, %{config: config, config_number: 1, pairing_state: pairing_state, setup_id: setup_id},
-     {:continue, :display_pairing_code}}
+    {:ok, %{config: config, pairing_state: pairing_state, setup_id: setup_id}, {:continue, :display_pairing_code}}
   end
 
-  def handle_call(:config_number, _from, state) do
-    {:reply, state.config_number, state}
-  end
+  def handle_call(:discovery_state, _from, state) do
+    discovery_state = %{
+      config_number: 1,
+      identifier: state.config.identifier,
+      name: state.config.name,
+      accessory_type: state.config.accessory_type,
+      setup_id: state.setup_id,
+      paired: match?(%HAP.PairingStates.Paired{}, state.pairing_state)
+    }
 
-  def handle_call(:identifier, _from, state) do
-    {:reply, state.config.identifier, state}
-  end
-
-  def handle_call(:name, _from, state) do
-    {:reply, state.config.name, state}
-  end
-
-  def handle_call(:accessory_type, _from, state) do
-    {:reply, state.config.accessory_type, state}
-  end
-
-  def handle_call(:setup_id, _from, state) do
-    {:reply, state.setup_id, state}
-  end
-
-  def handle_call(:paired?, _from, state) do
-    {:reply, false, state}
+    {:reply, discovery_state, state}
   end
 
   def handle_call(:pairing_state, _from, state) do
@@ -115,14 +64,9 @@ defmodule HAP.Accessory do
 
   def handle_continue(
         :display_pairing_code,
-        %{
-          config: config,
-          setup_id: setup_id,
-          pairing_state: %HAP.PairingStates.Unpaired{pairing_code: pairing_code}
-        } = state
+        %{pairing_state: %HAP.PairingStates.Unpaired{pairing_code: pairing_code}} = state
       ) do
-    accessory_type = config |> Map.get(:accessory_type)
-    HAP.Display.display_pairing_code(accessory_type, pairing_code, setup_id)
+    HAP.Display.display_pairing_code(state.config.accessory_type, pairing_code, state.setup_id)
     {:noreply, state}
   end
 

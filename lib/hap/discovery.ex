@@ -4,8 +4,6 @@ defmodule HAP.Discovery do
   according to Section 6 of Apple's [HomeKit Accessory Protocol Specification](https://developer.apple.com/homekit/). 
   """
 
-  alias HAP.Accessory
-
   # TODO this will need to become a full blown GenServer in order to receive 
   # updates about an Accessory's pairing state
   def child_spec(opts) do
@@ -19,28 +17,30 @@ defmodule HAP.Discovery do
   end
 
   def start_link(opts) do
-    accessory_pid = Keyword.get(opts, :accessory)
-    config_number = Accessory.config_number(accessory_pid)
-    identifier = Accessory.identifier(accessory_pid)
-    name = Accessory.name(accessory_pid)
-    status_flag = if Accessory.paired?(accessory_pid), do: "0", else: "1"
-    accessory_type = Accessory.accessory_type(accessory_pid)
-    setup_id = Accessory.setup_id(accessory_pid)
-    <<setup_hash::binary-size(4), _rest::binary>> = :crypto.hash(:sha512, setup_id <> identifier)
+    discovery_state =
+      opts
+      |> Keyword.get(:accessory)
+      |> HAP.Accessory.discovery_state()
+
+    status_flag = if discovery_state.paired, do: "0", else: "1"
+
+    <<setup_hash::binary-size(4), _rest::binary>> =
+      :crypto.hash(:sha512, discovery_state.setup_id <> discovery_state.identifier)
+
     setup_hash = Base.encode64(setup_hash)
 
     txts = [
-      "c#": to_string(config_number),
+      "c#": to_string(discovery_state.config_number),
       ff: "0",
       pv: "1.0",
-      id: to_string(identifier),
-      md: name,
+      id: discovery_state.identifier,
+      md: discovery_state.name,
       "s#": "1",
       sf: status_flag,
-      ci: to_string(accessory_type),
+      ci: to_string(discovery_state.accessory_type),
       sh: setup_hash
     ]
 
-    Nerves.Dnssd.register(name, "_hap._tcp", Keyword.get(opts, :port), txts)
+    Nerves.Dnssd.register(discovery_state.name, "_hap._tcp", Keyword.get(opts, :port), txts)
   end
 end
