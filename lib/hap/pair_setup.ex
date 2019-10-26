@@ -95,7 +95,7 @@ defmodule HAP.PairSetup do
         %HAP.PairingStates.PairingM4{session_key: session_key}
       ) do
     encrypted_data_length = byte_size(encrypted_data) - 16
-    <<encrypted_data::binary-size(encrypted_data_length), auth_tag::binary-size(16)>> = encrypted_data
+    <<encrypted_data::binary-size(encrypted_data_length), auth_tag::binary-16>> = encrypted_data
 
     IO.inspect(session_key, label: "K", limit: :infinity)
     IO.inspect(encrypted_data, label: "ED", limit: :infinity)

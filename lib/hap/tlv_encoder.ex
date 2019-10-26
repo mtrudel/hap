@@ -15,14 +15,14 @@ defmodule HAP.TLVEncoder do
 
   defp to_single_tlv({tag, value}) do
     case value do
-      <<value::binary-size(255), rest::binary>> ->
-        [<<tag::size(8), byte_size(value)::size(8), value::binary>> | to_single_tlv({tag, rest})]
+      <<value::binary-255, rest::binary>> ->
+        [<<tag::8, byte_size(value)::8, value::binary>> | to_single_tlv({tag, rest})]
 
       <<>> ->
         []
 
       <<value::binary>> ->
-        [<<tag::size(8), byte_size(value)::size(8), value::binary>>]
+        [<<tag::8, byte_size(value)::8, value::binary>>]
     end
   end
 end

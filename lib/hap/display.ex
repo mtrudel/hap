@@ -7,8 +7,7 @@ defmodule HAP.Display do
     pairing_code_int = pairing_code |> String.replace("-", "") |> String.to_integer()
 
     payload =
-      <<padding::size(2), version::size(3), reserved::size(4), config.accessory_type::size(8), hap_type::size(4),
-        pairing_code_int::size(27)>>
+      <<padding::2, version::3, reserved::4, config.accessory_type::8, hap_type::4, pairing_code_int::27>>
       |> :binary.decode_unsigned()
       |> Base36.encode()
 

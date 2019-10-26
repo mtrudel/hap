@@ -25,11 +25,11 @@ defmodule HAP.TLVParser do
 
   defp next_tag(str) do
     case str do
-      <<tag::size(8), 255, value::binary-size(255), next_tag::size(8), rest::binary>> when tag == next_tag ->
+      <<tag::8, 255, value::binary-255, next_tag::8, rest::binary>> when tag == next_tag ->
         {{_, next_value}, next_rest} = next_tag(<<next_tag>> <> rest)
         {{tag, value <> next_value}, next_rest}
 
-      <<tag::size(8), length::size(8), rest::binary>> ->
+      <<tag::8, length::8, rest::binary>> ->
         <<value::binary-size(length), rest::binary>> = rest
         {{tag, value}, rest}
 

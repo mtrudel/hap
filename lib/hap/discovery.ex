@@ -24,7 +24,7 @@ defmodule HAP.Discovery do
 
     status_flag = if discovery_state.paired, do: "0", else: "1"
 
-    <<setup_hash::binary-size(4), _rest::binary>> =
+    <<setup_hash::binary-4, _rest::binary>> =
       :crypto.hash(:sha512, discovery_state.setup_id <> discovery_state.identifier)
 
     setup_hash = Base.encode64(setup_hash)
