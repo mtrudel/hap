@@ -1,3 +1,3 @@
 defmodule HAP.PairingStates.PairingM4 do
-  defstruct state: nil
+  defstruct session_key: nil
 end

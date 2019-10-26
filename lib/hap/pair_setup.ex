@@ -78,7 +78,7 @@ defmodule HAP.PairSetup do
     case proof do
       ^m_1 ->
         response = %{@kTLVType_State => <<4>>, @kTLVType_Proof => hash(a <> m_1 <> k)}
-        state = %HAP.PairingStates.PairingM4{}
+        state = %HAP.PairingStates.PairingM4{session_key: k}
         {:ok, response, state}
 
       _ ->
@@ -92,11 +92,12 @@ defmodule HAP.PairSetup do
   """
   def handle_message(
         %{@kTLVType_State => <<5>>, @kTLVType_EncryptedData => encrypted_data},
-        %HAP.PairingStates.PairingM4{}
+        %HAP.PairingStates.PairingM4{session_key: session_key}
       ) do
     encrypted_data_length = byte_size(encrypted_data) - 16
     <<encrypted_data::binary-size(encrypted_data_length), auth_tag::binary-size(16)>> = encrypted_data
 
+    IO.inspect(session_key, label: "K", limit: :infinity)
     IO.inspect(encrypted_data, label: "ED", limit: :infinity)
     IO.inspect(auth_tag, label: "Auth", limit: :infinity)
 
