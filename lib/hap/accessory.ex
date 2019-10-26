@@ -7,8 +7,8 @@ defmodule HAP.Accessory do
 
   use GenServer
 
-  def start_link(config) do
-    GenServer.start_link(__MODULE__, config)
+  def start_link(args) do
+    GenServer.start_link(__MODULE__, args)
   end
 
   @doc """
@@ -32,13 +32,11 @@ defmodule HAP.Accessory do
     GenServer.call(accessory_pid, {:set_pairing_state, pairing_state})
   end
 
-  def init(config) do
-    # TODO Read pairing state from persistent storage if it exists
-    # TODO Read setup code from persistent storage if it exists
-    pairing_state = HAP.PairingStates.Unpaired.new()
-    setup_id = random_setup_id()
+  def init(_args) do
+    config = HAP.Configuration.config()
+    pairing_state = %HAP.PairingStates.Unpaired{pairing_code: config.pairing_code}
 
-    {:ok, %{config: config, pairing_state: pairing_state, setup_id: setup_id}, {:continue, :display_pairing_code}}
+    {:ok, %{config: config, pairing_state: pairing_state}, {:continue, :display_startup_info}}
   end
 
   def handle_call(:discovery_state, _from, state) do
@@ -47,7 +45,7 @@ defmodule HAP.Accessory do
       identifier: state.config.identifier,
       name: state.config.name,
       accessory_type: state.config.accessory_type,
-      setup_id: state.setup_id,
+      setup_id: state.config.setup_id,
       paired: match?(%HAP.PairingStates.Paired{}, state.pairing_state)
     }
 
@@ -62,17 +60,8 @@ defmodule HAP.Accessory do
     {:reply, :ok, %{state | pairing_state: pairing_state}}
   end
 
-  def handle_continue(
-        :display_pairing_code,
-        %{pairing_state: %HAP.PairingStates.Unpaired{pairing_code: pairing_code}} = state
-      ) do
-    HAP.Display.display_pairing_code(state.config.accessory_type, pairing_code, state.setup_id)
+  def handle_continue(:display_startup_info, state) do
+    HAP.Display.display_startup_info(state.config, state.pairing_state)
     {:noreply, state}
-  end
-
-  def handle_continue(:display_pairing_code, state), do: {:noreply, state}
-
-  def random_setup_id do
-    Stream.repeatedly(fn -> <<Enum.random(?A..?Z)>> end) |> Enum.take(4) |> Enum.join()
   end
 end

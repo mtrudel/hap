@@ -1,20 +1,21 @@
 defmodule HAP.Display do
-  @hap_type_ip 2
-
-  def display_pairing_code(accessory_type, pairing_code, setup_code) do
+  def display_startup_info(config, %HAP.PairingStates.Unpaired{pairing_code: pairing_code}) do
     padding = 0
     version = 0
     reserved = 0
-    hap_type = @hap_type_ip
+    hap_type = 2
     pairing_code_int = pairing_code |> String.replace("-", "") |> String.to_integer()
 
     payload =
-      <<padding::size(2), version::size(3), reserved::size(4), accessory_type::size(8), hap_type::size(4),
+      <<padding::size(2), version::size(3), reserved::size(4), config.accessory_type::size(8), hap_type::size(4),
         pairing_code_int::size(27)>>
       |> :binary.decode_unsigned()
       |> Base36.encode()
 
-    url = "X-HM://00#{payload}#{setup_code}"
+    url = "X-HM://00#{payload}#{config.setup_id}"
+
+    IO.puts("\e[1m")
+    IO.puts("#{config.name} available for pairing. Connect using the following QR Code")
 
     url
     |> EQRCode.encode()
@@ -28,5 +29,13 @@ defmodule HAP.Display do
     IO.puts("\e[0m")
     IO.puts("")
     IO.puts("")
+  end
+
+  def display_startup_info(config, %HAP.PairingStates.Paired{}) do
+    IO.puts("#{config.name} paired and running")
+  end
+
+  def display_startup_info(config, _pairing_state) do
+    IO.puts("#{config.name} is in the process of pairing")
   end
 end

@@ -32,7 +32,6 @@ defmodule HAP.Discovery do
     txts = [
       "c#": to_string(discovery_state.config_number),
       ff: "0",
-      pv: "1.0",
       id: discovery_state.identifier,
       md: discovery_state.name,
       "s#": "1",

@@ -7,8 +7,7 @@ defmodule HAP.Application do
     opts = [strategy: :rest_for_one, name: HAP.Supervisor]
     {:ok, sup} = Supervisor.start_link([], opts)
 
-    accessory_spec = {HAP.Accessory, Application.get_env(:hap, :accessory)}
-    {:ok, accessory_pid} = Supervisor.start_child(sup, accessory_spec)
+    {:ok, accessory_pid} = Supervisor.start_child(sup, HAP.Accessory)
 
     port = Application.get_env(:hap, :port, 4000)
 
@@ -16,7 +15,6 @@ defmodule HAP.Application do
     Supervisor.start_child(sup, dns_sd_spec)
 
     plug_spec = {Plug.Cowboy, scheme: :http, plug: {HAP.HTTPServer, accessory: accessory_pid}, options: [port: port]}
-
     Supervisor.start_child(sup, plug_spec)
 
     {:ok, sup}
