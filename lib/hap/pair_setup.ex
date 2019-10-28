@@ -92,18 +92,31 @@ defmodule HAP.PairSetup do
   """
   def handle_message(
         %{@kTLVType_State => <<5>>, @kTLVType_EncryptedData => encrypted_data},
-        %HAP.PairingStates.PairingM4{session_key: session_key}
+        %HAP.PairingStates.PairingM4{session_key: session_key} = state
       ) do
     encrypted_data_length = byte_size(encrypted_data) - 16
     <<encrypted_data::binary-size(encrypted_data_length), auth_tag::binary-16>> = encrypted_data
 
-    IO.inspect(session_key, label: "K", limit: :infinity)
-    IO.inspect(encrypted_data, label: "ED", limit: :infinity)
-    IO.inspect(auth_tag, label: "Auth", limit: :infinity)
+    # This is not documented in the spec - taken from HAP-NodeJS's HAPServer.ts
+    hashed_k = HKDF.derive(:sha512, session_key, 32, "Pair-Setup-Encrypt-Salt", "Pair-Setup-Encrypt-Info")
 
-    response = %{@kTLVType_State => <<6>>}
-    state = %{}
-    {:ok, response, state}
+    # This doesn't actually verify the auth tag - see https://bugs.erlang.org/browse/ERL-1078
+    case :crypto.crypto_one_time_aead(:chacha20_poly1305, hashed_k, 'PS-Msg05', encrypted_data, <<0>>, auth_tag, false) do
+      tlv when is_binary(tlv) ->
+        sub_tlv = tlv |> HAP.TLVParser.parse_tlv()
+        {accessory_ltpk, accessory_ltsk} = :crypto.generate_key(:eddsa, :ed25519)
+
+        accessory_x =
+          HKDF.derive(:sha512, session_key, 32, "Pair-Setup-Accessory-Sign-Salt", "Pair-Setup-Accessory-Sign-Info")
+
+        response = %{@kTLVType_State => <<6>>}
+        state = %{}
+        {:ok, response, state}
+
+      :error ->
+        response = %{@kTLVType_State => <<6>>, @kTLVType_Error => @kTLVError_Authentication}
+        {:ok, response, state}
+    end
   end
 
   def handle_message(tlv, state) do

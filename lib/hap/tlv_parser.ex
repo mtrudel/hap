@@ -17,7 +17,7 @@ defmodule HAP.TLVParser do
 
   def parse(conn, _type, _subtype, _params, _opts), do: {:next, conn}
 
-  defp parse_tlv(str) do
+  def parse_tlv(str) do
     str
     |> Stream.unfold(&next_tag/1)
     |> Map.new()

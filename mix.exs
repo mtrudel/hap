@@ -25,6 +25,7 @@ defmodule HAP.MixProject do
       {:plug_cowboy, "~> 2.0"},
       {:eqrcode, github: "mtrudel/eqrcode"},
       {:base36, "~> 1.0"},
+      {:hkdf, "~> 0.1.0"},
       {:mix_test_watch, "~> 0.8", only: :dev, runtime: false}
     ]
   end
