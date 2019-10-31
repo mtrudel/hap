@@ -34,7 +34,11 @@ defmodule HAP.Accessory do
 
   def init(_args) do
     config = HAP.Configuration.config()
-    pairing_state = %HAP.PairingStates.Unpaired{pairing_code: config.pairing_code}
+
+    pairing_state = %HAP.PairingStates.Unpaired{
+      pairing_code: config.pairing_code,
+      accessory_identifier: config.identifier
+    }
 
     {:ok, %{config: config, pairing_state: pairing_state}, {:continue, :display_startup_info}}
   end
