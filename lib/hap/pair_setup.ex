@@ -145,18 +145,8 @@ defmodule HAP.PairSetup do
           }
           |> HAP.TLVEncoder.to_binary()
 
-        IO.inspect(accessory_info, label: "info", limit: :infinity)
-        IO.inspect(accessory_identifier, label: "id", limit: :infinity)
-        IO.inspect(accessory_ltsk, label: "ltsk", limit: :infinity)
-        IO.inspect(accessory_ltpk, label: "ltpk", limit: :infinity)
-        IO.inspect(accessory_signature, label: "signature", limit: :infinity)
-        IO.inspect(session_key, label: "k", limit: :infinity)
-        IO.inspect(hashed_k, label: "hash_k", limit: :infinity)
-
         {encrypted_data, auth_tag} =
           :crypto.crypto_one_time_aead(:chacha20_poly1305, hashed_k, 'PS-Msg06', resp_sub_tlv, <<>>, true)
-
-        IO.inspect(encrypted_data <> auth_tag, label: "sending", limit: :infinity)
 
         response = %{
           @kTLVType_State => <<6>>,
