@@ -7,7 +7,7 @@ Nerves)
 HAP is **very** much a work in progress. It doesn't come close to working yet, but 
 steady progress is being made:
 
-* [x] Pair Setup (nearly complete)
+* [x] Pair Setup
 * [ ] Pair Verification
 * [ ] Encrypted Sessions
 * [ ] Extra Pairing Actions (Add, Delete, List)
