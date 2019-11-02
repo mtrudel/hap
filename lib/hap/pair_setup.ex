@@ -111,7 +111,7 @@ defmodule HAP.PairSetup do
     encrypted_data_length = byte_size(encrypted_data) - 16
     <<encrypted_data::binary-size(encrypted_data_length), auth_tag::binary-16>> = encrypted_data
 
-    case :crypto.crypto_one_time_aead(:chacha20_poly1305, hashed_k, 'PS-Msg05', encrypted_data, <<0>>, auth_tag, false) do
+    case :crypto.crypto_one_time_aead(:chacha20_poly1305, hashed_k, 'PS-Msg05', encrypted_data, <<>>, auth_tag, false) do
       tlv when is_binary(tlv) ->
         %{
           @kTLVType_Identifier => ios_identifier,
@@ -154,7 +154,7 @@ defmodule HAP.PairSetup do
         IO.inspect(hashed_k, label: "hash_k", limit: :infinity)
 
         {encrypted_data, auth_tag} =
-          :crypto.crypto_one_time_aead(:chacha20_poly1305, hashed_k, 'PS-Msg06', resp_sub_tlv, <<0>>, true)
+          :crypto.crypto_one_time_aead(:chacha20_poly1305, hashed_k, 'PS-Msg06', resp_sub_tlv, <<>>, true)
 
         IO.inspect(encrypted_data <> auth_tag, label: "sending", limit: :infinity)
 
