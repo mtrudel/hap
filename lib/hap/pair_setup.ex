@@ -1,11 +1,11 @@
 defmodule HAP.PairSetup do
   @moduledoc """
-  Implements the Pair Setup flow described in section 4.7 of Apple's [HomeKit Accessory Protocol Specification](https://developer.apple.com/homekit/). 
+  Implements the Pair Setup flow described in Apple's [HomeKit Accessory Protocol Specification](https://developer.apple.com/homekit/). 
   """
 
-  use Bitwise
-
   require Logger
+
+  alias HAP.Crypto.SRP6A
 
   @kTLVType_Method 0x00
   @kTLVType_Identifier 0x01
@@ -29,19 +29,15 @@ defmodule HAP.PairSetup do
         pairing_code: p,
         accessory_identifier: accessory_identifier
       }) do
-    {n, g} = Strap.prime_group(3072)
-    protocol = Strap.protocol(:srp6a, n, g, :sha512)
-    s = :crypto.strong_rand_bytes(16)
-    v = Strap.verifier(protocol, i, p, s)
-    server = Strap.server(protocol, v)
-    b = Strap.public_value(server)
+    {s, v} = SRP6A.verifier(i, p)
+    {auth_context, b} = SRP6A.auth_context(v)
 
     response = %{@kTLVType_State => <<2>>, @kTLVType_PublicKey => b, @kTLVType_Salt => s}
 
     state = %HAP.PairingStates.PairingM2{
-      server: server,
-      username: i,
+      auth_context: auth_context,
       salt: s,
+      username: i,
       accessory_identifier: accessory_identifier
     }
 
@@ -64,36 +60,21 @@ defmodule HAP.PairSetup do
   def handle_message(
         %{@kTLVType_State => <<3>>, @kTLVType_PublicKey => a, @kTLVType_Proof => proof},
         %HAP.PairingStates.PairingM2{
-          server: server,
-          username: i,
+          auth_context: auth_context,
           salt: s,
+          username: i,
           accessory_identifier: accessory_identifier
         } = state
       ) do
-    # Strap doesn't implement M1 / M2 management, so we need to do it ourselves
-    #
-    # M_1 = H(H(N) xor H(g), H(I), s, A, B, K)
-    # M_2 = H(A, M_1, K)
+    {m_1, m_2, k} = SRP6A.shared_key(auth_context, a, i, s)
 
-    {n, g} = Strap.prime_group(3072)
-    h_n = n |> hash |> to_int
-    h_g = g |> to_bin |> hash |> to_int
-    xor = bxor(h_n, h_g) |> to_bin
-    h_i = i |> hash
-    b = server |> Strap.public_value()
-    {:ok, shared_key} = Strap.session_key(server, a)
-    k = shared_key |> hash
-    m_1 = hash(xor <> h_i <> s <> a <> b <> k)
-
-    case proof do
-      ^m_1 ->
-        response = %{@kTLVType_State => <<4>>, @kTLVType_Proof => hash(a <> m_1 <> k)}
-        state = %HAP.PairingStates.PairingM4{session_key: k, accessory_identifier: accessory_identifier}
-        {:ok, response, state}
-
-      _ ->
-        response = %{@kTLVType_State => <<4>>, @kTLVType_Error => @kTLVError_Authentication}
-        {:ok, response, state}
+    if proof == m_1 do
+      response = %{@kTLVType_State => <<4>>, @kTLVType_Proof => m_2}
+      state = %HAP.PairingStates.PairingM4{session_key: k, accessory_identifier: accessory_identifier}
+      {:ok, response, state}
+    else
+      response = %{@kTLVType_State => <<4>>, @kTLVType_Error => @kTLVError_Authentication}
+      {:ok, response, state}
     end
   end
 
@@ -173,8 +154,4 @@ defmodule HAP.PairSetup do
     Logger.error("Received unexpected message for pairing state. Message: #{inspect(tlv)}, state: #{inspect(state)}")
     {:error, "Unexpected message for pairing state"}
   end
-
-  defp hash(x), do: :crypto.hash(:sha512, x)
-  defp to_bin(val) when is_integer(val), do: :binary.encode_unsigned(val)
-  defp to_int(val) when is_bitstring(val), do: :binary.decode_unsigned(val)
 end
