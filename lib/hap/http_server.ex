@@ -10,6 +10,7 @@ defmodule HAP.HTTPServer do
   plug(Plug.Logger)
   plug(:match)
   plug(Plug.Parsers, parsers: [TLVParser])
+  plug(:tidy_headers, builder_opts())
   plug(:dispatch, builder_opts())
 
   def init(opts) do
@@ -53,5 +54,10 @@ defmodule HAP.HTTPServer do
   match _ do
     IO.inspect(conn)
     send_resp(conn, 404, "Not Found")
+  end
+
+  def tidy_headers(conn, _opts) do
+    conn
+    |> delete_resp_header("cache-control")
   end
 end
