@@ -5,7 +5,7 @@ defmodule HAP.PairSetup do
 
   require Logger
 
-  alias HAP.Crypto.SRP6A
+  alias HAP.Crypto.{SRP6A, HKDF, ChaCha20, EDDSA}
 
   @kTLVType_Method 0x00
   @kTLVType_Identifier 0x01
@@ -85,66 +85,29 @@ defmodule HAP.PairSetup do
         %{@kTLVType_State => <<5>>, @kTLVType_EncryptedData => encrypted_data},
         %HAP.PairingStates.PairingM4{session_key: session_key, accessory_identifier: accessory_identifier} = state
       ) do
-    # This is not documented in the spec - taken from HAP-NodeJS's HAPServer.ts
-    hashed_k = HKDF.derive(:sha512, session_key, 32, "Pair-Setup-Encrypt-Salt", "Pair-Setup-Encrypt-Info")
+    with envelope_key <- HKDF.generate(session_key, "Pair-Setup-Encrypt-Salt", "Pair-Setup-Encrypt-Info"),
+         {:ok, tlv} <- ChaCha20.decrypt_and_verify(encrypted_data, envelope_key, "PS-Msg05"),
+         {:ok, ios_identifier, ios_ltpk} <- extract_ios_device_exchange(tlv, session_key),
+         {accessory_ltpk, accessory_ltsk} <- EDDSA.key_gen(),
+         {:ok, response_sub_tlv} <-
+           build_accessory_device_exchange(accessory_identifier, accessory_ltpk, accessory_ltsk, session_key),
+         {:ok, encrypted_response} <- ChaCha20.encrypt_and_tag(response_sub_tlv, envelope_key, "PS-Msg06") do
+      response = %{
+        @kTLVType_State => <<6>>,
+        @kTLVType_EncryptedData => encrypted_response
+      }
 
-    # 5.6.6.1
-    encrypted_data_length = byte_size(encrypted_data) - 16
-    <<encrypted_data::binary-size(encrypted_data_length), auth_tag::binary-16>> = encrypted_data
+      state = %HAP.PairingStates.Paired{
+        ios_identifier: ios_identifier,
+        ios_ltpk: ios_ltpk,
+        accessory_identifier: accessory_identifier,
+        accessory_ltpk: accessory_ltpk,
+        accessory_ltsk: accessory_ltsk
+      }
 
-    case :crypto.crypto_one_time_aead(:chacha20_poly1305, hashed_k, 'PS-Msg05', encrypted_data, <<>>, auth_tag, false) do
-      tlv when is_binary(tlv) ->
-        %{
-          @kTLVType_Identifier => ios_identifier,
-          @kTLVType_PublicKey => ios_ltpk,
-          @kTLVType_Signature => ios_signature
-        } = tlv |> HAP.TLVParser.parse_tlv()
-
-        ios_device_x =
-          HKDF.derive(:sha512, session_key, 32, "Pair-Setup-Controller-Sign-Salt", "Pair-Setup-Controller-Sign-Info")
-
-        ios_device_info = ios_device_x <> ios_identifier <> ios_ltpk
-        result = :crypto.verify(:eddsa, :sha512, ios_device_info, ios_signature, [ios_ltpk, :ed25519])
-
-        # TODO - handle this (refactor this whole block into sub-functions)
-        IO.puts(result)
-
-        # 5.6.6.2
-        {accessory_ltpk, accessory_ltsk} = :crypto.generate_key(:eddsa, :ed25519)
-
-        accessory_x =
-          HKDF.derive(:sha512, session_key, 32, "Pair-Setup-Accessory-Sign-Salt", "Pair-Setup-Accessory-Sign-Info")
-
-        accessory_info = accessory_x <> accessory_identifier <> accessory_ltpk
-        accessory_signature = :crypto.sign(:eddsa, :sha512, accessory_info, [accessory_ltsk, :ed25519])
-
-        resp_sub_tlv =
-          %{
-            @kTLVType_Identifier => accessory_identifier,
-            @kTLVType_PublicKey => accessory_ltpk,
-            @kTLVType_Signature => accessory_signature
-          }
-          |> HAP.TLVEncoder.to_binary()
-
-        {encrypted_data, auth_tag} =
-          :crypto.crypto_one_time_aead(:chacha20_poly1305, hashed_k, 'PS-Msg06', resp_sub_tlv, <<>>, true)
-
-        response = %{
-          @kTLVType_State => <<6>>,
-          @kTLVType_EncryptedData => encrypted_data <> auth_tag
-        }
-
-        state = %HAP.PairingStates.Paired{
-          ios_identifier: ios_identifier,
-          ios_ltpk: ios_ltpk,
-          accessory_identifier: accessory_identifier,
-          accessory_ltpk: accessory_ltpk,
-          accessory_ltsk: accessory_ltsk
-        }
-
-        {:ok, response, state}
-
-      :error ->
+      {:ok, response, state}
+    else
+      {:error, _} ->
         response = %{@kTLVType_State => <<6>>, @kTLVType_Error => @kTLVError_Authentication}
         {:ok, response, state}
     end
@@ -153,5 +116,42 @@ defmodule HAP.PairSetup do
   def handle_message(tlv, state) do
     Logger.error("Received unexpected message for pairing state. Message: #{inspect(tlv)}, state: #{inspect(state)}")
     {:error, "Unexpected message for pairing state"}
+  end
+
+  defp extract_ios_device_exchange(tlv, session_key) do
+    tlv
+    |> HAP.TLVParser.parse_tlv()
+    |> case do
+      %{
+        @kTLVType_Identifier => ios_identifier,
+        @kTLVType_PublicKey => ios_ltpk,
+        @kTLVType_Signature => ios_signature
+      } ->
+        ios_device_x = HKDF.generate(session_key, "Pair-Setup-Controller-Sign-Salt", "Pair-Setup-Controller-Sign-Info")
+        ios_device_info = ios_device_x <> ios_identifier <> ios_ltpk
+
+        if EDDSA.verify(ios_device_info, ios_signature, ios_ltpk) do
+          {:ok, ios_identifier, ios_ltpk}
+        else
+          {:error, "Key Verification Error"}
+        end
+
+      _ ->
+        {:error, "TLV Parsing Error"}
+    end
+  end
+
+  defp build_accessory_device_exchange(accessory_identifier, accessory_ltpk, accessory_ltsk, session_key) do
+    accessory_x = HKDF.generate(session_key, "Pair-Setup-Accessory-Sign-Salt", "Pair-Setup-Accessory-Sign-Info")
+    accessory_info = accessory_x <> accessory_identifier <> accessory_ltpk
+    {:ok, accessory_signature} = EDDSA.sign(accessory_info, accessory_ltsk)
+
+    sub_tlv = %{
+      @kTLVType_Identifier => accessory_identifier,
+      @kTLVType_PublicKey => accessory_ltpk,
+      @kTLVType_Signature => accessory_signature
+    }
+
+    {:ok, HAP.TLVEncoder.to_binary(sub_tlv)}
   end
 end
