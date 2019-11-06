@@ -4,21 +4,30 @@ defmodule HAP.Discovery do
   according to Section 6 of Apple's [HomeKit Accessory Protocol Specification](https://developer.apple.com/homekit/). 
   """
 
+  use GenServer
+
   alias HAP.Accessory
 
-  # TODO this will need to become a full blown GenServer in order to receive 
-  # updates about an Accessory's pairing state
-  def child_spec(opts) do
-    %{
-      id: __MODULE__,
-      start: {__MODULE__, :start_link, [opts]},
-      type: :worker,
-      restart: :permanent,
-      shutdown: 500
-    }
+  def start_link(opts) do
+    GenServer.start_link(__MODULE__, opts, name: __MODULE__)
   end
 
-  def start_link(opts) do
+  def reload(pid \\ __MODULE__) do
+    GenServer.cast(pid, :reload)
+  end
+
+  def init(opts) do
+    {:ok, pid} = start_dnssd_daemon(opts)
+    {:ok, %{pid: pid, opts: opts}}
+  end
+
+  def handle_cast(:reload, %{pid: pid, opts: opts} = state) do
+    Supervisor.stop(pid)
+    {:ok, pid} = start_dnssd_daemon(opts)
+    {:noreply, %{state | pid: pid}}
+  end
+
+  defp start_dnssd_daemon(opts) do
     status_flag = if Accessory.paired?(), do: "0", else: "1"
 
     <<setup_hash::binary-4, _rest::binary>> = :crypto.hash(:sha512, Accessory.setup_id() <> Accessory.identifier())

@@ -45,6 +45,7 @@ defmodule HAP.Accessory do
 
   def handle_call({:add_controller_pairing, ios_identifier, ios_ltpk}, _from, state) do
     HAP.Display.display_new_pairing_info(ios_identifier)
+    if state.pairings == %{}, do: HAP.Discovery.reload()
     state = state |> Map.update!(:pairings, &Map.put(&1, ios_identifier, ios_ltpk))
     {:reply, !Enum.empty?(state.pairings), state}
   end
