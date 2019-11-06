@@ -35,7 +35,7 @@ defmodule HAP.PairVerify do
   Handles `<M1>` messages and returns `<M2>` messages
   """
   def handle_call(%{@kTLVType_State => <<1>>, @kTLVType_PublicKey => ios_epk}, _from, %{step: 1}) do
-    {accessory_epk, accessory_esk} = :crypto.generate_key(:eddsa, :ed25519)
+    {accessory_epk, accessory_esk} = :crypto.generate_key(:ecdh, :x25519)
     session_key = :crypto.compute_key(:ecdh, ios_epk, accessory_esk, :x25519)
     accessory_info = accessory_epk <> Accessory.identifier() <> ios_epk
     accessory_signature = :crypto.sign(:eddsa, :sha512, accessory_info, [Accessory.ltsk(), :ed25519])
@@ -58,9 +58,15 @@ defmodule HAP.PairVerify do
       @kTLVType_EncryptedData => encrypted_data <> auth_tag
     }
 
-    IO.inspect(response)
+    {:reply, {:ok, response}, %{step: 3, session_key: session_key}}
+  end
 
-    {:reply, {:ok, response}, %{step: 3}}
+  @doc """
+  Handles `<M3>` messages and returns `<M4>` messages
+  """
+  def handle_call(%{@kTLVType_State => <<3>>, @kTLVType_EncryptedData => encrypted_data}, _from, %{step: 3}) do
+    # TODO
+    {:reply, {:ok, %{@kTLVType_State => <<4>>}}, %{}}
   end
 
   def handle_message(tlv, _from, state) do
