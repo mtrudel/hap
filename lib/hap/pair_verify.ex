@@ -3,7 +3,11 @@ defmodule HAP.PairVerify do
   Implements the Pair Verify flow described in Apple's [HomeKit Accessory Protocol Specification](https://developer.apple.com/homekit/). 
   """
 
+  use GenServer
+
   require Logger
+
+  alias HAP.Accessory
 
   @kTLVType_Identifier 0x01
   @kTLVType_PublicKey 0x03
@@ -15,21 +19,30 @@ defmodule HAP.PairVerify do
   @kTLVError_Authentication <<0x02>>
   @kTLVError_Unavailable <<0x06>>
 
+  def start_link(opts) do
+    GenServer.start_link(__MODULE__, opts, name: __MODULE__)
+  end
+
+  def handle_message(message, pid \\ __MODULE__) do
+    GenServer.call(pid, message)
+  end
+
+  def init(_opts) do
+    {:ok, %{step: 1}}
+  end
+
   @doc """
   Handles `<M1>` messages and returns `<M2>` messages
   """
-  def handle_message(%{@kTLVType_State => <<1>>, @kTLVType_PublicKey => ios_epk}, %HAP.PairingStates.Paired{
-        accessory_identifier: accessory_identifier,
-        accessory_ltsk: accessory_ltsk
-      }) do
+  def handle_call(%{@kTLVType_State => <<1>>, @kTLVType_PublicKey => ios_epk}, _from, %{step: 1}) do
     {accessory_epk, accessory_esk} = :crypto.generate_key(:eddsa, :ed25519)
     session_key = :crypto.compute_key(:ecdh, ios_epk, accessory_esk, :x25519)
-    accessory_info = accessory_epk <> accessory_identifier <> ios_epk
-    accessory_signature = :crypto.sign(:eddsa, :sha512, accessory_info, [accessory_ltsk, :ed25519])
+    accessory_info = accessory_epk <> Accessory.identifier() <> ios_epk
+    accessory_signature = :crypto.sign(:eddsa, :sha512, accessory_info, [Accessory.ltsk(), :ed25519])
 
     resp_sub_tlv =
       %{
-        @kTLVType_Identifier => accessory_identifier,
+        @kTLVType_Identifier => Accessory.identifier(),
         @kTLVType_Signature => accessory_signature
       }
       |> HAP.TLVEncoder.to_binary()
@@ -47,10 +60,10 @@ defmodule HAP.PairVerify do
 
     IO.inspect(response)
 
-    {:ok, response}
+    {:reply, {:ok, response}, %{step: 3}}
   end
 
-  def handle_message(tlv, state) do
+  def handle_message(tlv, _from, state) do
     Logger.error("Received unexpected message for pairing state. Message: #{inspect(tlv)}, state: #{inspect(state)}")
     {:error, "Unexpected message for pairing state"}
   end

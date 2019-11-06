@@ -5,11 +5,9 @@ defmodule HAP.HTTPServer do
 
   use Plug.Router
 
-  alias HAP.{Accessory, PairSetup, PairVerify, TLVParser, TLVEncoder}
-
   plug(Plug.Logger)
   plug(:match)
-  plug(Plug.Parsers, parsers: [TLVParser])
+  plug(Plug.Parsers, parsers: [HAP.TLVParser])
   plug(:tidy_headers, builder_opts())
   plug(:dispatch, builder_opts())
 
@@ -18,37 +16,11 @@ defmodule HAP.HTTPServer do
   end
 
   post "/pair-setup" do
-    conn.body_params
-    |> PairSetup.handle_message(Accessory.pairing_state(opts[:accessory]))
-    |> case do
-      {:ok, response, new_pairing_state} ->
-        Accessory.set_pairing_state(opts[:accessory], new_pairing_state)
-
-        conn
-        |> put_resp_header("content-type", "application/pairing+tlv8")
-        |> send_resp(200, TLVEncoder.to_binary(response))
-
-      {:error, reason} ->
-        Accessory.set_pairing_state(opts[:accessory], nil)
-
-        conn
-        |> send_resp(400, reason)
-    end
+    with_tlv_handler(conn, HAP.PairSetup)
   end
 
   post "/pair-verify" do
-    conn.body_params
-    |> PairVerify.handle_message(Accessory.pairing_state(opts[:accessory]))
-    |> case do
-      {:ok, response} ->
-        conn
-        |> put_resp_header("content-type", "application/pairing+tlv8")
-        |> send_resp(200, TLVEncoder.to_binary(response))
-
-      {:error, reason} ->
-        conn
-        |> send_resp(400, reason)
-    end
+    with_tlv_handler(conn, HAP.PairVerify)
   end
 
   match _ do
@@ -56,8 +28,22 @@ defmodule HAP.HTTPServer do
     send_resp(conn, 404, "Not Found")
   end
 
-  def tidy_headers(conn, _opts) do
-    conn
-    |> delete_resp_header("cache-control")
+  defp tidy_headers(conn, _opts) do
+    delete_resp_header(conn, "cache-control")
+  end
+
+  defp with_tlv_handler(conn, module) do
+    conn.body_params
+    |> module.handle_message()
+    |> case do
+      {:ok, response} ->
+        conn
+        |> put_resp_header("content-type", "application/pairing+tlv8")
+        |> send_resp(200, HAP.TLVEncoder.to_binary(response))
+
+      {:error, reason} ->
+        conn
+        |> send_resp(400, reason)
+    end
   end
 end

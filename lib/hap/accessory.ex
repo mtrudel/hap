@@ -1,71 +1,51 @@
 defmodule HAP.Accessory do
   @moduledoc """
-  Manages high-level concerns of a HomeKit Accessory construct, including
-  aspects of message handling and pairing state tracking. This module is the 
-  principal holder of state within the `HAP` application
+  Manages accessory-level state, including device information, pairings, and setup info
   """
 
   use GenServer
 
-  def start_link(args) do
-    GenServer.start_link(__MODULE__, args)
+  def start_link(opts) do
+    GenServer.start_link(__MODULE__, opts, name: __MODULE__)
   end
 
-  @doc """
-  Returns the information required to advertise this accessory via mDNS
-  """
-  def discovery_state(accessory_pid) do
-    GenServer.call(accessory_pid, :discovery_state)
+  def config_number(pid \\ __MODULE__), do: GenServer.call(pid, :config_number)
+  def name(pid \\ __MODULE__), do: GenServer.call(pid, :name)
+  def identifier(pid \\ __MODULE__), do: GenServer.call(pid, :identifier)
+  def pairing_code(pid \\ __MODULE__), do: GenServer.call(pid, :pairing_code)
+  def accessory_type(pid \\ __MODULE__), do: GenServer.call(pid, :accessory_type)
+  def setup_id(pid \\ __MODULE__), do: GenServer.call(pid, :setup_id)
+  def ltpk(pid \\ __MODULE__), do: GenServer.call(pid, :ltpk)
+  def ltsk(pid \\ __MODULE__), do: GenServer.call(pid, :ltsk)
+  def paired?(pid \\ __MODULE__), do: GenServer.call(pid, :paired?)
+
+  def add_controller_pairing(ios_identifier, ios_ltpk, pid \\ __MODULE__) do
+    GenServer.call(pid, {:add_controller_pairing, ios_identifier, ios_ltpk})
   end
 
-  @doc """
-  Returns the pairing state of this accessory
-  """
-  def pairing_state(accessory_pid) do
-    GenServer.call(accessory_pid, :pairing_state)
-  end
-
-  @doc """
-  Sets the pairing state of this accessory
-  """
-  def set_pairing_state(accessory_pid, pairing_state) do
-    GenServer.call(accessory_pid, {:set_pairing_state, pairing_state})
-  end
-
-  def init(_args) do
+  def init(_opts) do
     config = HAP.Configuration.config()
-
-    pairing_state = %HAP.PairingStates.Unpaired{
-      pairing_code: config.pairing_code,
-      accessory_identifier: config.identifier
-    }
-
-    {:ok, %{config: config, pairing_state: pairing_state}, {:continue, :display_startup_info}}
-  end
-
-  def handle_call(:discovery_state, _from, state) do
-    discovery_state = %{
-      config_number: 1,
-      identifier: state.config.identifier,
-      name: state.config.name,
-      accessory_type: state.config.accessory_type,
-      setup_id: state.config.setup_id,
-      paired: match?(%HAP.PairingStates.Paired{}, state.pairing_state)
-    }
-
-    {:reply, discovery_state, state}
-  end
-
-  def handle_call(:pairing_state, _from, state) do
-    {:reply, state.pairing_state, state}
-  end
-
-  def handle_call({:set_pairing_state, pairing_state}, _from, state) do
-    {:reply, :ok, %{state | pairing_state: pairing_state}}
+    {:ok, %{config: config, pairings: %{}}, {:continue, :display_startup_info}}
   end
 
   def handle_continue(:display_startup_info, state) do
-    HAP.Display.display_startup_info(state.config, state.pairing_state)
+    HAP.Display.display_startup_info(state.config, !Enum.empty?(state.pairings))
     {:noreply, state}
+  end
+
+  def handle_call(:config_number, _from, state), do: {:reply, 1, state}
+  def handle_call(:name, _from, state), do: {:reply, state.config.name, state}
+  def handle_call(:identifier, _from, state), do: {:reply, state.config.identifier, state}
+  def handle_call(:pairing_code, _from, state), do: {:reply, state.config.pairing_code, state}
+  def handle_call(:accessory_type, _from, state), do: {:reply, state.config.accessory_type, state}
+  def handle_call(:setup_id, _from, state), do: {:reply, state.config.setup_id, state}
+  def handle_call(:ltpk, _from, state), do: {:reply, state.config.ltpk, state}
+  def handle_call(:ltsk, _from, state), do: {:reply, state.config.ltsk, state}
+  def handle_call(:paired?, _from, state), do: {:reply, !Enum.empty?(state.pairings), state}
+
+  def handle_call({:add_controller_pairing, ios_identifier, ios_ltpk}, _from, state) do
+    HAP.Display.display_new_pairing_info(ios_identifier)
+    state = state |> Map.update!(:pairings, &Map.put(&1, ios_identifier, ios_ltpk))
+    {:reply, !Enum.empty?(state.pairings), state}
   end
 end
