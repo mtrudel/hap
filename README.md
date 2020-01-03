@@ -41,8 +41,8 @@ You'll need to manually install a suitable version of OpenSSL and link against i
 If you're using homebrew and asdf, something like this will work nicely:
 
 ```
-> brew install openssl@1.1
-> export KERL_CONFIGURE_OPTIONS="--with-ssl=/usr/local/opt/openssl@1.1/"
-> asdf install # This will install from .tool-versions, which specifies the correct Erlang
+brew install openssl@1.1
+export KERL_CONFIGURE_OPTIONS="--with-ssl=/usr/local/opt/openssl@1.1/"
+asdf install # This will install from .tool-versions, which specifies the correct Erlang
 ```
 
