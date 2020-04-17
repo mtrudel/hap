@@ -8,7 +8,7 @@ HAP is **very** much a work in progress. It doesn't come close to working yet, b
 steady progress is being made:
 
 * [x] Pair Setup
-* [ ] Pair Verification
+* [x] Pair Verification
 * [ ] Encrypted Sessions
 * [ ] Extra Pairing Actions (Add, Delete, List)
 * [ ] Higher level bits (actual functionality)
@@ -31,8 +31,7 @@ iex -S mix
 
 ### Regarding crypto support in Erlang
 
-In order to have access to the required crypto methods for HAP to function, a
-Erlang 22.1.6 or newer is required.
+[ERL-1078](https://bugs.erlang.org/browse/ERL-1078) fixes an authentication bug which (at least theoretically) affects the correctness of HAP. It is fixed in Erlang 22.1.6.
 
 Additionally, in order to have access to the `chacha20_poly1305` cipher that 
 is required by HAP, Erlang needs to be linked aginst a version of OpenSSL newer 
