@@ -31,10 +31,11 @@ iex -S mix
 
 ### Regarding crypto support in Erlang
 
-[ERL-1078](https://bugs.erlang.org/browse/ERL-1078) fixes an authentication bug which (at least theoretically) affects the correctness of HAP. It is fixed in Erlang 22.1.6.
+In order to have access to the required crypto methods for HAP to function, a
+fairly recent version of Erlang is required (23.0 or better).
 
 Additionally, in order to have access to the `chacha20_poly1305` cipher that 
-is required by HAP, Erlang needs to be linked aginst a version of OpenSSL newer 
+is required by HAP, Erlang needs to be linked aginst a version of OpenSSL newer
 than 1.1.0. On recent macOS versions this [can be problematic](https://github.com/asdf-vm/asdf-erlang#dealing-with-openssl-issues-on-macos).
 You'll need to manually install a suitable version of OpenSSL and link against it. 
 If you're using homebrew and asdf, something like this will work nicely:
