@@ -1,6 +1,7 @@
 defmodule HAP.Crypto.EDDSA do
   def key_gen do
-    :crypto.generate_key(:eddsa, :ed25519)
+    {pub, priv} = :crypto.generate_key(:eddsa, :ed25519)
+    {:ok, pub, priv}
   end
 
   def sign(message, key) do
@@ -8,6 +9,6 @@ defmodule HAP.Crypto.EDDSA do
   end
 
   def verify(message, signature, key) do
-    :crypto.verify(:eddsa, :sha512, message, signature, [key, :ed25519])
+    {:ok, :crypto.verify(:eddsa, :sha512, message, signature, [key, :ed25519])}
   end
 end

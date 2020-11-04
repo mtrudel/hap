@@ -2,7 +2,7 @@ defmodule HAP.Configuration do
   def config do
     # TODO - all of these values are different on every call. Be 
     # smarter about aligning them with HAP's lifetime expectations
-    {ltpk, ltsk} = HAP.Crypto.EDDSA.key_gen()
+    {:ok, ltpk, ltsk} = HAP.Crypto.EDDSA.key_gen()
 
     %{ltpk: ltpk, ltsk: ltsk, setup_id: random_setup_id(), pairing_code: random_pairing_code()}
     |> Map.merge(Application.get_env(:hap, :accessory))

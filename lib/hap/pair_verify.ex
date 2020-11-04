@@ -8,6 +8,7 @@ defmodule HAP.PairVerify do
   require Logger
 
   alias HAP.Accessory
+  alias HAP.Crypto.{HKDF, ChaCha20, ECDH, EDDSA}
 
   @kTLVType_Identifier 0x01
   @kTLVType_PublicKey 0x03
@@ -35,10 +36,10 @@ defmodule HAP.PairVerify do
   Handles `<M1>` messages and returns `<M2>` messages
   """
   def handle_call(%{@kTLVType_State => <<1>>, @kTLVType_PublicKey => ios_epk}, _from, %{step: 1}) do
-    {accessory_epk, accessory_esk} = :crypto.generate_key(:ecdh, :x25519)
-    session_key = :crypto.compute_key(:ecdh, ios_epk, accessory_esk, :x25519)
+    {:ok, accessory_epk, accessory_esk} = ECDH.key_gen()
+    {:ok, session_key} = ECDH.compute_key(ios_epk, accessory_esk)
     accessory_info = accessory_epk <> Accessory.identifier() <> ios_epk
-    accessory_signature = :crypto.sign(:eddsa, :sha512, accessory_info, [Accessory.ltsk(), :ed25519])
+    {:ok, accessory_signature} = EDDSA.sign(accessory_info, Accessory.ltsk())
 
     resp_sub_tlv =
       %{
@@ -47,15 +48,13 @@ defmodule HAP.PairVerify do
       }
       |> HAP.TLVEncoder.to_binary()
 
-    hashed_k = HKDF.derive(:sha512, session_key, 32, "Pair-Verify-Encrypt-Salt", "Pair-Verify-Encrypt-Info")
-
-    {encrypted_data, auth_tag} =
-      :crypto.crypto_one_time_aead(:chacha20_poly1305, hashed_k, 'PV-Msg02', resp_sub_tlv, <<>>, true)
+    {:ok, hashed_k} = HKDF.generate(session_key, "Pair-Verify-Encrypt-Salt", "Pair-Verify-Encrypt-Info")
+    {:ok, encrypted_data_and_tag} = ChaCha20.encrypt_and_tag(resp_sub_tlv, hashed_k, "PV-Msg02")
 
     response = %{
       @kTLVType_State => <<2>>,
       @kTLVType_PublicKey => accessory_epk,
-      @kTLVType_EncryptedData => encrypted_data <> auth_tag
+      @kTLVType_EncryptedData => encrypted_data_and_tag
     }
 
     {:reply, {:ok, response}, %{step: 3, session_key: session_key}}

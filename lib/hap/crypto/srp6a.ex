@@ -4,12 +4,12 @@ defmodule HAP.Crypto.SRP6A do
   def verifier(i, p) do
     s = :crypto.strong_rand_bytes(16)
     v = Strap.verifier(protocol(), i, p, s)
-    {s, v}
+    {:ok, s, v}
   end
 
   def auth_context(v) do
     server = Strap.server(protocol(), v)
-    {server, Strap.public_value(server)}
+    {:ok, server, Strap.public_value(server)}
   end
 
   def shared_key(auth_context, a, i, s) do
@@ -31,7 +31,7 @@ defmodule HAP.Crypto.SRP6A do
     # M_2 = H(A, M_1, K)
     m_2 = hash(a <> m_1 <> k)
 
-    {m_1, m_2, k}
+    {:ok, m_1, m_2, k}
   end
 
   defp protocol do

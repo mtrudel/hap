@@ -48,8 +48,8 @@ defmodule HAP.PairSetup do
       {:reply, {:ok, response}, state}
     else
       p = Accessory.pairing_code()
-      {s, v} = SRP6A.verifier(@i, p)
-      {auth_context, b} = SRP6A.auth_context(v)
+      {:ok, s, v} = SRP6A.verifier(@i, p)
+      {:ok, auth_context, b} = SRP6A.auth_context(v)
 
       response = %{@kTLVType_State => <<2>>, @kTLVType_PublicKey => b, @kTLVType_Salt => s}
       {:reply, {:ok, response}, %{step: 3, auth_context: auth_context, salt: s}}
@@ -69,7 +69,7 @@ defmodule HAP.PairSetup do
         _from,
         %{step: 3, auth_context: auth_context, salt: s} = state
       ) do
-    {m_1, m_2, k} = SRP6A.shared_key(auth_context, a, @i, s)
+    {:ok, m_1, m_2, k} = SRP6A.shared_key(auth_context, a, @i, s)
 
     if proof == m_1 do
       response = %{@kTLVType_State => <<4>>, @kTLVType_Proof => m_2}
@@ -88,7 +88,7 @@ defmodule HAP.PairSetup do
         _from,
         %{step: 5, session_key: session_key} = state
       ) do
-    with envelope_key <- HKDF.generate(session_key, "Pair-Setup-Encrypt-Salt", "Pair-Setup-Encrypt-Info"),
+    with {:ok, envelope_key} <- HKDF.generate(session_key, "Pair-Setup-Encrypt-Salt", "Pair-Setup-Encrypt-Info"),
          {:ok, tlv} <- ChaCha20.decrypt_and_verify(encrypted_data, envelope_key, "PS-Msg05"),
          {:ok, ios_identifier, ios_ltpk} <- extract_ios_device_exchange(tlv, session_key),
          {:ok, response_sub_tlv} <-
@@ -123,13 +123,14 @@ defmodule HAP.PairSetup do
         @kTLVType_PublicKey => ios_ltpk,
         @kTLVType_Signature => ios_signature
       } ->
-        ios_device_x = HKDF.generate(session_key, "Pair-Setup-Controller-Sign-Salt", "Pair-Setup-Controller-Sign-Info")
+        {:ok, ios_device_x} =
+          HKDF.generate(session_key, "Pair-Setup-Controller-Sign-Salt", "Pair-Setup-Controller-Sign-Info")
+
         ios_device_info = ios_device_x <> ios_identifier <> ios_ltpk
 
-        if EDDSA.verify(ios_device_info, ios_signature, ios_ltpk) do
-          {:ok, ios_identifier, ios_ltpk}
-        else
-          {:error, "Key Verification Error"}
+        case EDDSA.verify(ios_device_info, ios_signature, ios_ltpk) do
+          {:ok, true} -> {:ok, ios_identifier, ios_ltpk}
+          _ -> {:error, "Key Verification Error"}
         end
 
       _ ->
@@ -138,7 +139,7 @@ defmodule HAP.PairSetup do
   end
 
   defp build_accessory_device_exchange(accessory_identifier, accessory_ltpk, accessory_ltsk, session_key) do
-    accessory_x = HKDF.generate(session_key, "Pair-Setup-Accessory-Sign-Salt", "Pair-Setup-Accessory-Sign-Info")
+    {:ok, accessory_x} = HKDF.generate(session_key, "Pair-Setup-Accessory-Sign-Salt", "Pair-Setup-Accessory-Sign-Info")
     accessory_info = accessory_x <> accessory_identifier <> accessory_ltpk
     {:ok, accessory_signature} = EDDSA.sign(accessory_info, accessory_ltsk)
 
