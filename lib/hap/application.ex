@@ -12,7 +12,7 @@ defmodule HAP.Application do
       HAP.PairSetup,
       HAP.PairVerify,
       {HAP.Discovery, port: port},
-      {Plug.Cowboy, scheme: :http, plug: HAP.HTTPServer, options: [port: port]}
+      {Bandit, plug: HAP.HTTPServer, options: [port: port]}
     ]
 
     Supervisor.start_link(children, opts)
