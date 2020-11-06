@@ -19,6 +19,10 @@ defmodule HAP.Accessory do
   def ltsk(pid \\ __MODULE__), do: GenServer.call(pid, :ltsk)
   def paired?(pid \\ __MODULE__), do: GenServer.call(pid, :paired?)
 
+  def get_controller_pairing(ios_identifier, pid \\ __MODULE__) do
+    GenServer.call(pid, {:get_controller_pairing, ios_identifier})
+  end
+
   def add_controller_pairing(ios_identifier, ios_ltpk, pid \\ __MODULE__) do
     GenServer.call(pid, {:add_controller_pairing, ios_identifier, ios_ltpk})
   end
@@ -43,10 +47,14 @@ defmodule HAP.Accessory do
   def handle_call(:ltsk, _from, state), do: {:reply, state.config.ltsk, state}
   def handle_call(:paired?, _from, state), do: {:reply, !Enum.empty?(state.pairings), state}
 
+  def handle_call({:get_controller_pairing, ios_identifier}, _from, state) do
+    {:reply, state.pairings[ios_identifier], state}
+  end
+
   def handle_call({:add_controller_pairing, ios_identifier, ios_ltpk}, _from, state) do
     HAP.Display.display_new_pairing_info(ios_identifier)
     if state.pairings == %{}, do: HAP.Discovery.reload()
     state = state |> Map.update!(:pairings, &Map.put(&1, ios_identifier, ios_ltpk))
-    {:reply, !Enum.empty?(state.pairings), state}
+    {:reply, :ok, state}
   end
 end

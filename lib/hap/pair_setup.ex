@@ -39,9 +39,7 @@ defmodule HAP.PairSetup do
     {:ok, %{step: 1}}
   end
 
-  @doc """
-  Handles `<M1>` messages and returns `<M2>` messages
-  """
+  # Handles `<M1>` messages and returns `<M2>` messages
   def handle_call(%{@kTLVType_State => <<1>>, @kTLVType_Method => <<0>>}, _from, %{step: 1} = state) do
     if Accessory.paired?() do
       response = %{@kTLVType_State => <<2>>, @kTLVType_Error => @kTLVError_Unavailable}
@@ -61,9 +59,7 @@ defmodule HAP.PairSetup do
     {:reply, {:ok, response}, state}
   end
 
-  @doc """
-  Handles `<M3>` messages and returns `<M4>` messages
-  """
+  # Handles `<M3>` messages and returns `<M4>` messages
   def handle_call(
         %{@kTLVType_State => <<3>>, @kTLVType_PublicKey => a, @kTLVType_Proof => proof},
         _from,
@@ -80,9 +76,7 @@ defmodule HAP.PairSetup do
     end
   end
 
-  @doc """
-  Handles `<M5>` messages and returns `<M6>` messages
-  """
+  # Handles `<M5>` messages and returns `<M6>` messages
   def handle_call(
         %{@kTLVType_State => <<5>>, @kTLVType_EncryptedData => encrypted_data},
         _from,

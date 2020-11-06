@@ -3,8 +3,6 @@ defmodule HAP.PairVerify do
   Implements the Pair Verify flow described in Apple's [HomeKit Accessory Protocol Specification](https://developer.apple.com/homekit/). 
   """
 
-  use GenServer
-
   require Logger
 
   alias HAP.Accessory
@@ -19,22 +17,12 @@ defmodule HAP.PairVerify do
 
   @kTLVError_Authentication <<0x02>>
 
-  def start_link(opts) do
-    GenServer.start_link(__MODULE__, opts, name: __MODULE__)
+  def init do
+    %{step: 1}
   end
 
-  def handle_message(message, pid \\ __MODULE__) do
-    GenServer.call(pid, message)
-  end
-
-  def init(_opts) do
-    {:ok, %{step: 1}}
-  end
-
-  @doc """
-  Handles `<M1>` messages and returns `<M2>` messages
-  """
-  def handle_call(%{@kTLVType_State => <<1>>, @kTLVType_PublicKey => ios_epk}, _from, %{step: 1}) do
+  # Handles `<M1>` messages and returns `<M2>` messages
+  def handle_message(%{@kTLVType_State => <<1>>, @kTLVType_PublicKey => ios_epk}, %{step: 1}) do
     {:ok, accessory_epk, accessory_esk} = ECDH.key_gen()
     {:ok, session_key} = ECDH.compute_key(ios_epk, accessory_esk)
     accessory_info = accessory_epk <> Accessory.identifier() <> ios_epk
@@ -56,39 +44,34 @@ defmodule HAP.PairVerify do
       @kTLVType_EncryptedData => encrypted_data_and_tag
     }
 
-    {:reply, {:ok, response}, %{step: 3, session_key: session_key}}
+    {:ok, response, %{step: 3, session_key: session_key, ios_epk: ios_epk, accessory_epk: accessory_epk}, nil, nil}
   end
 
-  @doc """
-  Handles `<M3>` messages and returns `<M4>` messages
-  """
-  def handle_call(%{@kTLVType_State => <<3>>, @kTLVType_EncryptedData => encrypted_data_and_tag}, _from, %{
+  # Handles `<M3>` messages and returns `<M4>` messages
+  def handle_message(%{@kTLVType_State => <<3>>, @kTLVType_EncryptedData => encrypted_data_and_tag}, %{
         step: 3,
-        session_key: session_key
+        session_key: session_key,
+        ios_epk: ios_epk,
+        accessory_epk: accessory_epk
       }) do
     with {:ok, hashed_k} <- HKDF.generate(session_key, "Pair-Verify-Encrypt-Salt", "Pair-Verify-Encrypt-Info"),
-         {:ok, tlv} <- ChaCha20.decrypt_and_verify(encrypted_data_and_tag, hashed_k, "PV-Msg03") do
-      tlv
-      |> HAP.TLVParser.parse_tlv()
-      |> IO.inspect(limit: :infinity)
-
-      #  1 => "EBFB8A82-9E40-499E-BD51-3242D7099E85",
-      # 10 => <<182, 128, 174, 144, 208, 224, 202, 24, 107, 108, 246, 57, 227, 80,
-      # 140, 46, 53, 10, 225, 161, 136, 17, 238, 1, 60, 67, 79, 233, 212, 88, 159,
-      # 104, 237, 75, 92, 206, 30, 151, 53, 140, 176, 56, 167, 253, 147, 74, 164,
-      # 194, 145, 169, 104, 220, 59, 158, 176, 112, 3, 167, 158, 213, 44, 40, 136,
-      # 1>>
-      # TODO -- compare this to our existing LTPK for this device and return error(s)
-
-      {:reply, {:ok, %{@kTLVType_State => <<3>>}}, %{step: 4, session_key: session_key}}
+         {:ok, tlv} <- ChaCha20.decrypt_and_verify(encrypted_data_and_tag, hashed_k, "PV-Msg03"),
+         %{@kTLVType_Identifier => ios_identifier, @kTLVType_Signature => ios_signature} <-
+           HAP.TLVParser.parse_tlv(tlv),
+         ios_device_info <- ios_epk <> ios_identifier <> accessory_epk,
+         ios_ltpk <- Accessory.get_controller_pairing(ios_identifier),
+         {:ok, true} <- HAP.Crypto.EDDSA.verify(ios_device_info, ios_signature, ios_ltpk),
+         {:ok, accessory_to_controller_key} = HKDF.generate(session_key, "Control-Salt", "Control-Read-Encryption-Key"),
+         {:ok, controller_to_accessory_key} = HKDF.generate(session_key, "Control-Salt", "Control-Write-Encryption-Key") do
+      {:ok, %{@kTLVType_State => <<4>>}, %{}, accessory_to_controller_key, controller_to_accessory_key}
     else
-      {:error, _} ->
-        response = %{@kTLVType_State => <<3>>, @kTLVType_Error => @kTLVError_Authentication}
-        {:reply, {:ok, response}, %{step: 4, session_key: session_key}}
+      _ ->
+        {:ok, %{@kTLVType_State => <<4>>, @kTLVType_Error => @kTLVError_Authentication},
+         %{step: 4, session_key: session_key}, nil, nil}
     end
   end
 
-  def handle_message(tlv, _from, state) do
+  def handle_message(tlv, state) do
     Logger.error("Received unexpected message for pairing state. Message: #{inspect(tlv)}, state: #{inspect(state)}")
     {:error, "Unexpected message for pairing state"}
   end

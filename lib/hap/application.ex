@@ -10,7 +10,6 @@ defmodule HAP.Application do
     children = [
       HAP.Accessory,
       HAP.PairSetup,
-      HAP.PairVerify,
       {HAP.Discovery, port: port},
       {Bandit, plug: HAP.HTTPServer, options: [port: port]}
     ]

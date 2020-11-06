@@ -16,25 +16,8 @@ defmodule HAP.HTTPServer do
   end
 
   post "/pair-setup" do
-    with_tlv_handler(conn, HAP.PairSetup)
-  end
-
-  post "/pair-verify" do
-    with_tlv_handler(conn, HAP.PairVerify)
-  end
-
-  match _ do
-    IO.inspect(conn)
-    send_resp(conn, 404, "Not Found")
-  end
-
-  defp tidy_headers(conn, _opts) do
-    delete_resp_header(conn, "cache-control")
-  end
-
-  defp with_tlv_handler(conn, module) do
     conn.body_params
-    |> module.handle_message()
+    |> HAP.PairSetup.handle_message()
     |> case do
       {:ok, response} ->
         conn
@@ -45,5 +28,37 @@ defmodule HAP.HTTPServer do
         conn
         |> send_resp(400, reason)
     end
+  end
+
+  post "/pair-verify" do
+    connection_state = Process.get(:hap_connection_info, HAP.PairVerify.init())
+
+    HAP.PairVerify.handle_message(conn.body_params, connection_state)
+    |> case do
+      {:ok, response, new_state, accessory_to_controller_key, controller_to_accessory_key} ->
+        conn =
+          conn
+          |> put_resp_header("content-type", "application/pairing+tlv8")
+          |> send_resp(200, HAP.TLVEncoder.to_binary(response))
+
+        Process.put(:hap_connection_info, new_state)
+        Process.put(:accessory_to_controller_key, accessory_to_controller_key)
+        Process.put(:controller_to_accessory_key, controller_to_accessory_key)
+
+        conn
+
+      {:error, reason} ->
+        conn
+        |> send_resp(400, reason)
+    end
+  end
+
+  match _ do
+    IO.inspect(conn)
+    send_resp(conn, 404, "Not Found")
+  end
+
+  defp tidy_headers(conn, _opts) do
+    delete_resp_header(conn, "cache-control")
   end
 end
