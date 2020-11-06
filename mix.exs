@@ -20,7 +20,7 @@ defmodule HAP.MixProject do
 
   defp deps do
     [
-      {:nerves_dnssd, "~> 0.3.1"},
+      {:nerves_dnssd, github: "mtrudel/nerves_dnssd"},
       {:strap, "~> 0.1.1"},
       {:bandit, "~> 0.1.0"},
       {:eqrcode, "~> 0.1.7"},
