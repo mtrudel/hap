@@ -5,7 +5,7 @@ defmodule HAP.Configuration do
     {:ok, ltpk, ltsk} = HAP.Crypto.EDDSA.key_gen()
 
     %{ltpk: ltpk, ltsk: ltsk, setup_id: random_setup_id(), pairing_code: random_pairing_code()}
-    |> Map.merge(Application.get_env(:hap, :accessory))
+    |> Map.merge(Application.get_env(:hap, :accessory_server))
   end
 
   defp random_setup_id do

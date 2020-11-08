@@ -5,7 +5,7 @@ config :nerves_dnssd,
   daemon_restart: :ignore
 
 config :hap,
-  accessory: %{
+  accessory_server: %{
     # Spaces can be tricky in the name, best to avoid
     name: "MatDevice",
 

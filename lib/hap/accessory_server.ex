@@ -1,6 +1,6 @@
-defmodule HAP.Accessory do
+defmodule HAP.AccessoryServer do
   @moduledoc """
-  Manages accessory-level state, including device information, pairings, and setup info
+  Manages top-level accessory server state, including device information, pairings, and setup info
   """
 
   use GenServer

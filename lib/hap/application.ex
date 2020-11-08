@@ -8,7 +8,7 @@ defmodule HAP.Application do
     port = Application.get_env(:hap, :port, 4000)
 
     children = [
-      HAP.Accessory,
+      HAP.AccessoryServer,
       HAP.PairSetup,
       {HAP.Discovery, port: port},
       {Bandit, plug: HAP.HTTPServer, options: [transport_module: HAP.HAPSessionTransport, port: port]}
