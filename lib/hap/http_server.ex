@@ -31,9 +31,9 @@ defmodule HAP.HTTPServer do
   end
 
   post "/pair-verify" do
-    connection_state = Process.get(:hap_connection_info, HAP.PairVerify.init())
+    pair_verify_state = HAP.HAPSessionTransport.get_pair_verify_state()
 
-    HAP.PairVerify.handle_message(conn.body_params, connection_state)
+    HAP.PairVerify.handle_message(conn.body_params, pair_verify_state)
     |> case do
       {:ok, response, new_state, accessory_to_controller_key, controller_to_accessory_key} ->
         conn =
@@ -41,9 +41,9 @@ defmodule HAP.HTTPServer do
           |> put_resp_header("content-type", "application/pairing+tlv8")
           |> send_resp(200, HAP.TLVEncoder.to_binary(response))
 
-        Process.put(:hap_connection_info, new_state)
-        Process.put(:accessory_to_controller_key, accessory_to_controller_key)
-        Process.put(:controller_to_accessory_key, controller_to_accessory_key)
+        HAP.HAPSessionTransport.put_pair_verify_state(new_state)
+        HAP.HAPSessionTransport.put_accessory_to_controller_key(accessory_to_controller_key)
+        HAP.HAPSessionTransport.put_controller_to_accessory_key(controller_to_accessory_key)
 
         conn
 
@@ -51,6 +51,34 @@ defmodule HAP.HTTPServer do
         conn
         |> send_resp(400, reason)
     end
+  end
+
+  get "/accessories" do
+    response = %{
+      accessories: [
+        %{
+          aid: 1,
+          services: [
+            %{
+              type: "3E",
+              iid: 1,
+              characteristics: [
+                %{type: "23", value: "Acme Light Bridge", perms: ["pr"], format: "string", iid: 2},
+                %{type: "20", value: "Acme", perms: ["pr"], format: "string", iid: 3},
+                %{type: "30", value: "037A2BABF19D", perms: ["pr"], format: "string", iid: 4},
+                %{type: "21", value: "Bridge1,1", perms: ["pr"], format: "string", iid: 5},
+                %{type: "14", value: nil, perms: ["pr"], format: "bool", iid: 6},
+                %{type: "52", value: "100.1.1", perms: ["pr"], format: "string", iid: 7}
+              ]
+            }
+          ]
+        }
+      ]
+    }
+
+    conn
+    |> put_resp_header("content-type", "application/hap+json")
+    |> send_resp(200, Jason.encode!(response))
   end
 
   match _ do

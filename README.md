@@ -9,7 +9,7 @@ steady progress is being made:
 
 * [x] Pair Setup
 * [x] Pair Verification
-* [ ] Encrypted Sessions
+* [x] Encrypted Sessions
 * [ ] Extra Pairing Actions (Add, Delete, List)
 * [ ] Higher level bits (actual functionality)
 * [ ] Events

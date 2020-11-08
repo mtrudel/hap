@@ -22,10 +22,11 @@ defmodule HAP.MixProject do
     [
       {:nerves_dnssd, github: "mtrudel/nerves_dnssd"},
       {:strap, "~> 0.1.1"},
-      {:bandit, "~> 0.1.0"},
+      {:bandit, "~> 0.1.1"},
       {:eqrcode, "~> 0.1.7"},
       {:base36, "~> 1.0"},
       {:hkdf, "~> 0.1.0"},
+      {:jason, "~> 1.2"},
       {:mix_test_watch, "~> 0.8", only: :dev, runtime: false}
     ]
   end

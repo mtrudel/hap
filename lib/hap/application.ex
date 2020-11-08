@@ -11,7 +11,7 @@ defmodule HAP.Application do
       HAP.Accessory,
       HAP.PairSetup,
       {HAP.Discovery, port: port},
-      {Bandit, plug: HAP.HTTPServer, options: [port: port]}
+      {Bandit, plug: HAP.HTTPServer, options: [transport_module: HAP.HAPSessionTransport, port: port]}
     ]
 
     Supervisor.start_link(children, opts)
