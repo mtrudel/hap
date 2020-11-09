@@ -1,11 +1,11 @@
 defmodule HAP.Display do
   alias HAP.Configuration
 
-  def display_startup_info() do
-    if Configuration.paired?(), do: display_paired(), else: display_unpaired()
+  def update_pairing_info_display do
+    if !Configuration.paired?(), do: display_pairing_code()
   end
 
-  def display_unpaired do
+  defp display_pairing_code do
     padding = 0
     version = 0
     reserved = 0
@@ -34,13 +34,5 @@ defmodule HAP.Display do
                         └────────────┘
     \e[0m
     """)
-  end
-
-  def display_paired do
-    IO.puts("#{Configuration.name()} paired and running")
-  end
-
-  def display_new_pairing_info(ios_identifier) do
-    IO.puts("Paired with controller #{ios_identifier}")
   end
 end

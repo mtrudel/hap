@@ -83,17 +83,15 @@ defmodule HAP.Configuration do
   end
 
   def handle_call({:add_controller_pairing, ios_identifier, ios_ltpk, permissions}, _from, %{cub_pid: cub_pid} = state) do
-    HAP.Display.display_new_pairing_info(ios_identifier)
-    if CubDB.get(cub_pid, :pairings) == %{}, do: HAP.Discovery.reload()
+    pairing_state_changed = CubDB.get(cub_pid, :pairings) == %{}
     CubDB.get_and_update(cub_pid, :pairings, &{:ok, Map.put(&1, ios_identifier, {ios_ltpk, permissions})})
-    {:reply, :ok, state}
+    {:reply, pairing_state_changed, state}
   end
 
   def handle_call({:remove_controller_pairing, ios_identifier}, _from, %{cub_pid: cub_pid} = state) do
-    # TODO - update display if we're now empty
     CubDB.get_and_update(cub_pid, :pairings, &{:ok, Map.delete(&1, ios_identifier)})
-    if CubDB.get(cub_pid, :pairings) == %{}, do: HAP.Discovery.reload()
-    {:reply, :ok, state}
+    pairing_state_changed = CubDB.get(cub_pid, :pairings) == %{}
+    {:reply, pairing_state_changed, state}
   end
 
   def set_if_missing(cub_pid, key, value) do

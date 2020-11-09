@@ -35,14 +35,23 @@ defmodule HAP.Pairings do
       ) do
     case Configuration.get_controller_pairing(additional_ios_identifier) do
       nil ->
+        Logger.info(
+          "Adding controller #{additional_ios_identifier} with permissions #{inspect(additional_ios_permissions)}"
+        )
+
         Configuration.add_controller_pairing(additional_ios_identifier, additional_ios_ltpk, additional_ios_permissions)
         {:ok, %{@kTLVType_State => <<2>>}}
 
       {^additional_ios_ltpk, _existing_ios_permissions} ->
+        Logger.info(
+          "Updating controller #{additional_ios_identifier} with permissions #{inspect(additional_ios_permissions)}"
+        )
+
         Configuration.add_controller_pairing(additional_ios_identifier, additional_ios_ltpk, additional_ios_permissions)
         {:ok, %{@kTLVType_State => <<2>>}}
 
       _ ->
+        Logger.error("AddPairing <M1> Existing controller LTPK does not match")
         {:ok, %{@kTLVType_State => <<2>>, @kTLVType_Error => @kTLVError_Unknown}}
     end
   end
@@ -57,7 +66,13 @@ defmodule HAP.Pairings do
         },
         %{admin?: true}
       ) do
-    Configuration.remove_controller_pairing(removed_ios_identifier)
+    Logger.info("Removed pairing with controller #{removed_ios_identifier}")
+
+    if Configuration.remove_controller_pairing(removed_ios_identifier) do
+      HAP.Discovery.reload()
+      HAP.Display.update_pairing_info_display()
+    end
+
     {:ok, %{@kTLVType_State => <<2>>}}
   end
 
@@ -78,12 +93,13 @@ defmodule HAP.Pairings do
   end
 
   def handle_message(%{@kTLVType_State => <<1>>}, %{admin?: false}) do
+    Logger.error("Pairing <M1> Requesting controller is not an admin")
     response = %{@kTLVType_State => <<2>>, @kTLVType_Error => @kTLVError_Authentication}
     {:ok, response}
   end
 
   def handle_message(tlv, state) do
-    Logger.error("Received unexpected message for pairing state. Message: #{inspect(tlv)}, state: #{inspect(state)}")
+    Logger.error("Pairing Received unexpected message: #{inspect(tlv)}, state: #{inspect(state)}")
     {:error, "Unexpected message for pairing state"}
   end
 end

@@ -66,17 +66,22 @@ defmodule HAP.PairVerify do
          {:ok, true} <- HAP.Crypto.EDDSA.verify(ios_device_info, ios_signature, ios_ltpk),
          {:ok, accessory_to_controller_key} = HKDF.generate(session_key, "Control-Salt", "Control-Read-Encryption-Key"),
          {:ok, controller_to_accessory_key} = HKDF.generate(session_key, "Control-Salt", "Control-Write-Encryption-Key") do
+      Logger.info("Verified session for controller #{ios_identifier}")
+
       {:ok, %{@kTLVType_State => <<4>>}, %{ios_ltpk: ios_ltpk, admin?: admin?}, accessory_to_controller_key,
        controller_to_accessory_key}
     else
       _ ->
+        Logger.error("Pair-Verify <M3> Error")
+
         {:ok, %{@kTLVType_State => <<4>>, @kTLVType_Error => @kTLVError_Authentication},
          %{step: 4, session_key: session_key}, nil, nil}
     end
   end
 
   def handle_message(tlv, state) do
-    Logger.error("Received unexpected message for pairing state. Message: #{inspect(tlv)}, state: #{inspect(state)}")
+    Logger.error("Pair-Verify Received unexpected message: #{inspect(tlv)}, state: #{inspect(state)}")
+
     {:error, "Unexpected message for pairing state"}
   end
 end

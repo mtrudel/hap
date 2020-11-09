@@ -38,12 +38,14 @@ defmodule HAP.PairSetup do
   end
 
   def init(_opts) do
+    HAP.Display.update_pairing_info_display()
     {:ok, %{step: 1}}
   end
 
   # Handles `<M1>` messages and returns `<M2>` messages
   def handle_call(%{@kTLVType_State => <<1>>, @kTLVType_Method => <<0>>}, _from, %{step: 1} = state) do
     if Configuration.paired?() do
+      Logger.error("Pair-Setup <M1> Already paired")
       response = %{@kTLVType_State => <<2>>, @kTLVType_Error => @kTLVError_Unavailable}
       {:reply, {:ok, response}, state}
     else
@@ -57,6 +59,7 @@ defmodule HAP.PairSetup do
   end
 
   def handle_call(%{@kTLVType_State => <<1>>, @kTLVType_Method => <<0>>}, _from, state) do
+    Logger.error("Pair-Setup <M1> Already pairing")
     response = %{@kTLVType_State => <<2>>, @kTLVType_Error => @kTLVError_Busy}
     {:reply, {:ok, response}, state}
   end
@@ -73,6 +76,7 @@ defmodule HAP.PairSetup do
       response = %{@kTLVType_State => <<4>>, @kTLVType_Proof => m_2}
       {:reply, {:ok, response}, %{step: 5, session_key: k}}
     else
+      Logger.error("Pair-Setup <M3> Provided proof does not match")
       response = %{@kTLVType_State => <<4>>, @kTLVType_Error => @kTLVError_Authentication}
       {:reply, {:ok, response}, state}
     end
@@ -97,6 +101,10 @@ defmodule HAP.PairSetup do
          {:ok, encrypted_response} <- ChaCha20.encrypt_and_tag(response_sub_tlv, envelope_key, "PS-Msg06") do
       Configuration.add_controller_pairing(ios_identifier, ios_ltpk, @kFlag_Admin)
 
+      Logger.info("Successfully paired with controller #{ios_identifier}")
+
+      HAP.Discovery.reload()
+
       response = %{
         @kTLVType_State => <<6>>,
         @kTLVType_EncryptedData => encrypted_response
@@ -104,14 +112,15 @@ defmodule HAP.PairSetup do
 
       {:reply, {:ok, response}, %{step: 1}}
     else
-      {:error, _} ->
+      {:error, reason} ->
+        Logger.error("Pair-Setup <M5> Encountered error: #{reason}")
         response = %{@kTLVType_State => <<6>>, @kTLVType_Error => @kTLVError_Authentication}
         {:reply, {:ok, response}, state}
     end
   end
 
   def handle_call(tlv, _from, state) do
-    Logger.error("Received unexpected message for pairing state. Message: #{inspect(tlv)}, state: #{inspect(state)}")
+    Logger.error("Pair-Setup Received unexpected message: #{inspect(tlv)}, state: #{inspect(state)}")
     {:reply, {:error, "Unexpected message for pairing state"}, %{step: 1}}
   end
 

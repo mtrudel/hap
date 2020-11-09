@@ -10,11 +10,6 @@ defmodule HAP.AccessoryServer do
   end
 
   def init(_opts) do
-    {:ok, %{}, {:continue, :display_startup_info}}
-  end
-
-  def handle_continue(:display_startup_info, state) do
-    HAP.Display.display_startup_info()
-    {:noreply, state}
+    {:ok, %{}}
   end
 end
