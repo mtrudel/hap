@@ -27,6 +27,7 @@ defmodule HAP.MixProject do
       {:base36, "~> 1.0"},
       {:hkdf, "~> 0.1.0"},
       {:jason, "~> 1.2"},
+      {:cubdb, "~> 1.0.0-rc.5"},
       {:mix_test_watch, "~> 0.8", only: :dev, runtime: false}
     ]
   end

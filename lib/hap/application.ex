@@ -6,8 +6,10 @@ defmodule HAP.Application do
   def start(_type, _args) do
     opts = [strategy: :rest_for_one, name: HAP.Supervisor]
     port = Application.get_env(:hap, :port, 4000)
+    config = Application.get_env(:hap, :accessory_server)
 
     children = [
+      {HAP.Configuration, config},
       HAP.AccessoryServer,
       HAP.PairSetup,
       {HAP.Discovery, port: port},

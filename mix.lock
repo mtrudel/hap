@@ -1,6 +1,7 @@
 %{
   "bandit": {:hex, :bandit, "0.1.1", "c255fcb67877970fff3e90be512a804afe70f417dc67c95a25d01287c777d060", [:mix], [{:plug, "~> 1.8", [hex: :plug, repo: "hexpm", optional: false]}, {:thousand_island, "~> 0.2", [hex: :thousand_island, repo: "hexpm", optional: false]}], "hexpm", "a2cf02ede470dd368c5106ce16be50d5647f9f682f5a5da0bbedab2d9fddf673"},
   "base36": {:hex, :base36, "1.0.0", "7b8e946aec907bc0032e0c2118a05925399d7ed778d4b51a2157ffabd9fa1a6f", [:mix], [{:custom_base, "~> 0.2.0", [hex: :custom_base, repo: "hexpm", optional: false]}], "hexpm", "6022d73272ebd0a6f600248da05b47576b94f064c6444dd0401df67e717c189e"},
+  "cubdb": {:hex, :cubdb, "1.0.0-rc.5", "dcf0d32090e079723577f3588d78427d0326732994c7d427907b5184f208ddf3", [:mix], [], "hexpm", "4ad4dadcdcf56c9c5549d86489210e207e0ad0b2a59080418cf1fdf637c428db"},
   "custom_base": {:hex, :custom_base, "0.2.1", "4a832a42ea0552299d81652aa0b1f775d462175293e99dfbe4d7dbaab785a706", [:mix], [], "hexpm", "8df019facc5ec9603e94f7270f1ac73ddf339f56ade76a721eaa57c1493ba463"},
   "eqrcode": {:hex, :eqrcode, "0.1.7", "2c6674e0c22854355b0adc2e6c987a3a973c31eeb49870e72a1e463317d59014", [:mix], [], "hexpm", "391c7945e8a079e9b4aef3f98d601575213ae4d78a3098542d6f39358627100f"},
   "eunit_formatters": {:hex, :eunit_formatters, "0.3.1", "7a6fc351eb5b873e2356b8852eb751e20c13a72fbca03393cf682b8483509573", [:rebar3], [], "hexpm", "64a40741429b7aff149c605d5a6135a48046af394a7282074e6003b3b56ae931"},

@@ -5,7 +5,7 @@ defmodule HAP.PairVerify do
 
   require Logger
 
-  alias HAP.AccessoryServer
+  alias HAP.Configuration
   alias HAP.Crypto.{HKDF, ChaCha20, ECDH, EDDSA}
 
   @kTLVType_Identifier 0x01
@@ -25,12 +25,12 @@ defmodule HAP.PairVerify do
   def handle_message(%{@kTLVType_State => <<1>>, @kTLVType_PublicKey => ios_epk}, %{step: 1}) do
     {:ok, accessory_epk, accessory_esk} = ECDH.key_gen()
     {:ok, session_key} = ECDH.compute_key(ios_epk, accessory_esk)
-    accessory_info = accessory_epk <> AccessoryServer.identifier() <> ios_epk
-    {:ok, accessory_signature} = EDDSA.sign(accessory_info, AccessoryServer.ltsk())
+    accessory_info = accessory_epk <> Configuration.identifier() <> ios_epk
+    {:ok, accessory_signature} = EDDSA.sign(accessory_info, Configuration.ltsk())
 
     resp_sub_tlv =
       %{
-        @kTLVType_Identifier => AccessoryServer.identifier(),
+        @kTLVType_Identifier => Configuration.identifier(),
         @kTLVType_Signature => accessory_signature
       }
       |> HAP.TLVEncoder.to_binary()
@@ -59,7 +59,7 @@ defmodule HAP.PairVerify do
          %{@kTLVType_Identifier => ios_identifier, @kTLVType_Signature => ios_signature} <-
            HAP.TLVParser.parse_tlv(tlv),
          ios_device_info <- ios_epk <> ios_identifier <> accessory_epk,
-         ios_ltpk <- AccessoryServer.get_controller_pairing(ios_identifier),
+         ios_ltpk <- Configuration.get_controller_pairing(ios_identifier),
          {:ok, true} <- HAP.Crypto.EDDSA.verify(ios_device_info, ios_signature, ios_ltpk),
          {:ok, accessory_to_controller_key} = HKDF.generate(session_key, "Control-Salt", "Control-Read-Encryption-Key"),
          {:ok, controller_to_accessory_key} = HKDF.generate(session_key, "Control-Salt", "Control-Write-Encryption-Key") do

@@ -9,7 +9,7 @@ defmodule HAP.PairSetup do
 
   require Logger
 
-  alias HAP.AccessoryServer
+  alias HAP.Configuration
   alias HAP.Crypto.{SRP6A, HKDF, ChaCha20, EDDSA}
 
   @i "Pair-Setup"
@@ -41,11 +41,11 @@ defmodule HAP.PairSetup do
 
   # Handles `<M1>` messages and returns `<M2>` messages
   def handle_call(%{@kTLVType_State => <<1>>, @kTLVType_Method => <<0>>}, _from, %{step: 1} = state) do
-    if AccessoryServer.paired?() do
+    if Configuration.paired?() do
       response = %{@kTLVType_State => <<2>>, @kTLVType_Error => @kTLVError_Unavailable}
       {:reply, {:ok, response}, state}
     else
-      p = AccessoryServer.pairing_code()
+      p = Configuration.pairing_code()
       {:ok, s, v} = SRP6A.verifier(@i, p)
       {:ok, auth_context, b} = SRP6A.auth_context(v)
 
@@ -87,13 +87,13 @@ defmodule HAP.PairSetup do
          {:ok, ios_identifier, ios_ltpk} <- extract_ios_device_exchange(tlv, session_key),
          {:ok, response_sub_tlv} <-
            build_accessory_device_exchange(
-             AccessoryServer.identifier(),
-             AccessoryServer.ltpk(),
-             AccessoryServer.ltsk(),
+             Configuration.identifier(),
+             Configuration.ltpk(),
+             Configuration.ltsk(),
              session_key
            ),
          {:ok, encrypted_response} <- ChaCha20.encrypt_and_tag(response_sub_tlv, envelope_key, "PS-Msg06") do
-      AccessoryServer.add_controller_pairing(ios_identifier, ios_ltpk)
+      Configuration.add_controller_pairing(ios_identifier, ios_ltpk)
 
       response = %{
         @kTLVType_State => <<6>>,

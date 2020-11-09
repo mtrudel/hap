@@ -6,7 +6,7 @@ defmodule HAP.Discovery do
 
   use GenServer
 
-  alias HAP.AccessoryServer
+  alias HAP.Configuration
 
   def start_link(opts) do
     GenServer.start_link(__MODULE__, opts, name: __MODULE__)
@@ -28,22 +28,22 @@ defmodule HAP.Discovery do
   end
 
   defp start_dnssd_daemon(opts) do
-    status_flag = if AccessoryServer.paired?(), do: "0", else: "1"
+    status_flag = if Configuration.paired?(), do: "0", else: "1"
 
     <<setup_hash::binary-4, _rest::binary>> =
-      :crypto.hash(:sha512, AccessoryServer.setup_id() <> AccessoryServer.identifier())
+      :crypto.hash(:sha512, Configuration.setup_id() <> Configuration.identifier())
 
     txts = [
-      "c#": AccessoryServer.config_number() |> to_string(),
+      "c#": Configuration.config_number() |> to_string(),
       ff: "0",
-      id: AccessoryServer.identifier(),
-      md: AccessoryServer.name(),
+      id: Configuration.identifier(),
+      md: Configuration.name(),
       "s#": "1",
       sf: status_flag,
-      ci: AccessoryServer.accessory_type() |> to_string(),
+      ci: Configuration.accessory_type() |> to_string(),
       sh: setup_hash |> Base.encode64()
     ]
 
-    Nerves.Dnssd.register(AccessoryServer.name(), "_hap._tcp", Keyword.get(opts, :port), txts)
+    Nerves.Dnssd.register(Configuration.name(), "_hap._tcp", Keyword.get(opts, :port), txts)
   end
 end
