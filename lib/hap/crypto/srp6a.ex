@@ -12,6 +12,7 @@ defmodule HAP.Crypto.SRP6A do
     {:ok, server, Strap.public_value(server)}
   end
 
+  # TODO - this should go upstream. See https://github.com/twooster/strap/issues/2
   def shared_key(auth_context, a, i, s) do
     # Generate k
     {:ok, shared_key} = Strap.session_key(auth_context, a)
