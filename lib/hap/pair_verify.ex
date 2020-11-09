@@ -17,6 +17,8 @@ defmodule HAP.PairVerify do
 
   @kTLVError_Authentication <<0x02>>
 
+  @kFlag_Admin <<0x01>>
+
   def init do
     %{step: 1}
   end
@@ -59,11 +61,13 @@ defmodule HAP.PairVerify do
          %{@kTLVType_Identifier => ios_identifier, @kTLVType_Signature => ios_signature} <-
            HAP.TLVParser.parse_tlv(tlv),
          ios_device_info <- ios_epk <> ios_identifier <> accessory_epk,
-         ios_ltpk <- Configuration.get_controller_pairing(ios_identifier),
+         {ios_ltpk, ios_permissions} <- Configuration.get_controller_pairing(ios_identifier),
+         admin? <- ios_permissions == @kFlag_Admin,
          {:ok, true} <- HAP.Crypto.EDDSA.verify(ios_device_info, ios_signature, ios_ltpk),
          {:ok, accessory_to_controller_key} = HKDF.generate(session_key, "Control-Salt", "Control-Read-Encryption-Key"),
          {:ok, controller_to_accessory_key} = HKDF.generate(session_key, "Control-Salt", "Control-Write-Encryption-Key") do
-      {:ok, %{@kTLVType_State => <<4>>}, %{}, accessory_to_controller_key, controller_to_accessory_key}
+      {:ok, %{@kTLVType_State => <<4>>}, %{ios_ltpk: ios_ltpk, admin?: admin?}, accessory_to_controller_key,
+       controller_to_accessory_key}
     else
       _ ->
         {:ok, %{@kTLVType_State => <<4>>, @kTLVType_Error => @kTLVError_Authentication},

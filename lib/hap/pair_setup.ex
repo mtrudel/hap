@@ -27,6 +27,8 @@ defmodule HAP.PairSetup do
   @kTLVError_Unavailable <<0x06>>
   @kTLVError_Busy <<0x07>>
 
+  @kFlag_Admin <<0x01>>
+
   def start_link(opts) do
     GenServer.start_link(__MODULE__, opts, name: __MODULE__)
   end
@@ -93,7 +95,7 @@ defmodule HAP.PairSetup do
              session_key
            ),
          {:ok, encrypted_response} <- ChaCha20.encrypt_and_tag(response_sub_tlv, envelope_key, "PS-Msg06") do
-      Configuration.add_controller_pairing(ios_identifier, ios_ltpk)
+      Configuration.add_controller_pairing(ios_identifier, ios_ltpk, @kFlag_Admin)
 
       response = %{
         @kTLVType_State => <<6>>,

@@ -15,12 +15,20 @@ defmodule HAP.Configuration do
   def ltsk(pid \\ __MODULE__), do: GenServer.call(pid, :ltsk)
   def paired?(pid \\ __MODULE__), do: GenServer.call(pid, :paired?)
 
+  def get_controller_pairings(pid \\ __MODULE__) do
+    GenServer.call(pid, :get_controller_pairings)
+  end
+
   def get_controller_pairing(ios_identifier, pid \\ __MODULE__) do
     GenServer.call(pid, {:get_controller_pairing, ios_identifier})
   end
 
-  def add_controller_pairing(ios_identifier, ios_ltpk, pid \\ __MODULE__) do
-    GenServer.call(pid, {:add_controller_pairing, ios_identifier, ios_ltpk})
+  def add_controller_pairing(ios_identifier, ios_ltpk, permissions, pid \\ __MODULE__) do
+    GenServer.call(pid, {:add_controller_pairing, ios_identifier, ios_ltpk, permissions})
+  end
+
+  def remove_controller_pairing(ios_identifier, pid \\ __MODULE__) do
+    GenServer.call(pid, {:remove_controller_pairing, ios_identifier})
   end
 
   def init(initial_config) do
@@ -66,15 +74,25 @@ defmodule HAP.Configuration do
     {:reply, CubDB.get(cub_pid, :pairings) != %{}, state}
   end
 
+  def handle_call(:get_controller_pairings, _from, %{cub_pid: cub_pid} = state) do
+    {:reply, CubDB.get(cub_pid, :pairings), state}
+  end
+
   def handle_call({:get_controller_pairing, ios_identifier}, _from, %{cub_pid: cub_pid} = state) do
     {:reply, CubDB.get(cub_pid, :pairings)[ios_identifier], state}
   end
 
-  def handle_call({:add_controller_pairing, ios_identifier, ios_ltpk}, _from, %{cub_pid: cub_pid} = state) do
-    # TODO admin pairings
+  def handle_call({:add_controller_pairing, ios_identifier, ios_ltpk, permissions}, _from, %{cub_pid: cub_pid} = state) do
     HAP.Display.display_new_pairing_info(ios_identifier)
     if CubDB.get(cub_pid, :pairings) == %{}, do: HAP.Discovery.reload()
-    CubDB.get_and_update(cub_pid, :pairings, &{:ok, Map.put(&1, ios_identifier, ios_ltpk)})
+    CubDB.get_and_update(cub_pid, :pairings, &{:ok, Map.put(&1, ios_identifier, {ios_ltpk, permissions})})
+    {:reply, :ok, state}
+  end
+
+  def handle_call({:remove_controller_pairing, ios_identifier}, _from, %{cub_pid: cub_pid} = state) do
+    # TODO - update display if we're now empty
+    CubDB.get_and_update(cub_pid, :pairings, &{:ok, Map.delete(&1, ios_identifier)})
+    if CubDB.get(cub_pid, :pairings) == %{}, do: HAP.Discovery.reload()
     {:reply, :ok, state}
   end
 

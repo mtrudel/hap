@@ -7,13 +7,13 @@ defmodule HAP.HAPSessionTransport do
 
   @behaviour Transport
 
-  @pair_verify_state_key :pair_verify_state
+  @pair_state_key :pair_state_key
   @accessory_to_controller_key_key :accessory_to_controller_key_key
   @controller_to_accessory_key_key :controller_to_accessory_key_key
   @hardcoded_options [mode: :binary, active: false]
 
-  def get_pair_verify_state, do: Process.get(@pair_verify_state_key, HAP.PairVerify.init())
-  def put_pair_verify_state(new_state), do: Process.put(@pair_verify_state_key, new_state)
+  def get_pair_state, do: Process.get(@pair_state_key, HAP.PairVerify.init())
+  def put_pair_state(new_state), do: Process.put(@pair_state_key, new_state)
 
   def put_accessory_to_controller_key(accessory_to_controller_key) do
     Process.put(@accessory_to_controller_key_key, accessory_to_controller_key)

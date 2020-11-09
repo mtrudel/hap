@@ -31,9 +31,9 @@ defmodule HAP.HTTPServer do
   end
 
   post "/pair-verify" do
-    pair_verify_state = HAP.HAPSessionTransport.get_pair_verify_state()
+    pair_state = HAP.HAPSessionTransport.get_pair_state()
 
-    HAP.PairVerify.handle_message(conn.body_params, pair_verify_state)
+    HAP.PairVerify.handle_message(conn.body_params, pair_state)
     |> case do
       {:ok, response, new_state, accessory_to_controller_key, controller_to_accessory_key} ->
         conn =
@@ -41,11 +41,27 @@ defmodule HAP.HTTPServer do
           |> put_resp_header("content-type", "application/pairing+tlv8")
           |> send_resp(200, HAP.TLVEncoder.to_binary(response))
 
-        HAP.HAPSessionTransport.put_pair_verify_state(new_state)
+        HAP.HAPSessionTransport.put_pair_state(new_state)
         HAP.HAPSessionTransport.put_accessory_to_controller_key(accessory_to_controller_key)
         HAP.HAPSessionTransport.put_controller_to_accessory_key(controller_to_accessory_key)
 
         conn
+
+      {:error, reason} ->
+        conn
+        |> send_resp(400, reason)
+    end
+  end
+
+  post "/pairings" do
+    pair_state = HAP.HAPSessionTransport.get_pair_state()
+
+    HAP.Pairings.handle_message(conn.body_params, pair_state)
+    |> case do
+      {:ok, response} ->
+        conn
+        |> put_resp_header("content-type", "application/pairing+tlv8")
+        |> send_resp(200, HAP.TLVEncoder.to_binary(response))
 
       {:error, reason} ->
         conn
