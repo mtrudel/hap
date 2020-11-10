@@ -94,7 +94,7 @@ defmodule HAP.Configuration do
     {:reply, pairing_state_changed, state}
   end
 
-  def set_if_missing(cub_pid, key, value) do
+  defp set_if_missing(cub_pid, key, value) do
     if !CubDB.has_key?(cub_pid, key) do
       CubDB.put(cub_pid, key, value)
     end
