@@ -7,6 +7,7 @@ defmodule HAP.Configuration do
 
   def config_number(pid \\ __MODULE__), do: GenServer.call(pid, :config_number)
   def name(pid \\ __MODULE__), do: GenServer.call(pid, :name)
+  def model(pid \\ __MODULE__), do: GenServer.call(pid, :model)
   def identifier(pid \\ __MODULE__), do: GenServer.call(pid, :identifier)
   def accessory_type(pid \\ __MODULE__), do: GenServer.call(pid, :accessory_type)
   def pairing_code(pid \\ __MODULE__), do: GenServer.call(pid, :pairing_code)
@@ -37,6 +38,7 @@ defmodule HAP.Configuration do
     # TODO - alert if any of these change from startup
     set_if_missing(cub_pid, :config_number, 1)
     set_if_missing(cub_pid, :name, initial_config[:name])
+    set_if_missing(cub_pid, :model, initial_config[:model])
 
     # TODO - make this dynamic if we don't have it defined
     set_if_missing(cub_pid, :identifier, initial_config[:identifier])
@@ -66,7 +68,7 @@ defmodule HAP.Configuration do
   end
 
   def handle_call(param, _from, %{cub_pid: cub_pid} = state)
-      when param in ~w(config_number name identifier accessory_type pairing_code setup_id ltpk ltsk)a do
+      when param in ~w(config_number name model identifier accessory_type pairing_code setup_id ltpk ltsk)a do
     {:reply, CubDB.get(cub_pid, param), state}
   end
 
