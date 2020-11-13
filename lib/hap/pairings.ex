@@ -5,7 +5,7 @@ defmodule HAP.Pairings do
 
   require Logger
 
-  alias HAP.Configuration
+  alias HAP.AccessoryServerManager
 
   @kTLVType_Method 0x00
   @kTLVType_Identifier 0x01
@@ -33,13 +33,18 @@ defmodule HAP.Pairings do
         },
         %{admin?: true}
       ) do
-    case Configuration.get_controller_pairing(additional_ios_identifier) do
+    case AccessoryServerManager.controller_pairing(additional_ios_identifier) do
       nil ->
         Logger.info(
           "Adding controller #{additional_ios_identifier} with permissions #{inspect(additional_ios_permissions)}"
         )
 
-        Configuration.add_controller_pairing(additional_ios_identifier, additional_ios_ltpk, additional_ios_permissions)
+        AccessoryServerManager.add_controller_pairing(
+          additional_ios_identifier,
+          additional_ios_ltpk,
+          additional_ios_permissions
+        )
+
         {:ok, %{@kTLVType_State => <<2>>}}
 
       {^additional_ios_ltpk, _existing_ios_permissions} ->
@@ -47,7 +52,12 @@ defmodule HAP.Pairings do
           "Updating controller #{additional_ios_identifier} with permissions #{inspect(additional_ios_permissions)}"
         )
 
-        Configuration.add_controller_pairing(additional_ios_identifier, additional_ios_ltpk, additional_ios_permissions)
+        AccessoryServerManager.add_controller_pairing(
+          additional_ios_identifier,
+          additional_ios_ltpk,
+          additional_ios_permissions
+        )
+
         {:ok, %{@kTLVType_State => <<2>>}}
 
       _ ->
@@ -68,7 +78,7 @@ defmodule HAP.Pairings do
       ) do
     Logger.info("Removed pairing with controller #{removed_ios_identifier}")
 
-    if Configuration.remove_controller_pairing(removed_ios_identifier) do
+    if AccessoryServerManager.remove_controller_pairing(removed_ios_identifier) do
       HAP.Discovery.reload()
       HAP.Display.update_pairing_info_display()
     end
@@ -79,7 +89,7 @@ defmodule HAP.Pairings do
   # Handles List Pairings `<M1>` messages and returns `<M2>` messages
   def handle_message(%{@kTLVType_State => <<1>>, @kTLVType_Method => @kMethod_ListPairings}, %{admin?: true}) do
     response =
-      Configuration.get_controller_pairings()
+      AccessoryServerManager.controller_pairings()
       |> Enum.map_intersperse({@kTLVType_Separator, <<>>}, fn {ios_identifer, {ios_ltpk, ios_permissions}} ->
         [
           {@kTLVType_Identifier, ios_identifer},

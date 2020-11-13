@@ -7,7 +7,7 @@ defmodule HAP.HTTPServer do
 
   plug(Plug.Logger)
   plug(:match)
-  plug(Plug.Parsers, parsers: [HAP.TLVParser])
+  plug(Plug.Parsers, parsers: [HAP.TLVParser, :json], json_decoder: Jason)
   plug(:tidy_headers, builder_opts())
   plug(:dispatch, builder_opts())
 
@@ -70,31 +70,42 @@ defmodule HAP.HTTPServer do
   end
 
   get "/accessories" do
-    response = %{
-      accessories: [
-        %{
-          aid: 1,
-          services: [
-            %{
-              type: "3E",
-              iid: 1,
-              characteristics: [
-                %{type: "23", value: "Acme Light Bridge", perms: ["pr"], format: "string", iid: 2},
-                %{type: "20", value: "Acme", perms: ["pr"], format: "string", iid: 3},
-                %{type: "30", value: "037A2BABF19D", perms: ["pr"], format: "string", iid: 4},
-                %{type: "21", value: "Bridge1,1", perms: ["pr"], format: "string", iid: 5},
-                %{type: "14", value: nil, perms: ["pr"], format: "bool", iid: 6},
-                %{type: "52", value: "100.1.1", perms: ["pr"], format: "string", iid: 7}
-              ]
-            }
-          ]
-        }
-      ]
-    }
+    response = HAP.AccessoryServerManager.get_accessories()
 
     conn
     |> put_resp_header("content-type", "application/hap+json")
     |> send_resp(200, Jason.encode!(response))
+  end
+
+  get "/characteristics" do
+    response =
+      conn.params["id"]
+      |> String.split(",")
+      |> Enum.map(&String.split(&1, "."))
+      |> Enum.map(fn [aid, iid] -> %{aid: String.to_integer(aid), iid: String.to_integer(iid)} end)
+      |> HAP.AccessoryServerManager.get_characteristics()
+
+    conn
+    |> put_resp_header("content-type", "application/hap+json")
+    |> send_resp(200, Jason.encode!(response))
+  end
+
+  put "/characteristics" do
+    results =
+      conn.body_params["characteristics"]
+      |> HAP.AccessoryServerManager.put_characteristics()
+
+    if Enum.all?(results, fn {result, _characteristic} -> result == :ok end) do
+      conn
+      |> put_resp_header("content-type", "application/hap+json")
+      |> send_resp(204, "")
+    else
+      # TODO -- 207 multi
+
+      conn
+      |> put_resp_header("content-type", "application/hap+json")
+      |> send_resp(204, "")
+    end
   end
 
   match _ do
