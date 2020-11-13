@@ -23,3 +23,7 @@ the [HAP Demo](https://github.com/mtrudel/hap_demo) app for an example of how to
 
 Note that in order to have access to the required crypto methods for HAP to function, a
 fairly recent version of Erlang is required (23.0 or better).
+
+## License
+
+MIT
