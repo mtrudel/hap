@@ -5,6 +5,16 @@ defmodule HAP.Accessory do
 
   defstruct services: []
 
+  def build_accessory(accessory) do
+    {[services: services], metadata} = Keyword.split(accessory, [:services])
+
+    %__MODULE__{
+      services:
+        [HAP.Services.AccessoryInformation.build_service(metadata), HAP.Services.ProtocolInformation.build_service()] ++
+          services
+    }
+  end
+
   def accessories_tree(%__MODULE__{services: services}, aid, opts \\ []) do
     formatted_services =
       services
