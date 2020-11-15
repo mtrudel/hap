@@ -5,6 +5,8 @@ defmodule HAP.AccessoryServerManager do
 
   use GenServer
 
+  require Logger
+
   alias HAP.PersistentStorage
 
   def start_link(config) do
@@ -49,6 +51,15 @@ defmodule HAP.AccessoryServerManager do
   end
 
   def init(%HAP.AccessoryServer{} = accessory_server) do
+    old_config_hash = PersistentStorage.get(:config_hash)
+    new_config_hash = HAP.AccessoryServer.config_hash(accessory_server)
+
+    if old_config_hash != new_config_hash do
+      Logger.info("Configuration has changed; incrementing config number")
+      PersistentStorage.get_and_update(:config_number, &{:ok, &1 + 1})
+    end
+
+    PersistentStorage.put(:config_hash, new_config_hash)
     {:ok, accessory_server}
   end
 

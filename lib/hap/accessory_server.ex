@@ -12,12 +12,19 @@ defmodule HAP.AccessoryServer do
             accessory_type: 1,
             accessory_objects: []
 
-  def accessories_tree(%__MODULE__{accessory_objects: accessory_objects}) do
+  def config_hash(%__MODULE__{} = accessory_server) do
+    accessory_server
+    |> accessories_tree(static_only: true)
+    |> Jason.encode!()
+    |> HAP.Crypto.SHA512.hash()
+  end
+
+  def accessories_tree(%__MODULE__{accessory_objects: accessory_objects}, opts \\ []) do
     formatted_accessories =
       accessory_objects
       |> Enum.with_index(1)
       |> Enum.map(fn {accessory_object, aid} ->
-        HAP.AccessoryObject.accessories_tree(accessory_object, aid)
+        HAP.AccessoryObject.accessories_tree(accessory_object, aid, opts)
       end)
 
     %{accessories: formatted_accessories}

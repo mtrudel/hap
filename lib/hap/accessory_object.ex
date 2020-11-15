@@ -5,12 +5,12 @@ defmodule HAP.AccessoryObject do
 
   defstruct services: []
 
-  def accessories_tree(%__MODULE__{services: services}, aid) do
+  def accessories_tree(%__MODULE__{services: services}, aid, opts \\ []) do
     formatted_services =
       services
       |> Enum.with_index()
       |> Enum.map(fn {service, service_index} ->
-        HAP.Service.accessories_tree(service, service_index)
+        HAP.Service.accessories_tree(service, service_index, opts)
       end)
 
     %{aid: aid, services: formatted_services}

@@ -15,7 +15,7 @@ defmodule HAP.PersistentStorage do
   def init(_) do
     {:ok, cub_pid} = CubDB.start_link("hap_data")
 
-    set_if_missing(cub_pid, :config_number, 1)
+    set_if_missing(cub_pid, :config_number, 0)
 
     if !CubDB.has_key?(cub_pid, :ltpk) || !CubDB.has_key?(cub_pid, :ltsk) do
       {:ok, ltpk, ltsk} = HAP.Crypto.EDDSA.key_gen()
