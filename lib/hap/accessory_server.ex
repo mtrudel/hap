@@ -10,7 +10,7 @@ defmodule HAP.AccessoryServer do
             pairing_code: nil,
             setup_id: nil,
             accessory_type: 1,
-            accessory_objects: []
+            accessories: []
 
   def config_hash(%__MODULE__{} = accessory_server) do
     accessory_server
@@ -19,25 +19,25 @@ defmodule HAP.AccessoryServer do
     |> HAP.Crypto.SHA512.hash()
   end
 
-  def accessories_tree(%__MODULE__{accessory_objects: accessory_objects}, opts \\ []) do
+  def accessories_tree(%__MODULE__{accessories: accessories}, opts \\ []) do
     formatted_accessories =
-      accessory_objects
+      accessories
       |> Enum.with_index(1)
-      |> Enum.map(fn {accessory_object, aid} ->
-        HAP.AccessoryObject.accessories_tree(accessory_object, aid, opts)
+      |> Enum.map(fn {accessory, aid} ->
+        HAP.Accessory.accessories_tree(accessory, aid, opts)
       end)
 
     %{accessories: formatted_accessories}
   end
 
-  def get_characteristics(%__MODULE__{accessory_objects: accessory_objects}, characteristics) do
+  def get_characteristics(%__MODULE__{accessories: accessories}, characteristics) do
     formatted_characteristics =
       characteristics
       |> Enum.map(fn %{aid: aid, iid: iid} ->
         value =
-          accessory_objects
+          accessories
           |> Enum.at(aid - 1)
-          |> HAP.AccessoryObject.get_characteristic(iid)
+          |> HAP.Accessory.get_characteristic(iid)
           |> HAP.Characteristic.get_value()
 
         %{aid: aid, iid: iid, value: value}
@@ -46,14 +46,14 @@ defmodule HAP.AccessoryServer do
     %{characteristics: formatted_characteristics}
   end
 
-  def put_characteristics(%__MODULE__{accessory_objects: accessory_objects}, characteristics) do
+  def put_characteristics(%__MODULE__{accessories: accessories}, characteristics) do
     characteristics
     |> Enum.map(fn
       %{"aid" => aid, "iid" => iid, "value" => value} = characteristic ->
         result =
-          accessory_objects
+          accessories
           |> Enum.at(aid - 1)
-          |> HAP.AccessoryObject.get_characteristic(iid)
+          |> HAP.Accessory.get_characteristic(iid)
           |> HAP.Characteristic.put_value(value)
 
         {result, characteristic}

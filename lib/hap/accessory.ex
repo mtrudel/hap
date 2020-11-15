@@ -1,4 +1,4 @@
-defmodule HAP.AccessoryObject do
+defmodule HAP.Accessory do
   @moduledoc """
   Represents a single accessory object, containing a number of services
   """
