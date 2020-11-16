@@ -71,7 +71,7 @@ defmodule HAP.AccessoryServer do
 
         {result, characteristic}
 
-      %{"aid" => _aid, "iid" => _iid, "ev" => true} = characteristic ->
+      %{"aid" => _aid, "iid" => _iid, "ev" => _} = characteristic ->
         # TODO -- event registration should be handled somewhere w/ state
         {:ok, characteristic}
     end)
