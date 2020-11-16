@@ -1,4 +1,8 @@
 defmodule HAP.Display do
+  @moduledoc """
+  Centralized functions for non-logging related display functionality
+  """
+
   alias HAP.AccessoryServerManager
 
   def update_pairing_info_display do

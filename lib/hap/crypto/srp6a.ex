@@ -1,4 +1,8 @@
 defmodule HAP.Crypto.SRP6A do
+  @moduledoc """
+  Implements the various steps within the Stanford Remote Password (version 6a) flow
+  """
+
   use Bitwise
 
   alias HAP.Crypto.SHA512

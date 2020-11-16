@@ -1,4 +1,8 @@
 defmodule HAP.Crypto.ChaCha20 do
+  @moduledoc """
+  Functions to encrypt/tag and decrypt/verify using the chacha20_poly1305 cipher
+  """
+
   def decrypt_and_verify(encrypted_data, key, nonce, aad \\ <<>>) do
     encrypted_data_length = byte_size(encrypted_data) - 16
     <<encrypted_data::binary-size(encrypted_data_length), auth_tag::binary-16>> = encrypted_data

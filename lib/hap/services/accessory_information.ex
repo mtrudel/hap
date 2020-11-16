@@ -1,4 +1,8 @@
 defmodule HAP.Services.AccessoryInformation do
+  @moduledoc """
+  Factory for the `public.hap.service.accessory-information` service
+  """
+
   @behaviour HAP.ValueStore
 
   alias HAP.Characteristics

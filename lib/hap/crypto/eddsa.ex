@@ -1,4 +1,8 @@
 defmodule HAP.Crypto.EDDSA do
+  @moduledoc """
+  Functions to generate keys, sign & verify messages using Elliptic Curve Signatures
+  """
+
   def key_gen do
     {pub, priv} = :crypto.generate_key(:eddsa, :ed25519)
     {:ok, pub, priv}

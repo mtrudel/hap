@@ -120,11 +120,6 @@ defmodule HAP.HTTPServer do
     end
   end
 
-  match _ do
-    IO.inspect(conn)
-    send_resp(conn, 404, "Not Found")
-  end
-
   defp tidy_headers(conn, _opts) do
     delete_resp_header(conn, "cache-control")
   end

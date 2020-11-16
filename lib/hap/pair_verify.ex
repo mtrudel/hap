@@ -6,7 +6,11 @@ defmodule HAP.PairVerify do
   require Logger
 
   alias HAP.AccessoryServerManager
-  alias HAP.Crypto.{HKDF, ChaCha20, ECDH, EDDSA}
+  alias HAP.Crypto.{ChaCha20, ECDH, EDDSA, HKDF}
+
+  # We intentionally structure our constant names to match those in the HAP specification
+  # credo:disable-for-this-file Credo.Check.Readability.ModuleAttributeNames
+  # credo:disable-for-this-file Credo.Check.Readability.VariableNames
 
   @kTLVType_Identifier 0x01
   @kTLVType_PublicKey 0x03
@@ -64,8 +68,10 @@ defmodule HAP.PairVerify do
          {ios_ltpk, ios_permissions} <- AccessoryServerManager.controller_pairing(ios_identifier),
          admin? <- ios_permissions == @kFlag_Admin,
          {:ok, true} <- HAP.Crypto.EDDSA.verify(ios_device_info, ios_signature, ios_ltpk),
-         {:ok, accessory_to_controller_key} = HKDF.generate(session_key, "Control-Salt", "Control-Read-Encryption-Key"),
-         {:ok, controller_to_accessory_key} = HKDF.generate(session_key, "Control-Salt", "Control-Write-Encryption-Key") do
+         {:ok, accessory_to_controller_key} <-
+           HKDF.generate(session_key, "Control-Salt", "Control-Read-Encryption-Key"),
+         {:ok, controller_to_accessory_key} <-
+           HKDF.generate(session_key, "Control-Salt", "Control-Write-Encryption-Key") do
       Logger.info("Verified session for controller #{ios_identifier}")
 
       {:ok, %{@kTLVType_State => <<4>>}, %{ios_ltpk: ios_ltpk, admin?: admin?}, accessory_to_controller_key,

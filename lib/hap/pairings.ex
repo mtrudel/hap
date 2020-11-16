@@ -7,6 +7,10 @@ defmodule HAP.Pairings do
 
   alias HAP.AccessoryServerManager
 
+  # We intentionally structure our constant names to match those in the HAP specification
+  # credo:disable-for-this-file Credo.Check.Readability.ModuleAttributeNames
+  # credo:disable-for-this-file Credo.Check.Readability.VariableNames
+
   @kTLVType_Method 0x00
   @kTLVType_Identifier 0x01
   @kTLVType_PublicKey 0x03

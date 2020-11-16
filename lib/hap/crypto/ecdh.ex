@@ -1,4 +1,8 @@
 defmodule HAP.Crypto.ECDH do
+  @moduledoc """
+  Functions to generate keypairs / session keys using Elliptic Curve Diffie-Hellman shared secret generation
+  """
+
   def key_gen do
     {pub, priv} = :crypto.generate_key(:ecdh, :x25519)
     {:ok, pub, priv}

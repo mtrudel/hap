@@ -17,12 +17,12 @@ defmodule HAP.IID do
   which the HAP protocol requires to represent the accessory information service.
   """
 
-  def service_index(iid) when iid in 1..65536 do
+  def service_index(iid) when iid in 1..65_536 do
     <<service_index::8, _characteristic_index::8, 1::1>> = <<iid::17>>
     service_index
   end
 
-  def characteristic_index(iid) when iid in 1..65536 do
+  def characteristic_index(iid) when iid in 1..65_536 do
     <<_service_index::8, characteristic_index::8, 1::1>> = <<iid::17>>
 
     case characteristic_index do

@@ -10,7 +10,11 @@ defmodule HAP.PairSetup do
   require Logger
 
   alias HAP.AccessoryServerManager
-  alias HAP.Crypto.{SRP6A, HKDF, ChaCha20, EDDSA}
+  alias HAP.Crypto.{ChaCha20, EDDSA, HKDF, SRP6A}
+
+  # We intentionally structure our constant names to match those in the HAP specification
+  # credo:disable-for-this-file Credo.Check.Readability.ModuleAttributeNames
+  # credo:disable-for-this-file Credo.Check.Readability.VariableNames
 
   @i "Pair-Setup"
   @kTLVType_Method 0x00
