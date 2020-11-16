@@ -14,7 +14,7 @@ defmodule HAP.AccessoryServer do
 
   def build_accessory_server(accessory_server) do
     %__MODULE__{
-      port: Keyword.get(accessory_server, :port, 4000),
+      port: Keyword.get(accessory_server, :port, 0),
       name: Keyword.get(accessory_server, :name, "Generic HAP Device"),
       model: Keyword.get(accessory_server, :model, "Generic HAP Model"),
       identifier: Keyword.get(accessory_server, :identifier),

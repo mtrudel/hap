@@ -82,7 +82,9 @@ defmodule HAP.Pairings do
       ) do
     Logger.info("Removed pairing with controller #{removed_ios_identifier}")
 
-    if AccessoryServerManager.remove_controller_pairing(removed_ios_identifier) do
+    {:ok, removed_last_pairing} = AccessoryServerManager.remove_controller_pairing(removed_ios_identifier)
+
+    if removed_last_pairing do
       HAP.Discovery.reload()
       HAP.Display.update_pairing_info_display()
     end

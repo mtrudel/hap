@@ -19,14 +19,14 @@ defmodule HAP.MixProject do
 
   defp deps do
     [
-      {:nerves_dnssd, github: "mtrudel/nerves_dnssd"},
-      {:strap, "~> 0.1.1"},
       {:bandit, "~> 0.1.1"},
-      {:eqrcode, "~> 0.1.7"},
       {:base36, "~> 1.0"},
+      {:cubdb, "~> 1.0.0-rc.5"},
+      {:eqrcode, "~> 0.1.7"},
       {:hkdf, "~> 0.1.0"},
       {:jason, "~> 1.2"},
-      {:cubdb, "~> 1.0.0-rc.5"},
+      {:mdns_lite, "~> 0.6"},
+      {:strap, "~> 0.1.1"},
       {:mix_test_watch, "~> 0.8", only: :dev, runtime: false},
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false}
     ]

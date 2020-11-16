@@ -1,50 +1,36 @@
 defmodule HAP.Discovery do
   @moduledoc """
-  Defines a process that advertises a `HAP.Accessory` via multicast DNS
-  according to Section 6 of Apple's [HomeKit Accessory Protocol Specification](https://developer.apple.com/homekit/). 
+  Provides functions to define & update a `HAP.Accessory` advertisement via multicast DNS according to Section 6 of
+  Apple's [HomeKit Accessory Protocol Specification](https://developer.apple.com/homekit/). 
   """
 
-  use GenServer
+  require Logger
 
   alias HAP.AccessoryServerManager
 
-  def start_link(opts) do
-    GenServer.start_link(__MODULE__, opts, name: __MODULE__)
-  end
-
-  def reload(pid \\ __MODULE__) do
-    GenServer.cast(pid, :reload)
-  end
-
-  def init(opts) do
-    {:ok, pid} = start_dnssd_daemon(opts)
-    {:ok, %{pid: pid, opts: opts}}
-  end
-
-  def handle_cast(:reload, %{pid: pid, opts: opts} = state) do
-    Supervisor.stop(pid)
-    {:ok, pid} = start_dnssd_daemon(opts)
-    {:noreply, %{state | pid: pid}}
-  end
-
-  defp start_dnssd_daemon(opts) do
-    status_flag = if AccessoryServerManager.paired?(), do: "0", else: "1"
+  def reload() do
+    Logger.debug("(Re-)Advertising mDNS record")
 
     <<setup_hash::binary-4, _rest::binary>> =
       :crypto.hash(:sha512, AccessoryServerManager.setup_id() <> AccessoryServerManager.identifier())
 
-    txts = [
-      "c#": AccessoryServerManager.config_number() |> to_string(),
-      ff: "0",
-      id: AccessoryServerManager.identifier(),
-      md: AccessoryServerManager.model(),
-      pv: "1.1",
-      "s#": "1",
-      sf: status_flag,
-      ci: AccessoryServerManager.accessory_type() |> to_string(),
-      sh: setup_hash |> Base.encode64()
-    ]
-
-    Nerves.Dnssd.register(AccessoryServerManager.name(), "_hap._tcp", Keyword.get(opts, :port), txts)
+    %{
+      name: AccessoryServerManager.name(),
+      protocol: "hap",
+      transport: "tcp",
+      port: AccessoryServerManager.port(),
+      txt_payload: [
+        "c#=#{AccessoryServerManager.config_number()}",
+        "ff=0",
+        "id=#{AccessoryServerManager.identifier()}",
+        "md=#{AccessoryServerManager.model()}",
+        "pv=1.1",
+        "s#=1",
+        "sf=#{if AccessoryServerManager.paired?(), do: 0, else: 1}",
+        "ci=#{AccessoryServerManager.accessory_type()}",
+        "sh=#{setup_hash |> Base.encode64()}"
+      ]
+    }
+    |> MdnsLite.add_mdns_services()
   end
 end

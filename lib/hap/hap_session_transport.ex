@@ -44,7 +44,12 @@ defmodule HAP.HAPSessionTransport do
       %{}
     )
 
-    :gen_tcp.listen(port, resolved_options)
+    with {:ok, listener_socket} <- :gen_tcp.listen(port, resolved_options) do
+      {:ok, {_ip, port}} = :inet.sockname(listener_socket)
+      HAP.AccessoryServerManager.set_port(port)
+      HAP.Discovery.reload()
+      {:ok, listener_socket}
+    end
   end
 
   @impl Transport

@@ -17,6 +17,8 @@ defmodule HAP.AccessoryServerManager do
   def config_number, do: PersistentStorage.get(:config_number)
   def ltpk, do: PersistentStorage.get(:ltpk)
   def ltsk, do: PersistentStorage.get(:ltsk)
+  def port(pid \\ __MODULE__), do: GenServer.call(pid, {:get, :port})
+  def set_port(port, pid \\ __MODULE__), do: GenServer.call(pid, {:put, :port, port})
   def name(pid \\ __MODULE__), do: GenServer.call(pid, {:get, :name})
   def model(pid \\ __MODULE__), do: GenServer.call(pid, {:get, :model})
   def identifier(pid \\ __MODULE__), do: GenServer.call(pid, {:get, :identifier})
@@ -65,6 +67,10 @@ defmodule HAP.AccessoryServerManager do
 
   def handle_call({:get, param}, _from, state) do
     {:reply, Map.get(state, param), state}
+  end
+
+  def handle_call({:put, :port, port}, _from, state) do
+    {:reply, :ok, Map.put(state, :port, port)}
   end
 
   def handle_call(:paired?, _from, state) do

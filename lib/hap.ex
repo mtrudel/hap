@@ -20,7 +20,6 @@ defmodule HAP do
       HAP.PersistentStorage,
       {HAP.AccessoryServerManager, config},
       HAP.PairSetup,
-      {HAP.Discovery, port: config.port},
       {Bandit, plug: HAP.HTTPServer, options: [transport_module: HAP.HAPSessionTransport, port: config.port]}
     ]
 
