@@ -5,6 +5,10 @@ defmodule HAP.Display do
     if !AccessoryServerManager.paired?(), do: display_pairing_code()
   end
 
+  def identify(name) do
+    IO.puts("Identifying #{name}")
+  end
+
   defp display_pairing_code do
     padding = 0
     version = 0

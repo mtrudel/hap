@@ -15,6 +15,18 @@ defmodule HAP.HTTPServer do
     opts
   end
 
+  post "/identify" do
+    if HAP.AccessoryServerManager.paired?() do
+      conn
+      |> send_resp(400, "Already Paired")
+    else
+      HAP.AccessoryServerManager.name() |> HAP.Display.identify()
+
+      conn
+      |> send_resp(204, "No Content")
+    end
+  end
+
   post "/pair-setup" do
     conn.body_params
     |> HAP.PairSetup.handle_message()
@@ -104,7 +116,7 @@ defmodule HAP.HTTPServer do
 
       conn
       |> put_resp_header("content-type", "application/hap+json")
-      |> send_resp(204, "")
+      |> send_resp(204, "No Content")
     end
   end
 

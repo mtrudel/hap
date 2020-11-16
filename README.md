@@ -12,7 +12,7 @@ steady progress is being made:
 * [x] Encrypted Sessions
 * [x] Extra Pairing Actions (Add, Delete, List)
 * [x] Higher level bits (actual functionality)
-* [ ] Identify
+* [x] Identify
 * [ ] Events
 
 ## Installation
