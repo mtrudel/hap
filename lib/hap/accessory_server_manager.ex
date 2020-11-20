@@ -19,6 +19,7 @@ defmodule HAP.AccessoryServerManager do
   def ltsk, do: PersistentStorage.get(:ltsk)
   def port(pid \\ __MODULE__), do: GenServer.call(pid, {:get, :port})
   def set_port(port, pid \\ __MODULE__), do: GenServer.call(pid, {:put, :port, port})
+  def display_module(pid \\ __MODULE__), do: GenServer.call(pid, {:get, :display_module})
   def name(pid \\ __MODULE__), do: GenServer.call(pid, {:get, :name})
   def model(pid \\ __MODULE__), do: GenServer.call(pid, {:get, :model})
   def identifier(pid \\ __MODULE__), do: GenServer.call(pid, {:get, :identifier})

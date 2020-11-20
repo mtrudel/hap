@@ -4,6 +4,7 @@ defmodule HAP.AccessoryServer do
   """
 
   defstruct port: nil,
+            display_module: nil,
             name: nil,
             model: nil,
             identifier: nil,
@@ -15,6 +16,7 @@ defmodule HAP.AccessoryServer do
   def build_accessory_server(accessory_server) do
     %__MODULE__{
       port: Keyword.get(accessory_server, :port, 0),
+      display_module: Keyword.get(accessory_server, :display_module, HAP.ConsoleDisplay),
       name: Keyword.get(accessory_server, :name, "Generic HAP Device"),
       model: Keyword.get(accessory_server, :model, "Generic HAP Model"),
       identifier: Keyword.get(accessory_server, :identifier),

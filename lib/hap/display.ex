@@ -3,17 +3,28 @@ defmodule HAP.Display do
   Centralized functions for non-logging related display functionality
   """
 
+  @callback display_pairing_code(String.t(), String.t(), String.t()) :: any()
+  @callback clear_pairing_code() :: any()
+  @callback identify(String.t()) :: any()
+
   alias HAP.AccessoryServerManager
 
   def update_pairing_info_display do
-    if !AccessoryServerManager.paired?(), do: display_pairing_code()
+    if AccessoryServerManager.paired?() do
+      AccessoryServerManager.display_module().clear_pairing_code()
+    else
+      name = AccessoryServerManager.name()
+      pairing_code = AccessoryServerManager.pairing_code()
+      pairing_url = build_pairing_url()
+      AccessoryServerManager.display_module().display_pairing_code(name, pairing_code, pairing_url)
+    end
   end
 
   def identify(name) do
-    IO.puts("Identifying #{name}")
+    AccessoryServerManager.display_module().identify(name)
   end
 
-  defp display_pairing_code do
+  defp build_pairing_url do
     padding = 0
     version = 0
     reserved = 0
@@ -26,22 +37,6 @@ defmodule HAP.Display do
       |> :binary.decode_unsigned()
       |> Base36.encode()
 
-    url = "X-HM://00#{payload}#{AccessoryServerManager.setup_id()}"
-
-    IO.puts("\e[1m")
-    IO.puts("#{AccessoryServerManager.name()} available for pairing. Connect using the following QR Code")
-
-    url
-    |> EQRCode.encode()
-    |> EQRCode.render()
-
-    IO.puts("""
-    \e[1m
-                       Manual Setup Code
-                        ┌────────────┐
-                        │ #{AccessoryServerManager.pairing_code()} │
-                        └────────────┘
-    \e[0m
-    """)
+    "X-HM://00#{payload}#{AccessoryServerManager.setup_id()}"
   end
 end
