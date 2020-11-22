@@ -36,6 +36,8 @@ defmodule HAP.HAPSessionTransport do
       reuseaddr: true
     ]
 
+    {hap_options, user_options} = Keyword.split(user_options, [:skip_registration])
+
     resolved_options = default_options |> Keyword.merge(user_options) |> Keyword.merge(@hardcoded_options)
 
     :telemetry.execute(
@@ -45,9 +47,12 @@ defmodule HAP.HAPSessionTransport do
     )
 
     with {:ok, listener_socket} <- :gen_tcp.listen(port, resolved_options) do
-      {:ok, {_ip, port}} = :inet.sockname(listener_socket)
-      HAP.AccessoryServerManager.set_port(port)
-      HAP.Discovery.reload()
+      unless Keyword.get(hap_options, :skip_registration) do
+        {:ok, {_ip, port}} = :inet.sockname(listener_socket)
+        HAP.AccessoryServerManager.set_port(port)
+        HAP.Discovery.reload()
+      end
+
       {:ok, listener_socket}
     end
   end

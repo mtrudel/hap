@@ -17,7 +17,7 @@ defmodule HAP do
 
   def init(%HAP.AccessoryServer{} = config) do
     children = [
-      HAP.PersistentStorage,
+      {HAP.PersistentStorage, config.data_path},
       {HAP.AccessoryServerManager, config},
       HAP.PairSetup,
       {Bandit, plug: HAP.HTTPServer, options: [transport_module: HAP.HAPSessionTransport, port: config.port]}

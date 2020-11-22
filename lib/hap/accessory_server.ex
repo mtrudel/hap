@@ -5,25 +5,27 @@ defmodule HAP.AccessoryServer do
 
   defstruct port: nil,
             display_module: nil,
+            data_path: nil,
             name: nil,
             model: nil,
             identifier: nil,
             pairing_code: nil,
             setup_id: nil,
-            accessory_type: 1,
-            accessories: []
+            accessory_type: nil,
+            accessories: nil
 
   def build_accessory_server(accessory_server) do
     %__MODULE__{
       port: Keyword.get(accessory_server, :port, 0),
       display_module: Keyword.get(accessory_server, :display_module, HAP.ConsoleDisplay),
+      data_path: Keyword.get(accessory_server, :data_path, "hap_data"),
       name: Keyword.get(accessory_server, :name, "Generic HAP Device"),
       model: Keyword.get(accessory_server, :model, "Generic HAP Model"),
       identifier: Keyword.get(accessory_server, :identifier),
       pairing_code: Keyword.get(accessory_server, :pairing_code, random_pairing_code()),
       setup_id: Keyword.get(accessory_server, :setup_id, random_setup_id()),
       accessory_type: Keyword.get(accessory_server, :accessory_type, 1),
-      accessories: Keyword.get(accessory_server, :accessories)
+      accessories: Keyword.get(accessory_server, :accessories, [])
     }
   end
 

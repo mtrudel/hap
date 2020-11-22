@@ -87,6 +87,10 @@ defmodule HAP.PairSetup do
   end
 
   # Handles `<M5>` messages and returns `<M6>` messages
+  #
+  # Note that the specifics of deriving the envelope key are not described in R1 or R2 of the HAP specification;
+  # guidance was taken from other third-party implementations for the specific key material to use
+  #
   def handle_call(
         %{@kTLVType_State => <<5>>, @kTLVType_EncryptedData => encrypted_data},
         _from,

@@ -4,16 +4,16 @@ defmodule HAP.PersistentStorage do
   """
   use GenServer
 
-  def start_link(opts) do
-    GenServer.start_link(__MODULE__, opts, name: __MODULE__)
+  def start_link(path) do
+    GenServer.start_link(__MODULE__, path, name: __MODULE__)
   end
 
   def get(param, pid \\ __MODULE__), do: GenServer.call(pid, {:get, param})
   def put(param, value, pid \\ __MODULE__), do: GenServer.call(pid, {:put, param, value})
   def get_and_update(param, func, pid \\ __MODULE__), do: GenServer.call(pid, {:get_and_update, param, func})
 
-  def init(_) do
-    {:ok, cub_pid} = CubDB.start_link("hap_data")
+  def init(path) do
+    {:ok, cub_pid} = CubDB.start_link(path)
 
     set_if_missing(cub_pid, :config_number, 0)
 
