@@ -3,10 +3,12 @@ defmodule HAP.Services.LightBulb do
   Factory for the `public.hap.service.lightbulb` service
   """
 
+  alias HAP.{Characteristics, Service}
+
   def build_service(mod, opts \\ []) do
-    %HAP.Service{
+    %Service{
       type: "43",
-      characteristics: [HAP.Characteristics.On.build_characteristic(mod, opts)]
+      characteristics: [Characteristics.On.build_characteristic(mod, opts)]
     }
   end
 end

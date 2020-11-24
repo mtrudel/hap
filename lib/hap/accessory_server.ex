@@ -3,6 +3,8 @@ defmodule HAP.AccessoryServer do
   Represents a top-level HAP instance configuration
   """
 
+  alias HAP.{Accessory, Characteristic, ConsoleDisplay, Crypto.SHA512}
+
   defstruct port: nil,
             display_module: nil,
             data_path: nil,
@@ -17,7 +19,7 @@ defmodule HAP.AccessoryServer do
   def build_accessory_server(accessory_server) do
     %__MODULE__{
       port: Keyword.get(accessory_server, :port, 0),
-      display_module: Keyword.get(accessory_server, :display_module, HAP.ConsoleDisplay),
+      display_module: Keyword.get(accessory_server, :display_module, ConsoleDisplay),
       data_path: Keyword.get(accessory_server, :data_path, "hap_data"),
       name: Keyword.get(accessory_server, :name, "Generic HAP Device"),
       model: Keyword.get(accessory_server, :model, "Generic HAP Model"),
@@ -33,7 +35,7 @@ defmodule HAP.AccessoryServer do
     accessory_server
     |> accessories_tree(static_only: true)
     |> Jason.encode!()
-    |> HAP.Crypto.SHA512.hash()
+    |> SHA512.hash()
   end
 
   def accessories_tree(%__MODULE__{accessories: accessories}, opts \\ []) do
@@ -41,7 +43,7 @@ defmodule HAP.AccessoryServer do
       accessories
       |> Enum.with_index(1)
       |> Enum.map(fn {accessory, aid} ->
-        HAP.Accessory.accessories_tree(accessory, aid, opts)
+        Accessory.accessories_tree(accessory, aid, opts)
       end)
 
     %{accessories: formatted_accessories}
@@ -54,8 +56,8 @@ defmodule HAP.AccessoryServer do
         value =
           accessories
           |> Enum.at(aid - 1)
-          |> HAP.Accessory.get_characteristic(iid)
-          |> HAP.Characteristic.get_value()
+          |> Accessory.get_characteristic(iid)
+          |> Characteristic.get_value()
 
         %{aid: aid, iid: iid, value: value}
       end)
@@ -70,8 +72,8 @@ defmodule HAP.AccessoryServer do
         result =
           accessories
           |> Enum.at(aid - 1)
-          |> HAP.Accessory.get_characteristic(iid)
-          |> HAP.Characteristic.put_value(value)
+          |> Accessory.get_characteristic(iid)
+          |> Characteristic.put_value(value)
 
         {result, characteristic}
 

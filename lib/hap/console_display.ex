@@ -1,4 +1,8 @@
 defmodule HAP.ConsoleDisplay do
+  @moduledoc """
+  A simple console based implementation of the HAP.Display behaviour
+  """
+
   @behaviour HAP.Display
 
   @impl HAP.Display

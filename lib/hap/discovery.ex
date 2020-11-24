@@ -8,7 +8,7 @@ defmodule HAP.Discovery do
 
   alias HAP.AccessoryServerManager
 
-  def reload() do
+  def reload do
     Logger.debug("(Re-)Advertising mDNS record")
 
     <<setup_hash::binary-4, _rest::binary>> =

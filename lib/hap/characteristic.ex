@@ -3,6 +3,8 @@ defmodule HAP.Characteristic do
   Represents a single characteristic
   """
 
+  alias HAP.IID
+
   defstruct type: nil, perms: [], format: nil, value: nil, value_mod: nil, value_opts: []
 
   def accessories_tree(
@@ -11,7 +13,7 @@ defmodule HAP.Characteristic do
         characteristic_index,
         opts \\ []
       ) do
-    iid = HAP.IID.to_iid(service_index, characteristic_index)
+    iid = IID.to_iid(service_index, characteristic_index)
 
     cond do
       Keyword.get(opts, :static_only) -> %{iid: iid, type: type}

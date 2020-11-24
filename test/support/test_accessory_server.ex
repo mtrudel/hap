@@ -1,4 +1,6 @@
 defmodule HAP.Test.TestAccessoryServer do
+  @moduledoc false
+
   def test_server do
     {HAP,
      HAP.build_accessory_server(

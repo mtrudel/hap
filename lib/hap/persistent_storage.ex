@@ -4,6 +4,8 @@ defmodule HAP.PersistentStorage do
   """
   use GenServer
 
+  alias HAP.Crypto.EDDSA
+
   def start_link(path) do
     GenServer.start_link(__MODULE__, path, name: __MODULE__)
   end
@@ -18,7 +20,7 @@ defmodule HAP.PersistentStorage do
     set_if_missing(cub_pid, :config_number, 0)
 
     if !CubDB.has_key?(cub_pid, :ltpk) || !CubDB.has_key?(cub_pid, :ltsk) do
-      {:ok, ltpk, ltsk} = HAP.Crypto.EDDSA.key_gen()
+      {:ok, ltpk, ltsk} = EDDSA.key_gen()
       CubDB.put(cub_pid, :ltpk, ltpk)
       CubDB.put(cub_pid, :ltsk, ltsk)
     end
