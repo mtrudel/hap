@@ -142,6 +142,9 @@ defmodule HAP.HAPSessionTransport do
     %{address: ip, port: port, ssl_cert: nil}
   end
 
+  @impl Transport
+  defdelegate getstat(socket), to: :inet
+
   defp pad_counter(counter) do
     <<0::32, counter::integer-size(64)-little>>
   end

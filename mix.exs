@@ -31,6 +31,7 @@ defmodule HAP.MixProject do
       {:httpoison, "~> 1.7", only: :test},
       {:temp, "~> 0.4", only: :test},
       {:mix_test_watch, "~> 0.8", only: :dev, runtime: false},
+      {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false}
     ]
   end
