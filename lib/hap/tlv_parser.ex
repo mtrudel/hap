@@ -23,6 +23,12 @@ defmodule HAP.TLVParser do
     |> Map.new()
   end
 
+  def parse_tlv_as_keyword(str) do
+    str
+    |> Stream.unfold(&next_tag/1)
+    |> Enum.map(fn {k, v} -> {k |> Integer.to_string() |> String.to_atom(), v} end)
+  end
+
   defp next_tag(str) do
     case str do
       <<tag::8, 255, value::binary-255, next_tag::8, rest::binary>> when tag == next_tag ->

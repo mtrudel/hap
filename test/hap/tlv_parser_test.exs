@@ -33,4 +33,27 @@ defmodule HAP.TLVParserTest do
 
     assert HAP.TLVParser.parse_tlv(data) == expected
   end
+
+  test "parses multi-segment entries into a keyword list" do
+    data =
+      <<1, 255>> <>
+        :binary.copy(<<0xAA>>, 255) <>
+        <<1, 255>> <>
+        :binary.copy(<<0xAB>>, 255) <>
+        <<1, 10>> <>
+        :binary.copy(<<0xBA>>, 10) <>
+        <<2, 1, 3>> <>
+        <<1, 255>> <>
+        :binary.copy(<<0xAA>>, 255) <>
+        <<1, 255>> <> :binary.copy(<<0xAB>>, 255) <> <<1, 10>> <> :binary.copy(<<0xBA>>, 10) <> <<2, 1, 3>>
+
+    expected = [
+      "1": :binary.copy(<<0xAA>>, 255) <> :binary.copy(<<0xAB>>, 255) <> :binary.copy(<<0xBA>>, 10),
+      "2": <<3>>,
+      "1": :binary.copy(<<0xAA>>, 255) <> :binary.copy(<<0xAB>>, 255) <> :binary.copy(<<0xBA>>, 10),
+      "2": <<3>>
+    ]
+
+    assert HAP.TLVParser.parse_tlv_as_keyword(data) == expected
+  end
 end
