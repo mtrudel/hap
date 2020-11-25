@@ -31,9 +31,13 @@ defmodule HAP.HAPSessionTransportTest do
     :ok = HAPSessionTransport.send(client_socket, <<1, 2, 3>>)
     assert {:ok, <<1, 2, 3>>} == HAPSessionTransport.recv(client_socket, 0, :infinity)
 
+    refute HAPSessionTransport.encrypted_session?()
+
     # Note that these are reversed since we're acting as the controller here
     HAPSessionTransport.put_send_key(<<2>>)
     HAPSessionTransport.put_recv_key(<<1>>)
+
+    assert HAPSessionTransport.encrypted_session?()
 
     :ok = HAPSessionTransport.send(client_socket, <<1, 2, 3>>)
     assert {:ok, <<1, 2, 3>>} == HAPSessionTransport.recv(client_socket, 0, :infinity)

@@ -146,6 +146,13 @@ defmodule HAP.HAPSessionTransport do
   defdelegate getstat(socket), to: :inet
 
   @doc """
+  Returns true iff the current process is in an encrypted session
+  """
+  def encrypted_session? do
+    !is_nil(Process.get(@recv_key_key)) && !is_nil(Process.get(@send_key_key))
+  end
+
+  @doc """
   Helpful in tests when we need to act as the iOS Controller in a HAP Session
   """
   defdelegate connect(host, port, opts), to: :gen_tcp
