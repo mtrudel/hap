@@ -145,6 +145,11 @@ defmodule HAP.HAPSessionTransport do
   @impl Transport
   defdelegate getstat(socket), to: :inet
 
+  @doc """
+  Helpful in tests when we need to act as the iOS Controller in a HAP Session
+  """
+  defdelegate connect(host, port, opts), to: :gen_tcp
+
   defp pad_counter(counter) do
     <<0::32, counter::integer-size(64)-little>>
   end

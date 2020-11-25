@@ -5,7 +5,7 @@ defmodule HAP.HAPSessionTransportTest do
 
   test "can send in the clear & upgrade a live socket to encrypted transport" do
     {:ok, listener_socket} = HAPSessionTransport.listen(0, skip_registration: true)
-    {:ok, {_ip, port}} = :inet.sockname(listener_socket)
+    %{port: port} = HAPSessionTransport.local_info(listener_socket)
 
     server_task =
       Task.async(fn ->
@@ -26,7 +26,7 @@ defmodule HAP.HAPSessionTransportTest do
         HAPSessionTransport.close(server_socket)
       end)
 
-    {:ok, client_socket} = :gen_tcp.connect(:localhost, port, mode: :binary, active: false)
+    {:ok, client_socket} = HAPSessionTransport.connect(:localhost, port, mode: :binary, active: false)
 
     :ok = HAPSessionTransport.send(client_socket, <<1, 2, 3>>)
     assert {:ok, <<1, 2, 3>>} == HAPSessionTransport.recv(client_socket, 0, :infinity)
@@ -46,7 +46,7 @@ defmodule HAP.HAPSessionTransportTest do
 
   test "transmits encrypted over the wire when so configured" do
     {:ok, listener_socket} = HAPSessionTransport.listen(0, skip_registration: true)
-    {:ok, {_ip, port}} = :inet.sockname(listener_socket)
+    %{port: port} = HAPSessionTransport.local_info(listener_socket)
 
     server_task =
       Task.async(fn ->
@@ -60,6 +60,7 @@ defmodule HAP.HAPSessionTransportTest do
         HAPSessionTransport.close(server_socket)
       end)
 
+    # Connect using a raw TCP socket since we want to test the actual wire
     {:ok, client_socket} = :gen_tcp.connect(:localhost, port, mode: :binary, active: false)
 
     {encrypted_data, auth_tag} =
@@ -72,6 +73,7 @@ defmodule HAP.HAPSessionTransportTest do
         true
       )
 
+    # Read using raw TCP socket to see *exactly* what is on the wire
     assert {:ok, <<3::integer-size(16)-little, encrypted_data::binary-3, auth_tag::binary-16>>} ==
              :gen_tcp.recv(client_socket, 0, :infinity)
 
