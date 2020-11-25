@@ -29,7 +29,6 @@ defmodule HAP.MixProject do
       {:jason, "~> 1.2"},
       {:mdns_lite, "~> 0.6"},
       {:strap, "~> 0.1.1"},
-      {:httpoison, "~> 1.7", only: :test},
       {:temp, "~> 0.4", only: :test},
       {:mix_test_watch, "~> 0.8", only: :dev, runtime: false},
       {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
