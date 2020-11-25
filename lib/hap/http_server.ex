@@ -5,9 +5,20 @@ defmodule HAP.HTTPServer do
 
   use Plug.Router
 
+  alias HAP.{
+    AccessoryServerManager,
+    Display,
+    HAPSessionTransport,
+    Pairings,
+    PairSetup,
+    PairVerify,
+    TLVEncoder,
+    TLVParser
+  }
+
   plug(Plug.Logger)
   plug(:match)
-  plug(Plug.Parsers, parsers: [HAP.TLVParser, :json], json_decoder: Jason)
+  plug(Plug.Parsers, parsers: [TLVParser, :json], json_decoder: Jason)
   plug(:tidy_headers, builder_opts())
   plug(:dispatch, builder_opts())
 
@@ -16,11 +27,11 @@ defmodule HAP.HTTPServer do
   end
 
   post "/identify" do
-    if HAP.AccessoryServerManager.paired?() do
+    if AccessoryServerManager.paired?() do
       conn
       |> send_resp(400, "Already Paired")
     else
-      HAP.AccessoryServerManager.name() |> HAP.Display.identify()
+      AccessoryServerManager.name() |> Display.identify()
 
       conn
       |> send_resp(204, "No Content")
@@ -29,12 +40,12 @@ defmodule HAP.HTTPServer do
 
   post "/pair-setup" do
     conn.body_params
-    |> HAP.PairSetup.handle_message()
+    |> PairSetup.handle_message()
     |> case do
       {:ok, response} ->
         conn
         |> put_resp_header("content-type", "application/pairing+tlv8")
-        |> send_resp(200, HAP.TLVEncoder.to_binary(response))
+        |> send_resp(200, TLVEncoder.to_binary(response))
 
       {:error, reason} ->
         conn
@@ -43,19 +54,19 @@ defmodule HAP.HTTPServer do
   end
 
   post "/pair-verify" do
-    pair_state = HAP.HAPSessionTransport.get_pair_state()
+    pair_state = HAPSessionTransport.get_pair_state()
 
-    HAP.PairVerify.handle_message(conn.body_params, pair_state)
+    PairVerify.handle_message(conn.body_params, pair_state)
     |> case do
       {:ok, response, new_state, accessory_to_controller_key, controller_to_accessory_key} ->
         conn =
           conn
           |> put_resp_header("content-type", "application/pairing+tlv8")
-          |> send_resp(200, HAP.TLVEncoder.to_binary(response))
+          |> send_resp(200, TLVEncoder.to_binary(response))
 
-        HAP.HAPSessionTransport.put_pair_state(new_state)
-        HAP.HAPSessionTransport.put_send_key(accessory_to_controller_key)
-        HAP.HAPSessionTransport.put_recv_key(controller_to_accessory_key)
+        HAPSessionTransport.put_pair_state(new_state)
+        HAPSessionTransport.put_send_key(accessory_to_controller_key)
+        HAPSessionTransport.put_recv_key(controller_to_accessory_key)
 
         conn
 
@@ -66,14 +77,14 @@ defmodule HAP.HTTPServer do
   end
 
   post "/pairings" do
-    pair_state = HAP.HAPSessionTransport.get_pair_state()
+    pair_state = HAPSessionTransport.get_pair_state()
 
-    HAP.Pairings.handle_message(conn.body_params, pair_state)
+    Pairings.handle_message(conn.body_params, pair_state)
     |> case do
       {:ok, response} ->
         conn
         |> put_resp_header("content-type", "application/pairing+tlv8")
-        |> send_resp(200, HAP.TLVEncoder.to_binary(response))
+        |> send_resp(200, TLVEncoder.to_binary(response))
 
       {:error, reason} ->
         conn
@@ -82,8 +93,8 @@ defmodule HAP.HTTPServer do
   end
 
   get "/accessories" do
-    if HAP.HAPSessionTransport.encrypted_session?() do
-      response = HAP.AccessoryServerManager.get_accessories()
+    if HAPSessionTransport.encrypted_session?() do
+      response = AccessoryServerManager.get_accessories()
 
       conn
       |> put_resp_header("content-type", "application/hap+json")
@@ -100,7 +111,7 @@ defmodule HAP.HTTPServer do
       |> String.split(",")
       |> Enum.map(&String.split(&1, "."))
       |> Enum.map(fn [aid, iid] -> %{aid: String.to_integer(aid), iid: String.to_integer(iid)} end)
-      |> HAP.AccessoryServerManager.get_characteristics()
+      |> AccessoryServerManager.get_characteristics()
 
     conn
     |> put_resp_header("content-type", "application/hap+json")
@@ -110,7 +121,7 @@ defmodule HAP.HTTPServer do
   put "/characteristics" do
     results =
       conn.body_params["characteristics"]
-      |> HAP.AccessoryServerManager.put_characteristics()
+      |> AccessoryServerManager.put_characteristics()
 
     if Enum.all?(results, fn {result, _characteristic} -> result == :ok end) do
       conn
