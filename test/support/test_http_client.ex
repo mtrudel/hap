@@ -52,11 +52,11 @@ defmodule HAP.Test.HTTPClient do
 
   defdelegate encrypted_session?, to: HAPSessionTransport
 
-  def setup_encrypted_session(client) do
+  def setup_encrypted_session(client, permissions \\ <<1>>) do
     # Set ourselves up as if we'd already set up a pairing
     ios_identifier = "AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE"
     {:ok, ios_ltpk, ios_ltsk} = EDDSA.key_gen()
-    AccessoryServerManager.add_controller_pairing(ios_identifier, ios_ltpk, <<1>>)
+    AccessoryServerManager.add_controller_pairing(ios_identifier, ios_ltpk, permissions)
 
     # A very quick & dirty implementation of the iOS side of the Pair-Verify flow
     #

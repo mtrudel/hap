@@ -96,7 +96,7 @@ defmodule HAP.Pairings do
   def handle_message(%{@kTLVType_State => <<1>>, @kTLVType_Method => @kMethod_ListPairings}, %{admin?: true}) do
     response =
       AccessoryServerManager.controller_pairings()
-      |> Enum.map_intersperse({@kTLVType_Separator, <<>>}, fn {ios_identifer, {ios_ltpk, ios_permissions}} ->
+      |> Enum.map_intersperse([{@kTLVType_Separator, <<>>}], fn {ios_identifer, {ios_ltpk, ios_permissions}} ->
         [
           {@kTLVType_Identifier, ios_identifer},
           {@kTLVType_PublicKey, ios_ltpk},
