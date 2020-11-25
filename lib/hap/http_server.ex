@@ -82,11 +82,16 @@ defmodule HAP.HTTPServer do
   end
 
   get "/accessories" do
-    response = HAP.AccessoryServerManager.get_accessories()
+    if HAP.HAPSessionTransport.encrypted_session?() do
+      response = HAP.AccessoryServerManager.get_accessories()
 
-    conn
-    |> put_resp_header("content-type", "application/hap+json")
-    |> send_resp(200, Jason.encode!(response))
+      conn
+      |> put_resp_header("content-type", "application/hap+json")
+      |> send_resp(200, Jason.encode!(response))
+    else
+      conn
+      |> send_resp(401, "Not Authorized")
+    end
   end
 
   get "/characteristics" do
