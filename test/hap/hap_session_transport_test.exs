@@ -14,8 +14,8 @@ defmodule HAP.HAPSessionTransportTest do
         {:ok, data} = HAPSessionTransport.recv(server_socket, 0, :infinity)
         HAPSessionTransport.send(server_socket, data)
 
-        HAPSessionTransport.put_controller_to_accessory_key(<<1>>)
-        HAPSessionTransport.put_accessory_to_controller_key(<<2>>)
+        HAPSessionTransport.put_send_key(<<1>>)
+        HAPSessionTransport.put_recv_key(<<2>>)
 
         {:ok, data} = HAPSessionTransport.recv(server_socket, 0, :infinity)
         HAPSessionTransport.send(server_socket, data)
@@ -31,8 +31,9 @@ defmodule HAP.HAPSessionTransportTest do
     :ok = HAPSessionTransport.send(client_socket, <<1, 2, 3>>)
     assert {:ok, <<1, 2, 3>>} == HAPSessionTransport.recv(client_socket, 0, :infinity)
 
-    HAPSessionTransport.put_accessory_to_controller_key(<<1>>)
-    HAPSessionTransport.put_controller_to_accessory_key(<<2>>)
+    # Note that these are reversed since we're acting as the controller here
+    HAPSessionTransport.put_send_key(<<2>>)
+    HAPSessionTransport.put_recv_key(<<1>>)
 
     :ok = HAPSessionTransport.send(client_socket, <<1, 2, 3>>)
     assert {:ok, <<1, 2, 3>>} == HAPSessionTransport.recv(client_socket, 0, :infinity)
@@ -51,8 +52,8 @@ defmodule HAP.HAPSessionTransportTest do
       Task.async(fn ->
         {:ok, server_socket} = HAPSessionTransport.accept(listener_socket)
 
-        HAPSessionTransport.put_controller_to_accessory_key(<<1>>)
-        HAPSessionTransport.put_accessory_to_controller_key(<<2>>)
+        HAPSessionTransport.put_send_key(<<1>>)
+        HAPSessionTransport.put_recv_key(<<2>>)
 
         HAPSessionTransport.send(server_socket, <<1, 2, 3>>)
 
@@ -64,7 +65,7 @@ defmodule HAP.HAPSessionTransportTest do
     {encrypted_data, auth_tag} =
       :crypto.crypto_one_time_aead(
         :chacha20_poly1305,
-        <<2>>,
+        <<1>>,
         <<0::32, 0::integer-size(64)-little>>,
         <<1, 2, 3>>,
         <<3::integer-size(16)-little>>,

@@ -10,19 +10,19 @@ defmodule HAP.HAPSessionTransport do
   @behaviour Transport
 
   @pair_state_key :pair_state_key
-  @accessory_to_controller_key_key :accessory_to_controller_key_key
-  @controller_to_accessory_key_key :controller_to_accessory_key_key
+  @send_key_key :hap_send_key
+  @recv_key_key :hap_recv_key
   @hardcoded_options [mode: :binary, active: false]
 
   def get_pair_state, do: Process.get(@pair_state_key, HAP.PairVerify.init())
   def put_pair_state(new_state), do: Process.put(@pair_state_key, new_state)
 
-  def put_accessory_to_controller_key(accessory_to_controller_key) do
-    Process.put(@accessory_to_controller_key_key, accessory_to_controller_key)
+  def put_send_key(send_key) do
+    Process.put(@send_key_key, send_key)
   end
 
-  def put_controller_to_accessory_key(controller_to_accessory_key) do
-    Process.put(@controller_to_accessory_key_key, controller_to_accessory_key)
+  def put_recv_key(recv_key) do
+    Process.put(@recv_key_key, recv_key)
   end
 
   @impl Transport
@@ -71,18 +71,18 @@ defmodule HAP.HAPSessionTransport do
 
   @impl Transport
   def recv(socket, length, timeout) do
-    case Process.get(@controller_to_accessory_key_key) do
+    case Process.get(@recv_key_key) do
       nil ->
         :gen_tcp.recv(socket, length, timeout)
 
-      controller_to_accessory_key ->
+      recv_key ->
         with {:ok, <<packet::binary>>} <- :gen_tcp.recv(socket, length, timeout),
              <<length::integer-size(16)-little, encrypted_data::binary-size(length), tag::binary-size(16)>> <- packet,
              <<length_aad::binary-size(2), _rest::binary>> <- packet,
              counter <- Process.get(:recv_counter, 0),
              nonce <- pad_counter(counter) do
           Process.put(:recv_counter, counter + 1)
-          ChaCha20.decrypt_and_verify(encrypted_data <> tag, controller_to_accessory_key, nonce, length_aad)
+          ChaCha20.decrypt_and_verify(encrypted_data <> tag, recv_key, nonce, length_aad)
         else
           error ->
             error
@@ -92,16 +92,16 @@ defmodule HAP.HAPSessionTransport do
 
   @impl Transport
   def send(socket, data) do
-    case Process.get(@accessory_to_controller_key_key) do
+    case Process.get(@send_key_key) do
       nil ->
         :gen_tcp.send(socket, data)
 
-      accessory_to_controller_key ->
+      send_key ->
         with counter <- Process.get(:send_counter, 0),
              nonce <- pad_counter(counter),
              length_aad <- <<IO.iodata_length(data)::integer-size(16)-little>>,
              {:ok, encrypted_data_and_tag} <-
-               ChaCha20.encrypt_and_tag(data, accessory_to_controller_key, nonce, length_aad) do
+               ChaCha20.encrypt_and_tag(data, send_key, nonce, length_aad) do
           Process.put(:send_counter, counter + 1)
           :gen_tcp.send(socket, length_aad <> encrypted_data_and_tag)
         else

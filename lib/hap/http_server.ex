@@ -54,8 +54,8 @@ defmodule HAP.HTTPServer do
           |> send_resp(200, HAP.TLVEncoder.to_binary(response))
 
         HAP.HAPSessionTransport.put_pair_state(new_state)
-        HAP.HAPSessionTransport.put_accessory_to_controller_key(accessory_to_controller_key)
-        HAP.HAPSessionTransport.put_controller_to_accessory_key(controller_to_accessory_key)
+        HAP.HAPSessionTransport.put_send_key(accessory_to_controller_key)
+        HAP.HAPSessionTransport.put_recv_key(controller_to_accessory_key)
 
         conn
 

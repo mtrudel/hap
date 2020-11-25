@@ -62,8 +62,8 @@ defmodule HAP.PairVerifyTest do
     {:ok, controller_to_accessory_key} = HKDF.generate(session_key, "Control-Salt", "Control-Write-Encryption-Key")
 
     # Note that these are reversed since we're acting as the controller here
-    HAPSessionTransport.put_accessory_to_controller_key(controller_to_accessory_key)
-    HAPSessionTransport.put_controller_to_accessory_key(accessory_to_controller_key)
+    HAPSessionTransport.put_send_key(controller_to_accessory_key)
+    HAPSessionTransport.put_recv_key(accessory_to_controller_key)
 
     # Finally, ensure that we're working with an encrypted session
     {:ok, 200, _headers, _body} = HTTPClient.get(client, "/accessories", "content-type": "application/hap+json")
