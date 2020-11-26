@@ -5,11 +5,20 @@ defmodule HAP.MixProject do
     [
       app: :hap,
       version: "0.1.0",
-      elixir: "~> 1.9",
+      elixir: "~> 1.10",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       elixirc_paths: elixirc_paths(Mix.env()),
-      dialyzer: dialyzer()
+      dialyzer: dialyzer(),
+      name: "HAP",
+      description: "An implementation of the HomeKit Accessory Protocol",
+      source_url: "https://github.com/mtrudel/hap",
+      package: [
+        files: ["lib", "test", "mix.exs", "README*", "LICENSE*"],
+        maintainers: ["Mat Trudel"],
+        licenses: ["MIT"],
+        links: %{"GitHub" => "https://github.com/mtrudel/hap"}
+      ]
     ]
   end
 
@@ -23,7 +32,7 @@ defmodule HAP.MixProject do
     [
       {:bandit, "~> 0.1.1"},
       {:base36, "~> 1.0"},
-      {:cubdb, "~> 1.0.0-rc.5"},
+      {:cubdb, "~> 0.17.0"},
       {:eqrcode, "~> 0.1.7"},
       {:hkdf, "~> 0.1.0"},
       {:jason, "~> 1.2"},
