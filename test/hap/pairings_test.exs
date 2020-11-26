@@ -131,6 +131,21 @@ defmodule HAP.PairingsTest do
       # Finally, verify that we did not update the pairing on the Accessory Server side
       assert AccessoryServerManager.controller_pairing(new_ios_identifier) == {new_ios_ltpk, <<1>>}
     end
+
+    test "An add pairing flow over a non-authenticated session fails", context do
+      # Create the pairing as if it already existed
+      new_ios_identifier = "BBBBBBBB-CCCC-DDDD-EEEE-FFFFFFFFFFFF"
+      {:ok, new_ios_ltpk, _new_ios_ltsk} = EDDSA.key_gen()
+      AccessoryServerManager.add_controller_pairing(new_ios_identifier, new_ios_ltpk, <<1>>)
+
+      endpoint = "/pairings"
+
+      # Build M1 with a new permission
+      m1 = %{0x06 => <<1>>, 0x00 => <<0x03>>, 0x01 => new_ios_identifier, 0x03 => new_ios_ltpk, 0x0B => <<0x00>>}
+
+      {:ok, 401, _headers, _body} =
+        HTTPClient.post(context.client, endpoint, TLVEncoder.to_binary(m1), "content-type": "application/pairing+tlv8")
+    end
   end
 
   describe "Remove pairing flow" do
@@ -185,6 +200,18 @@ defmodule HAP.PairingsTest do
 
       # Verify that did not remove the pairing on the Accessory Server side
       refute is_nil(AccessoryServerManager.controller_pairing(ios_identifier))
+    end
+
+    test "A remove pairing flow over a non-authenticated session fails", context do
+      endpoint = "/pairings"
+
+      # Build M1
+      ios_identifier = "AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE"
+      m1 = %{0x06 => <<1>>, 0x00 => <<0x04>>, 0x01 => ios_identifier}
+
+      # Send M1
+      {:ok, 401, _headers, _body} =
+        HTTPClient.post(context.client, endpoint, TLVEncoder.to_binary(m1), "content-type": "application/pairing+tlv8")
     end
   end
 
@@ -246,6 +273,17 @@ defmodule HAP.PairingsTest do
                # Verify M2
                _m2 = %{0x06 => <<2>>, 0x07 => <<2>>} = TLVParser.parse_tlv(body)
              end) =~ "Pairing <M1> Requesting controller is not an admin"
+    end
+
+    test "A list pairing flow over a non-authenticated session fails", context do
+      endpoint = "/pairings"
+
+      # Build M1
+      m1 = %{0x06 => <<1>>, 0x00 => <<0x05>>}
+
+      # Send M1
+      {:ok, 401, _headers, _body} =
+        HTTPClient.post(context.client, endpoint, TLVEncoder.to_binary(m1), "content-type": "application/pairing+tlv8")
     end
   end
 end

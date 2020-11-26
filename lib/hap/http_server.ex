@@ -77,18 +77,23 @@ defmodule HAP.HTTPServer do
   end
 
   post "/pairings" do
-    pair_state = HAPSessionTransport.get_pair_state()
+    if HAPSessionTransport.encrypted_session?() do
+      pair_state = HAPSessionTransport.get_pair_state()
 
-    Pairings.handle_message(conn.body_params, pair_state)
-    |> case do
-      {:ok, response} ->
-        conn
-        |> put_resp_header("content-type", "application/pairing+tlv8")
-        |> send_resp(200, TLVEncoder.to_binary(response))
+      Pairings.handle_message(conn.body_params, pair_state)
+      |> case do
+        {:ok, response} ->
+          conn
+          |> put_resp_header("content-type", "application/pairing+tlv8")
+          |> send_resp(200, TLVEncoder.to_binary(response))
 
-      {:error, reason} ->
-        conn
-        |> send_resp(400, reason)
+        {:error, reason} ->
+          conn
+          |> send_resp(400, reason)
+      end
+    else
+      conn
+      |> send_resp(401, "Not Authorized")
     end
   end
 
