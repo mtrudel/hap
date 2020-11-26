@@ -14,13 +14,18 @@ defmodule HAP.HAPSessionTransport do
   @recv_key_key :hap_recv_key
   @hardcoded_options [mode: :binary, active: false]
 
+  @doc false
   def get_pair_state, do: Process.get(@pair_state_key, HAP.PairVerify.init())
+
+  @doc false
   def put_pair_state(new_state), do: Process.put(@pair_state_key, new_state)
 
+  @doc false
   def put_send_key(send_key) do
     Process.put(@send_key_key, send_key)
   end
 
+  @doc false
   def put_recv_key(recv_key) do
     Process.put(@recv_key_key, recv_key)
   end

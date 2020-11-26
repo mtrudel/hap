@@ -27,6 +27,7 @@ defmodule HAP.PairVerify do
     %{step: 1}
   end
 
+  @doc false
   # Handles `<M1>` messages and returns `<M2>` messages
   def handle_message(%{@kTLVType_State => <<1>>, @kTLVType_PublicKey => ios_epk}, %{step: 1}) do
     {:ok, accessory_epk, accessory_esk} = ECDH.key_gen()

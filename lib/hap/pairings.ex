@@ -26,6 +26,7 @@ defmodule HAP.Pairings do
   @kMethod_RemovePairing <<0x04>>
   @kMethod_ListPairings <<0x05>>
 
+  @doc false
   # Handles Add Pairing `<M1>` messages and returns `<M2>` messages
   def handle_message(
         %{

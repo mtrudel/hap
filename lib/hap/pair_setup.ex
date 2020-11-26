@@ -37,6 +37,7 @@ defmodule HAP.PairSetup do
     GenServer.start_link(__MODULE__, opts, name: __MODULE__)
   end
 
+  @doc false
   def handle_message(message, pid \\ __MODULE__) do
     GenServer.call(pid, message)
   end

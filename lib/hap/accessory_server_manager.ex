@@ -13,42 +13,74 @@ defmodule HAP.AccessoryServerManager do
     GenServer.start_link(__MODULE__, config, name: __MODULE__)
   end
 
-  # Note that these functions actually call through to PersistentStorage
+  @doc false
   def config_number, do: PersistentStorage.get(:config_number)
+
+  @doc false
   def ltpk, do: PersistentStorage.get(:ltpk)
+
+  @doc false
   def ltsk, do: PersistentStorage.get(:ltsk)
+
+  @doc false
   def port(pid \\ __MODULE__), do: GenServer.call(pid, {:get, :port})
+
+  @doc false
   def set_port(port, pid \\ __MODULE__), do: GenServer.call(pid, {:put, :port, port})
+
+  @doc false
   def display_module(pid \\ __MODULE__), do: GenServer.call(pid, {:get, :display_module})
+
+  @doc false
   def name(pid \\ __MODULE__), do: GenServer.call(pid, {:get, :name})
+
+  @doc false
   def model(pid \\ __MODULE__), do: GenServer.call(pid, {:get, :model})
+
+  @doc false
   def identifier(pid \\ __MODULE__), do: GenServer.call(pid, {:get, :identifier})
+
+  @doc false
   def accessory_type(pid \\ __MODULE__), do: GenServer.call(pid, {:get, :accessory_type})
+
+  @doc false
   def pairing_code(pid \\ __MODULE__), do: GenServer.call(pid, {:get, :pairing_code})
+
+  @doc false
   def setup_id(pid \\ __MODULE__), do: GenServer.call(pid, {:get, :setup_id})
+
+  @doc false
   def paired?(pid \\ __MODULE__), do: GenServer.call(pid, :paired?)
+
+  @doc false
   def controller_pairings(pid \\ __MODULE__), do: GenServer.call(pid, :controller_pairings)
 
+  @doc false
   def controller_pairing(ios_identifier, pid \\ __MODULE__) do
     GenServer.call(pid, {:controller_pairing, ios_identifier})
   end
 
+  @doc false
   def add_controller_pairing(ios_identifier, ios_ltpk, permissions, pid \\ __MODULE__) do
     GenServer.call(pid, {:add_controller_pairing, ios_identifier, ios_ltpk, permissions})
   end
 
+  @doc false
   def remove_controller_pairing(ios_identifier, pid \\ __MODULE__) do
     GenServer.call(pid, {:remove_controller_pairing, ios_identifier})
   end
 
+  @doc false
   def get_accessories(pid \\ __MODULE__) do
     GenServer.call(pid, :get_accessories)
   end
 
+  @doc false
   def get_characteristics(characteristics, pid \\ __MODULE__) do
     GenServer.call(pid, {:get_characteristics, characteristics})
   end
 
+  @doc false
   def put_characteristics(characteristics, pid \\ __MODULE__) do
     GenServer.call(pid, {:put_characteristics, characteristics})
   end

@@ -5,6 +5,20 @@ defmodule HAP.Service do
 
   defstruct type: nil, characteristics: []
 
+  @typedoc """
+  Represents a service of a given type, containing a number of characteristics
+  """
+  @type t :: %__MODULE__{
+          type: type(),
+          characteristics: [HAP.Characteristic.t()]
+        }
+
+  @typedoc """
+  The type of a service as defined in Section 6.6.1 of Apple's [HomeKit Accessory Protocol Specification](https://developer.apple.com/homekit/).
+  """
+  @type type :: String.t()
+
+  @doc false
   def accessories_tree(%__MODULE__{type: type, characteristics: characteristics}, service_index, opts \\ []) do
     formatted_characteristics =
       characteristics
@@ -16,6 +30,7 @@ defmodule HAP.Service do
     %{iid: HAP.IID.to_iid(service_index), type: type, characteristics: formatted_characteristics}
   end
 
+  @doc false
   def get_characteristic(%__MODULE__{characteristics: characteristics}, iid) do
     characteristics
     |> Enum.at(HAP.IID.characteristic_index(iid))

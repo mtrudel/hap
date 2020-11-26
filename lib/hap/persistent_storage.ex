@@ -10,8 +10,13 @@ defmodule HAP.PersistentStorage do
     GenServer.start_link(__MODULE__, path, name: __MODULE__)
   end
 
+  @doc false
   def get(param, pid \\ __MODULE__), do: GenServer.call(pid, {:get, param})
+
+  @doc false
   def put(param, value, pid \\ __MODULE__), do: GenServer.call(pid, {:put, param, value})
+
+  @doc false
   def get_and_update(param, func, pid \\ __MODULE__), do: GenServer.call(pid, {:get_and_update, param, func})
 
   def init(path) do

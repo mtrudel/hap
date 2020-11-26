@@ -16,6 +16,84 @@ defmodule HAP.AccessoryServer do
             accessory_type: nil,
             accessories: nil
 
+  @typedoc """
+  Represents an accessory server consisting of a number of accessories
+  """
+  @type t :: %__MODULE__{
+          port: :inet.port_number(),
+          display_module: module(),
+          data_path: String.t(),
+          name: name(),
+          model: model(),
+          identifier: accessory_identifier(),
+          pairing_code: pairing_code(),
+          setup_id: setup_id(),
+          accessory_type: accessory_type(),
+          accessories: [HAP.Accessory.t()]
+        }
+
+  @typedoc """
+  The name of an accessory server
+  """
+  @type name :: String.t()
+
+  @typedoc """
+  The model of an accessory server
+  """
+  @type model :: String.t()
+
+  @typedoc """
+  A unique identifier string in the form "AA:BB:CC:DD:EE:FF"
+  """
+  @type accessory_identifier :: String.t()
+
+  @typedoc """
+  A pairing code of the form 123-45-678
+  """
+  @type pairing_code :: String.t()
+
+  @typedoc """
+  A pairing URL suitable for display in a QR code
+  """
+  @type pairing_url :: String.t()
+
+  @typep setup_id :: String.t()
+
+  @typedoc """
+  A HAP specified value indicating the primary function of this device as found 
+  in Section 13 of Apple's [HomeKit Accessory Protocol Specification](https://developer.apple.com/homekit/). 
+  Valid values include:
+    1. Other
+    2. Bridge
+    3. Fan
+    4. Garage
+    5. Lightbulb
+    6. Door Lock
+    7. Outlet
+    8. Switch
+    9. Thermostat
+    10. Sensor
+    11. Security System
+    12. Door
+    13. Window
+    14. Window Covering
+    15. Programmable Switch
+    16. Range Extender
+    17. IP Camera
+    18. Video Door Bell
+    19. Air Purifier
+    20. Heater
+    21. Air Conditioner
+    22. Humidifier
+    23. Dehumidifier
+    28. Sprinkler
+    29. Faucet
+    30. Shower System
+    32. Remote
+  """
+  @type accessory_type :: integer()
+
+  @doc false
   def build_accessory_server(accessory_server) do
     %__MODULE__{
       port: Keyword.get(accessory_server, :port, 0),
@@ -31,6 +109,7 @@ defmodule HAP.AccessoryServer do
     }
   end
 
+  @doc false
   def config_hash(%__MODULE__{} = accessory_server) do
     accessory_server
     |> accessories_tree(static_only: true)
@@ -38,6 +117,7 @@ defmodule HAP.AccessoryServer do
     |> SHA512.hash()
   end
 
+  @doc false
   def accessories_tree(%__MODULE__{accessories: accessories}, opts \\ []) do
     formatted_accessories =
       accessories
@@ -49,6 +129,7 @@ defmodule HAP.AccessoryServer do
     %{accessories: formatted_accessories}
   end
 
+  @doc false
   def get_characteristics(%__MODULE__{accessories: accessories}, characteristics) do
     formatted_characteristics =
       characteristics
@@ -65,6 +146,7 @@ defmodule HAP.AccessoryServer do
     %{characteristics: formatted_characteristics}
   end
 
+  @doc false
   def put_characteristics(%__MODULE__{accessories: accessories}, characteristics) do
     characteristics
     |> Enum.map(fn

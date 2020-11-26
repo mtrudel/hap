@@ -4,6 +4,25 @@ defmodule HAP.ValueStore do
   for a given HomeKit characteristic
   """
 
-  @callback get_value(keyword()) :: any()
-  @callback put_value(any(), keyword()) :: :ok | {:error, String.t()}
+  @type t :: module()
+  @type opts :: keyword()
+
+  @doc """
+  Return the value of a value hosted by this value store. The passed list of opts
+  is as specified in the hosting `HAP.Configuration` and can be used to distinguish a
+  particular value within a larger value store (perhaps by GPIO pin or similar)
+
+  Returns the value stored by this value store
+  """
+  @callback get_value(opts()) :: HAP.Characteristic.value()
+
+  @doc """
+
+  Sets the value of a value hosted by this value store. The passed list of opts
+  is as specified in the hosting `HAP.Configuration` and can be used to distinguish a
+  particular value within a larger value store (perhaps by GPIO pin or similar)
+
+  Returns `:ok` or `{:error, reason}`
+  """
+  @callback put_value(HAP.Characteristic.value(), opts()) :: :ok | {:error, String.t()}
 end

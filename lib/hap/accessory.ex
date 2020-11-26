@@ -7,6 +7,14 @@ defmodule HAP.Accessory do
 
   defstruct services: []
 
+  @typedoc """
+  Represents an accessory consisting of a number of services
+  """
+  @type t :: %__MODULE__{
+          services: [HAP.Service.t()]
+        }
+
+  @doc false
   def build_accessory(accessory) do
     {[services: services], metadata} = Keyword.split(accessory, [:services])
 
@@ -17,6 +25,7 @@ defmodule HAP.Accessory do
     }
   end
 
+  @doc false
   def accessories_tree(%__MODULE__{services: services}, aid, opts \\ []) do
     formatted_services =
       services
@@ -28,6 +37,7 @@ defmodule HAP.Accessory do
     %{aid: aid, services: formatted_services}
   end
 
+  @doc false
   def get_characteristic(%__MODULE__{services: services}, iid) do
     services
     |> Enum.at(IID.service_index(iid))

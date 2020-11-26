@@ -8,6 +8,7 @@ defmodule HAP.Discovery do
 
   alias HAP.AccessoryServerManager
 
+  @doc false
   def reload do
     Logger.debug("(Re-)Advertising mDNS record")
 
