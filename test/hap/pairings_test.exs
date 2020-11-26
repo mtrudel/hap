@@ -17,8 +17,8 @@ defmodule HAP.PairingsTest do
     {:ok, %{client: client}}
   end
 
-  describe "Add pairing flow" do
-    test "A valid add pairing flow results in a new pairing being added", context do
+  describe "add pairing flow" do
+    test "a valid add pairing flow results in a new pairing being added", context do
       # Setup an encrypted session
       :ok = HTTPClient.setup_encrypted_session(context.client)
 
@@ -42,7 +42,7 @@ defmodule HAP.PairingsTest do
       assert AccessoryServerManager.controller_pairing(new_ios_identifier) == {new_ios_ltpk, <<1>>}
     end
 
-    test "A valid add pairing flow results in an existing pairing being updated", context do
+    test "a valid add pairing flow results in an existing pairing being updated", context do
       # Create the pairing as if it already existed
       new_ios_identifier = "BBBBBBBB-CCCC-DDDD-EEEE-FFFFFFFFFFFF"
       {:ok, new_ios_ltpk, _new_ios_ltsk} = EDDSA.key_gen()
@@ -69,7 +69,7 @@ defmodule HAP.PairingsTest do
       assert AccessoryServerManager.controller_pairing(new_ios_identifier) == {new_ios_ltpk, <<0>>}
     end
 
-    test "An add pairing flow with an invalid public key fails", context do
+    test "an add pairing flow with an invalid public key fails", context do
       # Create the pairing as if it already existed
       new_ios_identifier = "BBBBBBBB-CCCC-DDDD-EEEE-FFFFFFFFFFFF"
       {:ok, new_ios_ltpk, _new_ios_ltsk} = EDDSA.key_gen()
@@ -101,7 +101,7 @@ defmodule HAP.PairingsTest do
       assert AccessoryServerManager.controller_pairing(new_ios_identifier) == {new_ios_ltpk, <<1>>}
     end
 
-    test "An add pairing flow over a non-admin session fails", context do
+    test "an add pairing flow over a non-admin session fails", context do
       # Create the pairing as if it already existed
       new_ios_identifier = "BBBBBBBB-CCCC-DDDD-EEEE-FFFFFFFFFFFF"
       {:ok, new_ios_ltpk, _new_ios_ltsk} = EDDSA.key_gen()
@@ -132,7 +132,7 @@ defmodule HAP.PairingsTest do
       assert AccessoryServerManager.controller_pairing(new_ios_identifier) == {new_ios_ltpk, <<1>>}
     end
 
-    test "An add pairing flow over a non-authenticated session fails", context do
+    test "an add pairing flow over a non-authenticated session fails", context do
       # Create the pairing as if it already existed
       new_ios_identifier = "BBBBBBBB-CCCC-DDDD-EEEE-FFFFFFFFFFFF"
       {:ok, new_ios_ltpk, _new_ios_ltsk} = EDDSA.key_gen()
@@ -148,8 +148,8 @@ defmodule HAP.PairingsTest do
     end
   end
 
-  describe "Remove pairing flow" do
-    test "A valid remove pairing flow results in pairing being removed", context do
+  describe "remove pairing flow" do
+    test "a valid remove pairing flow results in pairing being removed", context do
       # Setup an encrypted session
       :ok = HTTPClient.setup_encrypted_session(context.client)
 
@@ -175,7 +175,7 @@ defmodule HAP.PairingsTest do
       refute AccessoryServerManager.paired?()
     end
 
-    test "A remove pairing flow over a non-admin session fails", context do
+    test "a remove pairing flow over a non-admin session fails", context do
       # Setup an encrypted session
       :ok = HTTPClient.setup_encrypted_session(context.client, <<0>>)
 
@@ -202,7 +202,7 @@ defmodule HAP.PairingsTest do
       refute is_nil(AccessoryServerManager.controller_pairing(ios_identifier))
     end
 
-    test "A remove pairing flow over a non-authenticated session fails", context do
+    test "a remove pairing flow over a non-authenticated session fails", context do
       endpoint = "/pairings"
 
       # Build M1
@@ -215,8 +215,8 @@ defmodule HAP.PairingsTest do
     end
   end
 
-  describe "List pairing flow" do
-    test "A valid list pairing flow results in pairings being listed", context do
+  describe "list pairing flow" do
+    test "a valid list pairing flow results in pairings being listed", context do
       # Create the pairing to test multiple listings
       new_ios_identifier = "BBBBBBBB-CCCC-DDDD-EEEE-FFFFFFFFFFFF"
       {:ok, new_ios_ltpk, _new_ios_ltsk} = EDDSA.key_gen()
@@ -252,7 +252,7 @@ defmodule HAP.PairingsTest do
         ] = TLVParser.parse_tlv_as_keyword(body)
     end
 
-    test "A list pairing flow over a non-admin session fails", context do
+    test "a list pairing flow over a non-admin session fails", context do
       # Setup an encrypted session
       :ok = HTTPClient.setup_encrypted_session(context.client, <<0>>)
 
@@ -275,7 +275,7 @@ defmodule HAP.PairingsTest do
              end) =~ "Pairing <M1> Requesting controller is not an admin"
     end
 
-    test "A list pairing flow over a non-authenticated session fails", context do
+    test "a list pairing flow over a non-authenticated session fails", context do
       endpoint = "/pairings"
 
       # Build M1

@@ -35,7 +35,7 @@ defmodule HAP.AcessoriesTest do
   end
 
   describe "GET /accessories" do
-    test "It should return the expected accessories tree", context do
+    test "it should return the expected accessories tree", context do
       # Setup an encrypted session
       :ok = HTTPClient.setup_encrypted_session(context.client)
 
@@ -80,7 +80,7 @@ defmodule HAP.AcessoriesTest do
              }
     end
 
-    test "It should require an authenticated session", context do
+    test "it should require an authenticated session", context do
       {:ok, 401, _headers, _body} = HTTPClient.get(context.client, "/accessories")
     end
   end

@@ -10,7 +10,7 @@ defmodule HAP.PairVerifyTest do
     :ok
   end
 
-  test "A valid pair-verify flow results in a pairing being made" do
+  test "a valid pair-verify flow results in a pairing being made" do
     # Build our request parameters
     port = AccessoryServerManager.port()
     {:ok, client} = HTTPClient.init(:localhost, port)

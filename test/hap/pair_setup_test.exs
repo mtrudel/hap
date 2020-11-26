@@ -11,7 +11,7 @@ defmodule HAP.PairSetupTest do
     :ok
   end
 
-  test "A valid pair-setup flow results in a pairing being made" do
+  test "a valid pair-setup flow results in a pairing being made" do
     # A very quick & dirty implementation of the iOS side of the Pair-Setup flow
 
     # Build our request parameters
