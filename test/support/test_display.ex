@@ -3,6 +3,8 @@ defmodule HAP.Test.Display do
 
   @behaviour HAP.Display
 
+  require Logger
+
   @impl HAP.Display
   def display_pairing_code(_name, _pairing_code, _pairing_url), do: :ok
 
@@ -10,5 +12,7 @@ defmodule HAP.Test.Display do
   def clear_pairing_code, do: :ok
 
   @impl HAP.Display
-  def identify(_name), do: :ok
+  def identify(name) do
+    Logger.warn("IDENTIFY #{name}")
+  end
 end
