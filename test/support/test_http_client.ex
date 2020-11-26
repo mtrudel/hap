@@ -15,6 +15,10 @@ defmodule HAP.Test.HTTPClient do
     request(socket, "GET", path, "", headers)
   end
 
+  def put(socket, path, body, headers \\ []) do
+    request(socket, "PUT", path, body, headers)
+  end
+
   def post(socket, path, body, headers \\ []) do
     request(socket, "POST", path, body, headers)
   end

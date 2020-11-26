@@ -111,16 +111,21 @@ defmodule HAP.HTTPServer do
   end
 
   get "/characteristics" do
-    response =
-      conn.params["id"]
-      |> String.split(",")
-      |> Enum.map(&String.split(&1, "."))
-      |> Enum.map(fn [aid, iid] -> %{aid: String.to_integer(aid), iid: String.to_integer(iid)} end)
-      |> AccessoryServerManager.get_characteristics()
+    if HAPSessionTransport.encrypted_session?() do
+      response =
+        conn.params["id"]
+        |> String.split(",")
+        |> Enum.map(&String.split(&1, "."))
+        |> Enum.map(fn [aid, iid] -> %{aid: String.to_integer(aid), iid: String.to_integer(iid)} end)
+        |> AccessoryServerManager.get_characteristics()
 
-    conn
-    |> put_resp_header("content-type", "application/hap+json")
-    |> send_resp(200, Jason.encode!(response))
+      conn
+      |> put_resp_header("content-type", "application/hap+json")
+      |> send_resp(200, Jason.encode!(response))
+    else
+      conn
+      |> send_resp(401, "Not Authorized")
+    end
   end
 
   put "/characteristics" do
