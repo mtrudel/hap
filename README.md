@@ -3,7 +3,7 @@
 [![Build Status](https://github.com/mtrudel/hap/workflows/Elixir%20CI/badge.svg)](https://github.com/mtrudel/hap/actions)
 [![Hex.pm](https://img.shields.io/hexpm/v/hap.svg?style=flat-square)](https://hex.pm/packages/hap)
 
-[Documentation](https://hexdocs.pm/hap)
+[Documentation](https://hexdocs.pm/hap/)
 
 HAP is a framework for building DIY HomeKit accessories based on Apple's [HomeKit Accessory Protocol Specification](https://developer.apple.com/homekit/). 
 You can think of it as [homebridge](https://github.com/nfarina/homebridge) for Elixir (with a bit more of a focus on
@@ -46,7 +46,7 @@ end
 HAP is intended to be used within a host application which provides concrete implementations for various HomeKit
 characteristics. Check out the [HAP Demo](https://github.com/mtrudel/hap_demo) app for an example of how to use HAP.
 
-Documentation can be found at https://hexdocs.pm/hap.
+Documentation can be found at https://hexdocs.pm/hap/.
 
 Note that in order to have access to the required crypto methods for HAP to function, at
 least version 23.0 of Erlang is required.
