@@ -18,7 +18,8 @@ defmodule HAP.MixProject do
         maintainers: ["Mat Trudel"],
         licenses: ["MIT"],
         links: %{"GitHub" => "https://github.com/mtrudel/hap"}
-      ]
+      ],
+      docs: docs()
     ]
   end
 
@@ -51,5 +52,37 @@ defmodule HAP.MixProject do
 
   defp dialyzer do
     [plt_core_path: "priv/plts", plt_file: {:no_warn, "priv/plts/dialyzer.plt"}]
+  end
+
+  defp docs do
+    [
+      main: "HAP",
+      groups_for_modules: [
+        # HAP,
+        # HAP.Accessory,
+        # HAP.AccessoryServer,
+        Behaviours: [
+          HAP.Display,
+          HAP.ValueStore
+        ],
+        Services: [
+          HAP.Service,
+          HAP.Services.AccessoryInformation,
+          HAP.Services.LightBulb,
+          HAP.Services.ProtocolInformation
+        ],
+        Characteristics: [
+          HAP.Characteristic,
+          HAP.Characteristics.FirmwareRevision,
+          HAP.Characteristics.Identify,
+          HAP.Characteristics.Manufacturer,
+          HAP.Characteristics.Model,
+          HAP.Characteristics.Name,
+          HAP.Characteristics.On,
+          HAP.Characteristics.SerialNumber,
+          HAP.Characteristics.Version
+        ]
+      ]
+    ]
   end
 end
