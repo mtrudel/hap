@@ -1,7 +1,6 @@
 defmodule HAP.Crypto.ECDH do
-  @moduledoc """
-  Functions to work with Elliptic Curve Diffie-Hellman shared secret generation
-  """
+  @moduledoc false
+  # Functions to work with Elliptic Curve Diffie-Hellman shared secret generation
 
   @type public_key :: binary()
   @type private_key :: binary()

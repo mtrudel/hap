@@ -1,7 +1,6 @@
 defmodule HAP.HTTPServer do
-  @moduledoc """
-  Defines the HTTP interface for a HomeKit Accessory
-  """
+  @moduledoc false
+  # Defines the HTTP interface for a HomeKit Accessory
 
   use Plug.Router
 

@@ -1,7 +1,7 @@
 defmodule HAP.PersistentStorage do
-  @moduledoc """
-  Encapsulates a simple persistent key-value store
-  """
+  @moduledoc false
+  # Encapsulates a simple persistent key-value store
+
   use GenServer
 
   alias HAP.Crypto.EDDSA

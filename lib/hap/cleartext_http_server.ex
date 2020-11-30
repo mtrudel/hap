@@ -1,8 +1,7 @@
 defmodule HAP.CleartextHTTPServer do
-  @moduledoc """
-  Defines the HTTP interface for a HomeKit Accessory which may only be accseed over
-  a non-encrpyted channel
-  """
+  @moduledoc false
+  # Defines the HTTP interface for a HomeKit Accessory which may only be accseed over
+  # a non-encrpyted channel
 
   use Plug.Router
 

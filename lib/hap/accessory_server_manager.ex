@@ -1,7 +1,6 @@
 defmodule HAP.AccessoryServerManager do
-  @moduledoc """
-  Holds the top-level state of a HAP accessory server
-  """
+  @moduledoc false
+  # Holds the top-level state of a HAP accessory server
 
   use GenServer
 

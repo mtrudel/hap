@@ -1,8 +1,7 @@
 defmodule HAP.HAPSessionTransport do
-  @moduledoc """
-  Implements cleartext TCP transport with optional chacha20_poly1305 encryption
-  as mandated by section 6.5.2 of the HomeKit Accessory Protocol specification
-  """
+  @moduledoc false
+  # Implements cleartext TCP transport with optional chacha20_poly1305 encryption
+  # as mandated by section 6.5.2 of the HomeKit Accessory Protocol specification
 
   alias HAP.Crypto.ChaCha20
   alias ThousandIsland.Transport

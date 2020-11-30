@@ -1,7 +1,6 @@
 defmodule HAP.Crypto.HKDF do
-  @moduledoc """
-  Functions to help with key derivation
-  """
+  @moduledoc false
+  # Functions to help with key derivation
 
   @type ikm :: binary()
   @type salt :: binary()

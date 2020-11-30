@@ -1,9 +1,8 @@
 defmodule HAP.Display do
   @moduledoc """
-  Centralized functions for non-logging related display functionality. Applications
-  which use HAP may provide their own implementation of this behaviour as an argument
-  to `HAP.build_accessory_server/1`. If no such implementation is provided HAP uses
-  a default console based implementation found at `HAP.ConsoleDisplay`
+  A behaviour which encapsulates all user-facing display concerns for an accessory.  Applications which use HAP may
+  provide their own implementation of this behaviour as an argument to `HAP.build_accessory_server/1`. If no such
+  implementation is provided HAP uses a default console based implementation found at `HAP.ConsoleDisplay`
   """
 
   @doc """

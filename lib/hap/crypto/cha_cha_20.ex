@@ -1,7 +1,6 @@
 defmodule HAP.Crypto.ChaCha20 do
-  @moduledoc """
-  Functions to encrypt/tag and decrypt/verify using the chacha20_poly1305 cipher
-  """
+  @moduledoc false
+  # Functions to encrypt/tag and decrypt/verify using the chacha20_poly1305 cipher
 
   @type plaintext :: binary()
   @type ciphertext_with_authdata :: binary()

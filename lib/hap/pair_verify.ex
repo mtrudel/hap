@@ -1,7 +1,6 @@
 defmodule HAP.PairVerify do
-  @moduledoc """
-  Implements the Pair Verify flow described in Apple's [HomeKit Accessory Protocol Specification](https://developer.apple.com/homekit/). 
-  """
+  @moduledoc false
+  # Implements the Pair Verify flow described in Apple's [HomeKit Accessory Protocol Specification](https://developer.apple.com/homekit/). 
 
   require Logger
 

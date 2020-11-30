@@ -1,8 +1,7 @@
 defmodule HAP.Discovery do
-  @moduledoc """
-  Provides functions to define & update a `HAP.Accessory` advertisement via multicast DNS according to Section 6 of
-  Apple's [HomeKit Accessory Protocol Specification](https://developer.apple.com/homekit/). 
-  """
+  @moduledoc false
+  # Provides functions to define & update a `HAP.Accessory` advertisement via multicast DNS according to Section 6 of
+  # Apple's [HomeKit Accessory Protocol Specification](https://developer.apple.com/homekit/).
 
   require Logger
 

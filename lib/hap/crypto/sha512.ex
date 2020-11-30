@@ -1,7 +1,6 @@
 defmodule HAP.Crypto.SHA512 do
-  @moduledoc """
-  Simple wrapper around Erlang's `:crypto.hash()` function
-  """
+  @moduledoc false
+  # Simple wrapper around Erlang's `:crypto.hash()` function
 
   @type message :: binary()
   @type hash :: binary()

@@ -1,7 +1,6 @@
 defmodule HAP.Crypto.EDDSA do
-  @moduledoc """
-  Functions to generate keys, sign & verify messages using Elliptic Curve Signatures
-  """
+  @moduledoc false
+  # Functions to generate keys, sign & verify messages using Elliptic Curve Signatures
 
   @type plaintext :: binary()
   @type public_key :: binary()

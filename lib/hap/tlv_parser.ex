@@ -1,8 +1,7 @@
 defmodule HAP.TLVParser do
-  @moduledoc """
-  A `Plug.Parsers` compliant parser for TLV payloads as described in the Appendix of 
-  Apple's [HomeKit Accessory Protocol Specification](https://developer.apple.com/homekit/). 
-  """
+  @moduledoc false
+  # A `Plug.Parsers` compliant parser for TLV payloads as described in the Appendix of 
+  # Apple's [HomeKit Accessory Protocol Specification](https://developer.apple.com/homekit/). 
 
   @behaviour Plug.Parsers
 
