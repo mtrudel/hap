@@ -1,6 +1,6 @@
 defmodule HAP.PairSetup do
   @moduledoc false
-  # Implements the Pair Setup flow described in Apple's [HomeKit Accessory Protocol Specification](https://developer.apple.com/homekit/). 
+  # Implements the Pair Setup flow described in Apple's [HomeKit Accessory Protocol Specification](https://developer.apple.com/homekit/).
   # Since Pair Setup is a singleton operation, this is implemented as a named GenServer
 
   use GenServer

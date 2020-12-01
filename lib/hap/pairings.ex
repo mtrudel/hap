@@ -1,6 +1,6 @@
 defmodule HAP.Pairings do
   @moduledoc false
-  # Implements the Add / Remove / List Pairings flows described in Apple's [HomeKit Accessory Protocol Specification](https://developer.apple.com/homekit/). 
+  # Implements the Add / Remove / List Pairings flows described in Apple's [HomeKit Accessory Protocol Specification](https://developer.apple.com/homekit/).
 
   require Logger
 

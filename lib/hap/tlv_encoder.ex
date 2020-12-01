@@ -1,7 +1,7 @@
 defmodule HAP.TLVEncoder do
   @moduledoc false
   # Provides functions to encode a map or keyword list into a TLV binary as described
-  # in Apple's [HomeKit Accessory Protocol Specification](https://developer.apple.com/homekit/). 
+  # in Apple's [HomeKit Accessory Protocol Specification](https://developer.apple.com/homekit/).
 
   @doc """
   Converts the provided map or keyword list into a TLV binary
