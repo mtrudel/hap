@@ -4,7 +4,7 @@ defmodule HAP.MixProject do
   def project do
     [
       app: :hap,
-      version: "0.1.0",
+      version: "0.1.1",
       elixir: "~> 1.10",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -14,7 +14,7 @@ defmodule HAP.MixProject do
       description: "An implementation of the HomeKit Accessory Protocol",
       source_url: "https://github.com/mtrudel/hap",
       package: [
-        files: ["lib", "test", "mix.exs", "README*", "LICENSE*"],
+        files: ["lib", "test", "mix.exs", "README*", "LICENSE*", ".credo.exs", ".formatter.exs"],
         maintainers: ["Mat Trudel"],
         licenses: ["MIT"],
         links: %{"GitHub" => "https://github.com/mtrudel/hap"}
