@@ -2,7 +2,7 @@ defmodule HAP do
   @moduledoc """
   HAP is an implementation of the [HomeKit Accessory Protocol Specification](https://developer.apple.com/homekit/).
   It allows for the creation of Elixir powered HomeKit accessories which can be controlled from a user's
-  iOS device in a similar manner to commercially available HomeKit accessories such as smart light bulbs, window 
+  iOS device in a similar manner to commercially available HomeKit accessories such as light bulbs, window 
   coverings and other smart home accessories.
 
   ## The HomeKit Data Model
@@ -10,17 +10,17 @@ defmodule HAP do
   The data model of the HomeKit Accessory Protocol is represented as a tree structure. At the top level, a single HAP
   instance represents an *Accessory Server*.  An accessory server hosts one or more *Accessory Objects*. Each accessory object
   represents a single, discrete physical accessory. In the case of directly connected devices, an accessory server typically 
-  hosts a single accessory object which represents device itself. Bridges will have one accessory object for each discrete 
-  phyisical object which they bridge to. Within HAP, an accessory server is represented by a `HAP.AccessoryServer` struct, and
+  hosts a single accessory object which represents device itself, whereas bridges will have one accessory object for each discrete 
+  physical object which they bridge to. Within HAP, an accessory server is represented by a `HAP.AccessoryServer` struct, and
   an accessory by the `HAP.Accessory` struct.
 
   Each accessory object contains exposes a set of *Services*, each of which represents a unit of functionality.  As an 
-  example, a HomeKit Accessory Server which represented a ceiling fan with a light would contain one accessory object 
+  example, a HomeKit accessory server which represented a ceiling fan with a light would contain one accessory object 
   called 'Ceiling Fan', which would contain two services each representing the light and the fan. In addition to user-visible
   services, each accessory exposes an Accessory Information Service which contains information about the service's name, 
   manufacturer, serial number and other properties. Within HAP, a service is represented by a `HAP.Service` struct.
 
-  A service is made up of one or more *Characteristics*, each of which represnts a specific aspect of the given service. 
+  A service is made up of one or more *Characteristics*, each of which represents a specific aspect of the given service. 
   For example, a light bulb service exposes an On Characteristic, which is a boolean value reflecting the current on or
   off state of the light. If it is a dimmable light, it may also expose a Brightness Characteristic. If it is a color
   changing light, it may also expose a Hue Characteristic. Within HAP, a characteristic is represented by a `HAP.Characteristic`
@@ -60,7 +60,7 @@ defmodule HAP do
   children =
     [ {HAP, hap_server_config} ]
 
-    Supervisor.start_link(children, opts)
+  Supervisor.start_link(children, opts)
 
   ...
   ```
@@ -70,12 +70,10 @@ defmodule HAP do
   extra options (`gpio_pin: 23` in the above example) are conveyed to this module on every call, allowing a single value store
   implementation to service any number of characteristics or services.
 
-  HAP provides convenience functions to instantiate the most common services, such as light bulbs, switches, and other common
-  accessories & services. Behind the scenes, these convenience functions return simple `HAP.Accessory`, `HAP.Service`, and `HAP.Characteristic`
-  structs. This flexibility makes it possible to define the most common use cases via easy to use function calls, while also allowing
-  more in-depth use of hand-crafted structures if HAP doesn't provide convenience functions out of the box. For more information,
-  consult the functions defined on the `HAP` module, as well as the type definitions for `t:HAP.AccessoryServer`, 
-  `t:HAP.Accessory`, `t:HAP.Service`, and `t:HAP.Characteristic`.
+  HAP provides structs to represent the most common services, such as light bulbs, switches, and other common device types.
+  For users who wish to create additional device types not defined in HAP, users may define their accessories in terms of
+  low-level `HAP.Service` and `HAP.Characteristic` structs. For more information, consult the type definitions for 
+  `t:HAP.AccessoryServer.t/0`, `t:HAP.Accessory.t/0`, `t:HAP.Service.t/0`, and `t:HAP.Characteristic.t/0`.
   """
 
   use Supervisor

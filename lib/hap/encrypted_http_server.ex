@@ -1,7 +1,6 @@
 defmodule HAP.EncryptedHTTPServer do
   @moduledoc false
-  # Defines the HTTP interface for a HomeKit Accessory which may only be
-  # accessed over a secure channel
+  # Defines the HTTP interface for a HomeKit Accessory which may only be accessed over a secure channel
 
   use Plug.Router
 

@@ -14,7 +14,7 @@ defmodule HAP.ValueStore do
 
   Returns the value stored by this value store
   """
-  @callback get_value(opts()) :: HAP.Characteristic.value()
+  @callback get_value(opts :: opts()) :: HAP.Characteristic.value()
 
   @doc """
 
@@ -24,5 +24,5 @@ defmodule HAP.ValueStore do
 
   Returns `:ok` or `{:error, reason}`
   """
-  @callback put_value(HAP.Characteristic.value(), opts()) :: :ok | {:error, String.t()}
+  @callback put_value(value :: HAP.Characteristic.value(), opts :: opts()) :: :ok | {:error, String.t()}
 end

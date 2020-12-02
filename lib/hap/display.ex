@@ -1,20 +1,19 @@
 defmodule HAP.Display do
   @moduledoc """
   A behaviour which encapsulates all user-facing display concerns for an accessory.  Applications which use HAP may
-  provide their own implementation of this behaviour as an argument to `HAP.build_accessory_server/1`. If no such
-  implementation is provided HAP uses a default console based implementation found at `HAP.ConsoleDisplay`
+  provide their own implementation of this behaviour as a field in a `HAP.AccessoryServer`. If no such
+  implementation is provided HAP uses a default console based implementation
   """
 
   @doc """
   Display a notification to the user containing information on how to pair with
-  this accessory server. The QR code often seen on HomeKit devices to facilitate
-  pairing contains the value of pairing_url; see `HAP.ConsoleDisplay` for an 
-  example of how to display it to the user.
+  this accessory server. The value of `pairing_url` can be encoded in a QR code
+  to enable pairing directly from an iOS device.
   """
   @callback display_pairing_code(
-              HAP.AccessoryServer.name(),
-              HAP.AccessoryServer.pairing_code(),
-              HAP.AccessoryServer.pairing_url()
+              name :: HAP.AccessoryServer.name(),
+              pairing_code :: HAP.AccessoryServer.pairing_code(),
+              pairing_url :: HAP.AccessoryServer.pairing_url()
             ) ::
               any()
 
