@@ -47,6 +47,9 @@ defmodule HAP.AccessoryServerManager do
   def setup_id(pid \\ __MODULE__), do: GenServer.call(pid, {:get, :setup_id})
 
   @doc false
+  def pairing_url(pid \\ __MODULE__), do: GenServer.call(pid, :get_pairing_url)
+
+  @doc false
   def paired?(pid \\ __MODULE__), do: GenServer.call(pid, :paired?)
 
   @doc false
@@ -101,6 +104,9 @@ defmodule HAP.AccessoryServerManager do
 
   def handle_call({:put, :port, port}, _from, state) do
     {:reply, :ok, Map.put(state, :port, port)}
+  def handle_call(:get_pairing_url, _from, state) do
+    {:reply, HAP.AccessoryServer.pairing_url(state[:accessory_server]), state}
+  end
   end
 
   def handle_call(:paired?, _from, state) do

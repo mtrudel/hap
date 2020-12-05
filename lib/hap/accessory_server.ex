@@ -93,6 +93,27 @@ defmodule HAP.AccessoryServer do
   """
   @type accessory_type :: integer()
 
+  @doc """
+  Generates the pairing url to be used to pair with this accessory server. This 
+  URL can be encoded in a QR code to enable pairing directly from an iOS device
+  """
+  @spec pairing_url(t()) :: String.t()
+  def pairing_url(%__MODULE__{} = accessory) do
+    padding = 0
+    version = 0
+    reserved = 0
+    accessory_type = accessory.accessory_type
+    hap_type = 2
+    pairing_code_int = accessory.pairing_code |> String.replace("-", "") |> String.to_integer()
+
+    payload =
+      <<padding::2, version::3, reserved::4, accessory_type::8, hap_type::4, pairing_code_int::27>>
+      |> :binary.decode_unsigned()
+      |> Base36.encode()
+
+    "X-HM://00#{payload}#{accessory.setup_id}"
+  end
+
   @doc false
   def build_accessory_server(accessory_server) do
     %__MODULE__{

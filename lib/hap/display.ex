@@ -28,40 +28,24 @@ defmodule HAP.Display do
   This comes from a user request within the Home app to identify the given device 
   or accessory.
   """
-  @callback identify(String.t()) :: any()
-
-  alias HAP.AccessoryServerManager
+  @callback identify(name :: String.t()) :: any()
 
   @doc false
   def update_pairing_info_display do
-    if AccessoryServerManager.paired?() do
-      AccessoryServerManager.display_module().clear_pairing_code()
+    display_module = HAP.AccessoryServerManager.display_module()
+
+    if HAP.AccessoryServerManager.paired?() do
+      display_module.clear_pairing_code()
     else
-      name = AccessoryServerManager.name()
-      pairing_code = AccessoryServerManager.pairing_code()
-      pairing_url = build_pairing_url()
-      AccessoryServerManager.display_module().display_pairing_code(name, pairing_code, pairing_url)
+      name = HAP.AccessoryServerManager.name()
+      pairing_code = HAP.AccessoryServerManager.pairing_code()
+      pairing_url = HAP.AccessoryServerManager.pairing_url()
+      display_module.display_pairing_code(name, pairing_code, pairing_url)
     end
   end
 
   @doc false
   def identify(name) do
-    AccessoryServerManager.display_module().identify(name)
-  end
-
-  defp build_pairing_url do
-    padding = 0
-    version = 0
-    reserved = 0
-    hap_type = 2
-    pairing_code_int = AccessoryServerManager.pairing_code() |> String.replace("-", "") |> String.to_integer()
-
-    payload =
-      <<padding::2, version::3, reserved::4, AccessoryServerManager.accessory_type()::8, hap_type::4,
-        pairing_code_int::27>>
-      |> :binary.decode_unsigned()
-      |> Base36.encode()
-
-    "X-HM://00#{payload}#{AccessoryServerManager.setup_id()}"
+    HAP.AccessoryServerManager.display_module().identify(name)
   end
 end
