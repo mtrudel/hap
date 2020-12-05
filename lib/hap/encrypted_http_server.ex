@@ -4,8 +4,6 @@ defmodule HAP.EncryptedHTTPServer do
 
   use Plug.Router
 
-  alias HAP.{AccessoryServerManager, HAPSessionTransport, Pairings, TLVEncoder}
-
   plug(:match)
   plug(:require_authenticated_session, builder_opts())
   plug(:dispatch, builder_opts())
@@ -15,14 +13,14 @@ defmodule HAP.EncryptedHTTPServer do
   end
 
   post "/pairings" do
-    pair_state = HAPSessionTransport.get_pair_state()
+    pair_state = HAP.HAPSessionTransport.get_pair_state()
 
-    Pairings.handle_message(conn.body_params, pair_state)
+    HAP.Pairings.handle_message(conn.body_params, pair_state)
     |> case do
       {:ok, response} ->
         conn
         |> put_resp_header("content-type", "application/pairing+tlv8")
-        |> send_resp(200, TLVEncoder.to_binary(response))
+        |> send_resp(200, HAP.TLVEncoder.to_binary(response))
 
       {:error, reason} ->
         conn
@@ -31,7 +29,7 @@ defmodule HAP.EncryptedHTTPServer do
   end
 
   get "/accessories" do
-    response = AccessoryServerManager.get_accessories()
+    response = HAP.AccessoryServerManager.get_accessories()
 
     conn
     |> put_resp_header("content-type", "application/hap+json")
@@ -44,7 +42,7 @@ defmodule HAP.EncryptedHTTPServer do
       |> String.split(",")
       |> Enum.map(&String.split(&1, "."))
       |> Enum.map(fn [aid, iid] -> %{aid: String.to_integer(aid), iid: String.to_integer(iid)} end)
-      |> AccessoryServerManager.get_characteristics()
+      |> HAP.AccessoryServerManager.get_characteristics()
 
     conn
     |> put_resp_header("content-type", "application/hap+json")
@@ -54,7 +52,7 @@ defmodule HAP.EncryptedHTTPServer do
   put "/characteristics" do
     results =
       conn.body_params["characteristics"]
-      |> AccessoryServerManager.put_characteristics()
+      |> HAP.AccessoryServerManager.put_characteristics()
 
     if Enum.all?(results, fn {result, _characteristic} -> result == :ok end) do
       conn
@@ -70,7 +68,7 @@ defmodule HAP.EncryptedHTTPServer do
   end
 
   defp require_authenticated_session(conn, _opts) do
-    if HAPSessionTransport.encrypted_session?() do
+    if HAP.HAPSessionTransport.encrypted_session?() do
       conn
     else
       conn

@@ -4,8 +4,6 @@ defmodule HAP.Crypto.SRP6A do
 
   use Bitwise
 
-  alias HAP.Crypto.SHA512
-
   def verifier(i, p) do
     s = :crypto.strong_rand_bytes(16)
     v = Strap.verifier(protocol(), i, p, s)
@@ -26,21 +24,21 @@ defmodule HAP.Crypto.SRP6A do
   def shared_key({:server, _, _, _, _} = auth_context, a, i, s) do
     # Generate k
     {:ok, shared_key} = Strap.session_key(auth_context, a)
-    k = shared_key |> SHA512.hash()
+    k = shared_key |> HAP.Crypto.SHA512.hash()
 
     # Generate M_1
     # M_1 = H(H(N) xor H(g), H(I), s, A, B, K)
     {n, g} = prime_group()
-    h_n = n |> SHA512.hash() |> to_int
-    h_g = g |> to_bin |> SHA512.hash() |> to_int
+    h_n = n |> HAP.Crypto.SHA512.hash() |> to_int
+    h_g = g |> to_bin |> HAP.Crypto.SHA512.hash() |> to_int
     xor = bxor(h_n, h_g) |> to_bin
-    h_i = i |> SHA512.hash()
+    h_i = i |> HAP.Crypto.SHA512.hash()
     b = auth_context |> Strap.public_value()
-    m_1 = SHA512.hash(xor <> h_i <> s <> a <> b <> k)
+    m_1 = HAP.Crypto.SHA512.hash(xor <> h_i <> s <> a <> b <> k)
 
     # Generate M_2
     # M_2 = H(A, M_1, K)
-    m_2 = SHA512.hash(a <> m_1 <> k)
+    m_2 = HAP.Crypto.SHA512.hash(a <> m_1 <> k)
 
     {:ok, m_1, m_2, k}
   end
@@ -48,21 +46,21 @@ defmodule HAP.Crypto.SRP6A do
   def shared_key({:client, _, _, _, _} = auth_context, b, i, s) do
     # Generate k
     {:ok, shared_key} = Strap.session_key(auth_context, b)
-    k = shared_key |> SHA512.hash()
+    k = shared_key |> HAP.Crypto.SHA512.hash()
 
     # Generate M_1
     # M_1 = H(H(N) xor H(g), H(I), s, A, B, K)
     {n, g} = prime_group()
-    h_n = n |> SHA512.hash() |> to_int
-    h_g = g |> to_bin |> SHA512.hash() |> to_int
+    h_n = n |> HAP.Crypto.SHA512.hash() |> to_int
+    h_g = g |> to_bin |> HAP.Crypto.SHA512.hash() |> to_int
     xor = bxor(h_n, h_g) |> to_bin
-    h_i = i |> SHA512.hash()
+    h_i = i |> HAP.Crypto.SHA512.hash()
     a = auth_context |> Strap.public_value()
-    m_1 = SHA512.hash(xor <> h_i <> s <> a <> b <> k)
+    m_1 = HAP.Crypto.SHA512.hash(xor <> h_i <> s <> a <> b <> k)
 
     # Generate M_2
     # M_2 = H(A, M_1, K)
-    m_2 = SHA512.hash(a <> m_1 <> k)
+    m_2 = HAP.Crypto.SHA512.hash(a <> m_1 <> k)
 
     {:ok, m_1, m_2, k}
   end

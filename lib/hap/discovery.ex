@@ -5,29 +5,27 @@ defmodule HAP.Discovery do
 
   require Logger
 
-  alias HAP.AccessoryServerManager
-
   @doc false
   def reload do
     Logger.debug("(Re-)Advertising mDNS record")
 
     <<setup_hash::binary-4, _rest::binary>> =
-      :crypto.hash(:sha512, AccessoryServerManager.setup_id() <> AccessoryServerManager.identifier())
+      :crypto.hash(:sha512, HAP.AccessoryServerManager.setup_id() <> HAP.AccessoryServerManager.identifier())
 
     %{
-      name: AccessoryServerManager.name(),
+      name: HAP.AccessoryServerManager.name(),
       protocol: "hap",
       transport: "tcp",
-      port: AccessoryServerManager.port(),
+      port: HAP.AccessoryServerManager.port(),
       txt_payload: [
-        "c#=#{AccessoryServerManager.config_number()}",
+        "c#=#{HAP.AccessoryServerManager.config_number()}",
         "ff=0",
-        "id=#{AccessoryServerManager.identifier()}",
-        "md=#{AccessoryServerManager.model()}",
+        "id=#{HAP.AccessoryServerManager.identifier()}",
+        "md=#{HAP.AccessoryServerManager.model()}",
         "pv=1.1",
         "s#=1",
-        "sf=#{if AccessoryServerManager.paired?(), do: 0, else: 1}",
-        "ci=#{AccessoryServerManager.accessory_type()}",
+        "sf=#{if HAP.AccessoryServerManager.paired?(), do: 0, else: 1}",
+        "ci=#{HAP.AccessoryServerManager.accessory_type()}",
         "sh=#{setup_hash |> Base.encode64()}"
       ]
     }

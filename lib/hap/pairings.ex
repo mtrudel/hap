@@ -4,8 +4,6 @@ defmodule HAP.Pairings do
 
   require Logger
 
-  alias HAP.AccessoryServerManager
-
   # We intentionally structure our constant names to match those in the HAP specification
   # credo:disable-for-this-file Credo.Check.Readability.ModuleAttributeNames
   # credo:disable-for-this-file Credo.Check.Readability.VariableNames
@@ -37,13 +35,13 @@ defmodule HAP.Pairings do
         },
         %{admin?: true}
       ) do
-    case AccessoryServerManager.controller_pairing(additional_ios_identifier) do
+    case HAP.AccessoryServerManager.controller_pairing(additional_ios_identifier) do
       nil ->
         Logger.info(
           "Adding controller #{additional_ios_identifier} with permissions #{inspect(additional_ios_permissions)}"
         )
 
-        AccessoryServerManager.add_controller_pairing(
+        HAP.AccessoryServerManager.add_controller_pairing(
           additional_ios_identifier,
           additional_ios_ltpk,
           additional_ios_permissions
@@ -56,7 +54,7 @@ defmodule HAP.Pairings do
           "Updating controller #{additional_ios_identifier} with permissions #{inspect(additional_ios_permissions)}"
         )
 
-        AccessoryServerManager.add_controller_pairing(
+        HAP.AccessoryServerManager.add_controller_pairing(
           additional_ios_identifier,
           additional_ios_ltpk,
           additional_ios_permissions
@@ -82,7 +80,7 @@ defmodule HAP.Pairings do
       ) do
     Logger.info("Removed pairing with controller #{removed_ios_identifier}")
 
-    {:ok, removed_last_pairing} = AccessoryServerManager.remove_controller_pairing(removed_ios_identifier)
+    {:ok, removed_last_pairing} = HAP.AccessoryServerManager.remove_controller_pairing(removed_ios_identifier)
 
     if removed_last_pairing do
       HAP.Discovery.reload()
@@ -95,7 +93,7 @@ defmodule HAP.Pairings do
   # Handles List Pairings `<M1>` messages and returns `<M2>` messages
   def handle_message(%{@kTLVType_State => <<1>>, @kTLVType_Method => @kMethod_ListPairings}, %{admin?: true}) do
     response =
-      AccessoryServerManager.controller_pairings()
+      HAP.AccessoryServerManager.controller_pairings()
       |> Enum.map_intersperse([{@kTLVType_Separator, <<>>}], fn {ios_identifer, {ios_ltpk, ios_permissions}} ->
         [
           {@kTLVType_Identifier, ios_identifer},

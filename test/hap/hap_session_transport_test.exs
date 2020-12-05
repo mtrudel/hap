@@ -1,67 +1,65 @@
 defmodule HAP.HAPSessionTransportTest do
   use ExUnit.Case
 
-  alias HAP.HAPSessionTransport
-
   test "can send in the clear & upgrade a live socket to encrypted transport" do
-    {:ok, listener_socket} = HAPSessionTransport.listen(0, skip_registration: true)
-    %{port: port} = HAPSessionTransport.local_info(listener_socket)
+    {:ok, listener_socket} = HAP.HAPSessionTransport.listen(0, skip_registration: true)
+    %{port: port} = HAP.HAPSessionTransport.local_info(listener_socket)
 
     server_task =
       Task.async(fn ->
-        {:ok, server_socket} = HAPSessionTransport.accept(listener_socket)
+        {:ok, server_socket} = HAP.HAPSessionTransport.accept(listener_socket)
 
-        {:ok, data} = HAPSessionTransport.recv(server_socket, 0, :infinity)
-        HAPSessionTransport.send(server_socket, data)
+        {:ok, data} = HAP.HAPSessionTransport.recv(server_socket, 0, :infinity)
+        HAP.HAPSessionTransport.send(server_socket, data)
 
-        HAPSessionTransport.put_send_key(<<1>>)
-        HAPSessionTransport.put_recv_key(<<2>>)
+        HAP.HAPSessionTransport.put_send_key(<<1>>)
+        HAP.HAPSessionTransport.put_recv_key(<<2>>)
 
-        {:ok, data} = HAPSessionTransport.recv(server_socket, 0, :infinity)
-        HAPSessionTransport.send(server_socket, data)
+        {:ok, data} = HAP.HAPSessionTransport.recv(server_socket, 0, :infinity)
+        HAP.HAPSessionTransport.send(server_socket, data)
 
-        {:ok, data} = HAPSessionTransport.recv(server_socket, 0, :infinity)
-        HAPSessionTransport.send(server_socket, data)
+        {:ok, data} = HAP.HAPSessionTransport.recv(server_socket, 0, :infinity)
+        HAP.HAPSessionTransport.send(server_socket, data)
 
-        HAPSessionTransport.close(server_socket)
+        HAP.HAPSessionTransport.close(server_socket)
       end)
 
-    {:ok, client_socket} = HAPSessionTransport.connect(:localhost, port, mode: :binary, active: false)
+    {:ok, client_socket} = HAP.HAPSessionTransport.connect(:localhost, port, mode: :binary, active: false)
 
-    :ok = HAPSessionTransport.send(client_socket, <<1, 2, 3>>)
-    assert {:ok, <<1, 2, 3>>} == HAPSessionTransport.recv(client_socket, 0, :infinity)
+    :ok = HAP.HAPSessionTransport.send(client_socket, <<1, 2, 3>>)
+    assert {:ok, <<1, 2, 3>>} == HAP.HAPSessionTransport.recv(client_socket, 0, :infinity)
 
-    refute HAPSessionTransport.encrypted_session?()
+    refute HAP.HAPSessionTransport.encrypted_session?()
 
     # Note that these are reversed since we're acting as the controller here
-    HAPSessionTransport.put_send_key(<<2>>)
-    HAPSessionTransport.put_recv_key(<<1>>)
+    HAP.HAPSessionTransport.put_send_key(<<2>>)
+    HAP.HAPSessionTransport.put_recv_key(<<1>>)
 
-    assert HAPSessionTransport.encrypted_session?()
+    assert HAP.HAPSessionTransport.encrypted_session?()
 
-    :ok = HAPSessionTransport.send(client_socket, <<1, 2, 3>>)
-    assert {:ok, <<1, 2, 3>>} == HAPSessionTransport.recv(client_socket, 0, :infinity)
+    :ok = HAP.HAPSessionTransport.send(client_socket, <<1, 2, 3>>)
+    assert {:ok, <<1, 2, 3>>} == HAP.HAPSessionTransport.recv(client_socket, 0, :infinity)
 
-    :ok = HAPSessionTransport.send(client_socket, <<1, 2, 3>>)
-    assert {:ok, <<1, 2, 3>>} == HAPSessionTransport.recv(client_socket, 0, :infinity)
+    :ok = HAP.HAPSessionTransport.send(client_socket, <<1, 2, 3>>)
+    assert {:ok, <<1, 2, 3>>} == HAP.HAPSessionTransport.recv(client_socket, 0, :infinity)
 
     Task.await(server_task)
   end
 
   test "transmits encrypted over the wire when so configured" do
-    {:ok, listener_socket} = HAPSessionTransport.listen(0, skip_registration: true)
-    %{port: port} = HAPSessionTransport.local_info(listener_socket)
+    {:ok, listener_socket} = HAP.HAPSessionTransport.listen(0, skip_registration: true)
+    %{port: port} = HAP.HAPSessionTransport.local_info(listener_socket)
 
     server_task =
       Task.async(fn ->
-        {:ok, server_socket} = HAPSessionTransport.accept(listener_socket)
+        {:ok, server_socket} = HAP.HAPSessionTransport.accept(listener_socket)
 
-        HAPSessionTransport.put_send_key(<<1>>)
-        HAPSessionTransport.put_recv_key(<<2>>)
+        HAP.HAPSessionTransport.put_send_key(<<1>>)
+        HAP.HAPSessionTransport.put_recv_key(<<2>>)
 
-        HAPSessionTransport.send(server_socket, <<1, 2, 3>>)
+        HAP.HAPSessionTransport.send(server_socket, <<1, 2, 3>>)
 
-        HAPSessionTransport.close(server_socket)
+        HAP.HAPSessionTransport.close(server_socket)
       end)
 
     # Connect using a raw TCP socket since we want to test the actual wire

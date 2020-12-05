@@ -4,9 +4,6 @@ defmodule HAP.PairVerify do
 
   require Logger
 
-  alias HAP.{AccessoryServerManager, TLVEncoder, TLVParser}
-  alias HAP.Crypto.{ChaCha20, ECDH, EDDSA, HKDF}
-
   # We intentionally structure our constant names to match those in the HAP specification
   # credo:disable-for-this-file Credo.Check.Readability.ModuleAttributeNames
   # credo:disable-for-this-file Credo.Check.Readability.VariableNames
@@ -29,20 +26,20 @@ defmodule HAP.PairVerify do
   @doc false
   # Handles `<M1>` messages and returns `<M2>` messages
   def handle_message(%{@kTLVType_State => <<1>>, @kTLVType_PublicKey => ios_epk}, %{step: 1}) do
-    {:ok, accessory_epk, accessory_esk} = ECDH.key_gen()
-    {:ok, session_key} = ECDH.compute_key(ios_epk, accessory_esk)
-    accessory_info = accessory_epk <> AccessoryServerManager.identifier() <> ios_epk
-    {:ok, accessory_signature} = EDDSA.sign(accessory_info, AccessoryServerManager.ltsk())
+    {:ok, accessory_epk, accessory_esk} = HAP.Crypto.ECDH.key_gen()
+    {:ok, session_key} = HAP.Crypto.ECDH.compute_key(ios_epk, accessory_esk)
+    accessory_info = accessory_epk <> HAP.AccessoryServerManager.identifier() <> ios_epk
+    {:ok, accessory_signature} = HAP.Crypto.EDDSA.sign(accessory_info, HAP.AccessoryServerManager.ltsk())
 
     resp_sub_tlv =
       %{
-        @kTLVType_Identifier => AccessoryServerManager.identifier(),
+        @kTLVType_Identifier => HAP.AccessoryServerManager.identifier(),
         @kTLVType_Signature => accessory_signature
       }
-      |> TLVEncoder.to_binary()
+      |> HAP.TLVEncoder.to_binary()
 
-    {:ok, hashed_k} = HKDF.generate(session_key, "Pair-Verify-Encrypt-Salt", "Pair-Verify-Encrypt-Info")
-    {:ok, encrypted_data_and_tag} = ChaCha20.encrypt_and_tag(resp_sub_tlv, hashed_k, "PV-Msg02")
+    {:ok, hashed_k} = HAP.Crypto.HKDF.generate(session_key, "Pair-Verify-Encrypt-Salt", "Pair-Verify-Encrypt-Info")
+    {:ok, encrypted_data_and_tag} = HAP.Crypto.ChaCha20.encrypt_and_tag(resp_sub_tlv, hashed_k, "PV-Msg02")
 
     response = %{
       @kTLVType_State => <<2>>,
@@ -60,17 +57,19 @@ defmodule HAP.PairVerify do
         ios_epk: ios_epk,
         accessory_epk: accessory_epk
       }) do
-    with {:ok, hashed_k} <- HKDF.generate(session_key, "Pair-Verify-Encrypt-Salt", "Pair-Verify-Encrypt-Info"),
-         {:ok, tlv} <- ChaCha20.decrypt_and_verify(encrypted_data_and_tag, hashed_k, "PV-Msg03"),
-         %{@kTLVType_Identifier => ios_identifier, @kTLVType_Signature => ios_signature} <- TLVParser.parse_tlv(tlv),
+    with {:ok, hashed_k} <-
+           HAP.Crypto.HKDF.generate(session_key, "Pair-Verify-Encrypt-Salt", "Pair-Verify-Encrypt-Info"),
+         {:ok, tlv} <- HAP.Crypto.ChaCha20.decrypt_and_verify(encrypted_data_and_tag, hashed_k, "PV-Msg03"),
+         %{@kTLVType_Identifier => ios_identifier, @kTLVType_Signature => ios_signature} <-
+           HAP.TLVParser.parse_tlv(tlv),
          ios_device_info <- ios_epk <> ios_identifier <> accessory_epk,
-         {ios_ltpk, ios_permissions} <- AccessoryServerManager.controller_pairing(ios_identifier),
+         {ios_ltpk, ios_permissions} <- HAP.AccessoryServerManager.controller_pairing(ios_identifier),
          admin? <- ios_permissions == @kFlag_Admin,
-         {:ok, true} <- EDDSA.verify(ios_device_info, ios_signature, ios_ltpk),
+         {:ok, true} <- HAP.Crypto.EDDSA.verify(ios_device_info, ios_signature, ios_ltpk),
          {:ok, accessory_to_controller_key} <-
-           HKDF.generate(session_key, "Control-Salt", "Control-Read-Encryption-Key"),
+           HAP.Crypto.HKDF.generate(session_key, "Control-Salt", "Control-Read-Encryption-Key"),
          {:ok, controller_to_accessory_key} <-
-           HKDF.generate(session_key, "Control-Salt", "Control-Write-Encryption-Key") do
+           HAP.Crypto.HKDF.generate(session_key, "Control-Salt", "Control-Write-Encryption-Key") do
       Logger.info("Verified session for controller #{ios_identifier}")
 
       {:ok, %{@kTLVType_State => <<4>>}, %{ios_ltpk: ios_ltpk, admin?: admin?}, accessory_to_controller_key,

@@ -6,20 +6,18 @@ defmodule HAP.AccessoryServerManager do
 
   require Logger
 
-  alias HAP.PersistentStorage
-
   def start_link(config) do
     GenServer.start_link(__MODULE__, config, name: __MODULE__)
   end
 
   @doc false
-  def config_number, do: PersistentStorage.get(:config_number)
+  def config_number, do: HAP.PersistentStorage.get(:config_number)
 
   @doc false
-  def ltpk, do: PersistentStorage.get(:ltpk)
+  def ltpk, do: HAP.PersistentStorage.get(:ltpk)
 
   @doc false
-  def ltsk, do: PersistentStorage.get(:ltsk)
+  def ltsk, do: HAP.PersistentStorage.get(:ltsk)
 
   @doc false
   def port(pid \\ __MODULE__), do: GenServer.call(pid, {:get, :port})
@@ -85,16 +83,16 @@ defmodule HAP.AccessoryServerManager do
   end
 
   def init(%HAP.AccessoryServer{} = accessory_server) do
-    old_config_hash = PersistentStorage.get(:config_hash)
+    old_config_hash = HAP.PersistentStorage.get(:config_hash)
     new_config_hash = HAP.AccessoryServer.config_hash(accessory_server)
 
     if old_config_hash != new_config_hash do
       Logger.info("Configuration has changed; incrementing config number")
-      PersistentStorage.get_and_update(:config_number, &{:ok, &1 + 1})
+      HAP.PersistentStorage.get_and_update(:config_number, &{:ok, &1 + 1})
     end
 
-    PersistentStorage.put(:config_hash, new_config_hash)
     {:ok, accessory_server}
+    HAP.PersistentStorage.put(:config_hash, new_config_hash)
   end
 
   def handle_call({:get, param}, _from, state) do
@@ -106,27 +104,30 @@ defmodule HAP.AccessoryServerManager do
   end
 
   def handle_call(:paired?, _from, state) do
-    {:reply, PersistentStorage.get(:pairings) != %{}, state}
+    {:reply, HAP.PersistentStorage.get(:pairings) != %{}, state}
   end
 
   def handle_call(:controller_pairings, _from, state) do
-    {:reply, PersistentStorage.get(:pairings), state}
+    {:reply, HAP.PersistentStorage.get(:pairings), state}
   end
 
   def handle_call({:controller_pairing, ios_identifier}, _from, state) do
-    {:reply, PersistentStorage.get(:pairings)[ios_identifier], state}
+    {:reply, HAP.PersistentStorage.get(:pairings)[ios_identifier], state}
   end
 
   def handle_call({:add_controller_pairing, ios_identifier, ios_ltpk, permissions}, _from, state) do
     pairing_state_changed =
-      PersistentStorage.get_and_update(:pairings, &{&1 == %{}, Map.put(&1, ios_identifier, {ios_ltpk, permissions})})
+      HAP.PersistentStorage.get_and_update(
+        :pairings,
+        &{&1 == %{}, Map.put(&1, ios_identifier, {ios_ltpk, permissions})}
+      )
 
     {:reply, pairing_state_changed, state}
   end
 
   def handle_call({:remove_controller_pairing, ios_identifier}, _from, state) do
     pairing_state_changed =
-      PersistentStorage.get_and_update(:pairings, fn pairings ->
+      HAP.PersistentStorage.get_and_update(:pairings, fn pairings ->
         new_map = Map.delete(pairings, ios_identifier)
         {new_map == %{}, new_map}
       end)
@@ -135,17 +136,17 @@ defmodule HAP.AccessoryServerManager do
   end
 
   def handle_call(:get_accessories, _from, state) do
-    response = HAP.AccessoryServer.accessories_tree(state)
+    response = HAP.AccessoryServer.accessories_tree(state[:accessory_server])
     {:reply, response, state}
   end
 
   def handle_call({:get_characteristics, characteristics}, _from, state) do
-    response = HAP.AccessoryServer.get_characteristics(state, characteristics)
+    response = HAP.AccessoryServer.get_characteristics(state[:accessory_server], characteristics)
     {:reply, response, state}
   end
 
   def handle_call({:put_characteristics, characteristics}, _from, state) do
-    response = HAP.AccessoryServer.put_characteristics(state, characteristics)
+    response = HAP.AccessoryServer.put_characteristics(state[:accessory_server], characteristics)
     {:reply, response, state}
   end
 end

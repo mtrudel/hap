@@ -4,11 +4,9 @@ defmodule HAP.HTTPServer do
 
   use Plug.Router
 
-  alias HAP.{CleartextHTTPServer, EncryptedHTTPServer, TLVParser}
-
   plug(Plug.Logger)
   plug(:match)
-  plug(Plug.Parsers, parsers: [TLVParser, :json], json_decoder: Jason)
+  plug(Plug.Parsers, parsers: [HAP.TLVParser, :json], json_decoder: Jason)
   plug(:tidy_headers, builder_opts())
   plug(:dispatch, builder_opts())
 
@@ -16,14 +14,14 @@ defmodule HAP.HTTPServer do
     opts
   end
 
-  post("/pair-setup", to: CleartextHTTPServer)
-  post("/identify", to: CleartextHTTPServer)
-  post("/pair-verify", to: CleartextHTTPServer)
+  post("/pair-setup", to: HAP.CleartextHTTPServer)
+  post("/identify", to: HAP.CleartextHTTPServer)
+  post("/pair-verify", to: HAP.CleartextHTTPServer)
 
-  post("/pairings", to: EncryptedHTTPServer)
-  get("/accessories", to: EncryptedHTTPServer)
-  get("/characteristics", to: EncryptedHTTPServer)
-  put("/characteristics", to: EncryptedHTTPServer)
+  post("/pairings", to: HAP.EncryptedHTTPServer)
+  get("/accessories", to: HAP.EncryptedHTTPServer)
+  get("/characteristics", to: HAP.EncryptedHTTPServer)
+  put("/characteristics", to: HAP.EncryptedHTTPServer)
 
   defp tidy_headers(conn, _opts) do
     delete_resp_header(conn, "cache-control")

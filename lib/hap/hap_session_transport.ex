@@ -3,10 +3,7 @@ defmodule HAP.HAPSessionTransport do
   # Implements cleartext TCP transport with optional chacha20_poly1305 encryption
   # as mandated by section 6.5.2 of the HomeKit Accessory Protocol specification
 
-  alias HAP.Crypto.ChaCha20
-  alias ThousandIsland.Transport
-
-  @behaviour Transport
+  @behaviour ThousandIsland.Transport
 
   @pair_state_key :pair_state_key
   @send_key_key :hap_send_key
@@ -29,7 +26,7 @@ defmodule HAP.HAPSessionTransport do
     Process.put(@recv_key_key, recv_key)
   end
 
-  @impl Transport
+  @impl ThousandIsland.Transport
   def listen(port, user_options) do
     default_options = [
       backlog: 1024,
@@ -61,19 +58,19 @@ defmodule HAP.HAPSessionTransport do
     end
   end
 
-  @impl Transport
+  @impl ThousandIsland.Transport
   defdelegate listen_port(listener_socket), to: :inet, as: :port
 
-  @impl Transport
+  @impl ThousandIsland.Transport
   defdelegate accept(listener_socket), to: :gen_tcp
 
-  @impl Transport
+  @impl ThousandIsland.Transport
   def handshake(socket), do: {:ok, socket}
 
-  @impl Transport
+  @impl ThousandIsland.Transport
   defdelegate controlling_process(socket, pid), to: :gen_tcp
 
-  @impl Transport
+  @impl ThousandIsland.Transport
   def recv(socket, length, timeout) do
     case Process.get(@recv_key_key) do
       nil ->
@@ -86,7 +83,7 @@ defmodule HAP.HAPSessionTransport do
              counter <- Process.get(:recv_counter, 0),
              nonce <- pad_counter(counter) do
           Process.put(:recv_counter, counter + 1)
-          ChaCha20.decrypt_and_verify(encrypted_data <> tag, recv_key, nonce, length_aad)
+          HAP.Crypto.ChaCha20.decrypt_and_verify(encrypted_data <> tag, recv_key, nonce, length_aad)
         else
           error ->
             error
@@ -94,7 +91,7 @@ defmodule HAP.HAPSessionTransport do
     end
   end
 
-  @impl Transport
+  @impl ThousandIsland.Transport
   def send(socket, data) do
     case Process.get(@send_key_key) do
       nil ->
@@ -105,7 +102,7 @@ defmodule HAP.HAPSessionTransport do
              nonce <- pad_counter(counter),
              length_aad <- <<IO.iodata_length(data)::integer-size(16)-little>>,
              {:ok, encrypted_data_and_tag} <-
-               ChaCha20.encrypt_and_tag(data, send_key, nonce, length_aad) do
+               HAP.Crypto.ChaCha20.encrypt_and_tag(data, send_key, nonce, length_aad) do
           Process.put(:send_counter, counter + 1)
           :gen_tcp.send(socket, length_aad <> encrypted_data_and_tag)
         else
@@ -115,38 +112,38 @@ defmodule HAP.HAPSessionTransport do
     end
   end
 
-  @impl Transport
+  @impl ThousandIsland.Transport
   def sendfile(_socket, _filename, _offset, _length) do
     raise "Not supported"
   end
 
-  @impl Transport
+  @impl ThousandIsland.Transport
   def setopts(socket, options) do
     resolved_options = Keyword.merge(options, @hardcoded_options)
     :inet.setopts(socket, resolved_options)
   end
 
-  @impl Transport
+  @impl ThousandIsland.Transport
   defdelegate shutdown(socket, way), to: :gen_tcp
 
-  @impl Transport
+  @impl ThousandIsland.Transport
   defdelegate close(socket), to: :gen_tcp
 
-  @impl Transport
+  @impl ThousandIsland.Transport
   def local_info(socket) do
     {:ok, {ip_tuple, port}} = :inet.sockname(socket)
     ip = ip_tuple |> :inet.ntoa() |> to_string()
     %{address: ip, port: port, ssl_cert: nil}
   end
 
-  @impl Transport
+  @impl ThousandIsland.Transport
   def peer_info(socket) do
     {:ok, {ip_tuple, port}} = :inet.peername(socket)
     ip = ip_tuple |> :inet.ntoa() |> to_string()
     %{address: ip, port: port, ssl_cert: nil}
   end
 
-  @impl Transport
+  @impl ThousandIsland.Transport
   defdelegate getstat(socket), to: :inet
 
   @doc """
