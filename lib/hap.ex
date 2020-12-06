@@ -29,36 +29,30 @@ defmodule HAP do
   ## Using HAP
 
   HAP provides a high-level interface to the HomeKit Accessory Protocol, allowing an application to
-  present any number of services & characteristics of those services to an iOS HomeKit controller. HAP is intended to be
-  embedded within a host application which is responsible for providing the actual backing implementations of the
-  various characteristics exposed via HomeKit. These are provided to HAP in the form of `HAP.ValueStore`
-  implementations.  For example, consider a Nerves application which exposes itself to HomeKit as a light bulb. Assume that
-  the actual physical control of the light is controlled by GPIO pin 23. A typical configuration of HAP would look something 
-  like this:
+  present any number of accessories to an iOS HomeKit controller. HAP is intended to be embedded within a host 
+  application which is responsible for providing the actual backing implementations of the various characteristics
+  exposed via HomeKit. These are provided to HAP in the form of `HAP.ValueStore` implementations.  For example, consider
+  a Nerves application which exposes itself to HomeKit as a light bulb. Assume that the actual physical control of the
+  light is controlled by GPIO pin 23. A typical configuration of HAP would look something like this:
 
   ```elixir
-  hap_server_config =
-    HAP.build_accessory_server(
+  accessory_server =
+    %HAP.AccessoryServer{
       name: "My HAP Demo Device",
       model: "HAP Demo Device",
       identifier: "11:22:33:44:12:66",
       accessory_type: 5,
       accessories: [
-        HAP.build_accessory(
-          name: "HAP Lightbulb",
-          model: "HAP Lightbulb",
-          manufacturer: "HAP Inc.",
-          serial_number: "123456",
-          firmware_revision: "1.0",
+        %HAP.Accessory{
+          name: "My HAP Lightbulb",
           services: [
-            HAP.Services.LightBulb.build_service(MyApp.Lightbulb, gpio_pin: 23)
+            %HAP.Services.LightBulb{on: {MyApp.Lightbulb, gpio_pin: 23}}
           ]
-        )
+        }
       ]
     )
 
-  children =
-    [ {HAP, hap_server_config} ]
+  children = [{HAP, accessory_server}]
 
   Supervisor.start_link(children, opts)
 
@@ -71,9 +65,12 @@ defmodule HAP do
   implementation to service any number of characteristics or services.
 
   HAP provides structs to represent the most common services, such as light bulbs, switches, and other common device types.
-  For users who wish to create additional device types not defined in HAP, users may define their accessories in terms of
-  low-level `HAP.Service` and `HAP.Characteristic` structs. For more information, consult the type definitions for 
-  `t:HAP.AccessoryServer.t/0`, `t:HAP.Accessory.t/0`, `t:HAP.Service.t/0`, and `t:HAP.Characteristic.t/0`.
+  HAP compiles these structs into generic `HAP.Service` structs when starting up, based on each source struct's implementation
+  of the `HAP.ServiceSource` protocol. This allows for expressive definition of services by the application developer, while
+  providing for less boilerplate within HAP itself. For users who wish to create additional device types not defined in
+  HAP, users may define their accessories in terms of low-level `HAP.Service` and `HAP.Characteristic` structs. For more
+  information, consult the type definitions for `t:HAP.AccessoryServer.t/0`, `t:HAP.Accessory.t/0`, `t:HAP.Service.t/0`,
+  and `t:HAP.Characteristic.t/0`.
   """
 
   use Supervisor
@@ -86,60 +83,14 @@ defmodule HAP do
     Supervisor.start_link(__MODULE__, config)
   end
 
-  @doc """
-  Builds an instance of `HAP.AccessoryServer` based on the provided information. 
+  def init(%HAP.AccessoryServer{} = accessory_server) do
+    accessory_server = accessory_server |> HAP.AccessoryServer.compile()
 
-  This function is typically called to build the input to a `HAP.start_link/1` call
-  as in the example at the top of this file.
-
-  Supported fields include:
-
-  * `name`: The name to assign to this device, for example 'HAP Bridge'
-  * `model`: The model name to assign to this accessory, for example 'HAP Bridge'
-  * `identifier`: A unique identifier string in the form "AA:BB:CC:DD:EE:FF"
-  * `pairing_code`: A pairing code of the form 123-45-678 to be used for pairing. 
-  If not specified one will be defined dynamically.
-  * `setup_id`: A 4 character string used as part of the accessory discovery process. 
-  If not specified one will be defined dynamically.
-  * `display_module`: An optional implementation of `HAP.Display` used to present pairing 
-  and other information to the user. If not specified then a basic console-based
-  display is used.
-  * `data_path`: The path to where HAP will store its internal data. Will be created if
-  it does not exist. If not specified, `hap_data` is used.
-  * `accessory_type`: A HAP specified value indicating the primary function of this 
-  device. See `t:HAP.AccessoryServer.accessory_type/0` for details
-  * `accessories`: A list of accessories to include in this accessory server
-  """
-  @spec build_accessory_server(keyword()) :: HAP.AccessoryServer.t()
-  defdelegate build_accessory_server(accessory_server), to: HAP.AccessoryServer
-
-  @doc """
-  Builds an instance of `HAP.Accessory` based on the provided information. The
-  services passed in `services` will be included in the created accessory's list of
-  services, as well as an instance of `Services.AccessoryInformation` and 
-  `Services.ProtocolInformation` based on the extra provided metadata. 
-
-  This function is typically called within a call to `HAP.build_accessory_server/1` 
-  as in the example at the top of this file.
-
-  Supported fields include:
-
-  * `name`: The name to assign to this accessory, for example 'Ceiling Fan'
-  * `model`: The model name to assign to this accessory, for example 'FanCo Whisper III'
-  * `manufacturer`: The manufacturer of this accessory, for example 'FanCo'
-  * `serial_number`: The serial number of this accessory, for example '0012345'
-  * `firmware_revision`: The firmware revision of this accessory, for example '1.0'
-  * `services`: A list of services to include in this accessory
-  """
-  @spec build_accessory(keyword()) :: HAP.Accessory.t()
-  defdelegate build_accessory(accessory), to: HAP.Accessory
-
-  def init(%HAP.AccessoryServer{} = config) do
     children = [
-      {HAP.PersistentStorage, config.data_path},
-      {HAP.AccessoryServerManager, config},
+      {HAP.PersistentStorage, accessory_server.data_path},
+      {HAP.AccessoryServerManager, accessory_server},
       HAP.PairSetup,
-      {Bandit, plug: HAP.HTTPServer, options: [transport_module: HAP.HAPSessionTransport, port: config.port]}
+      {Bandit, plug: HAP.HTTPServer, options: [transport_module: HAP.HAPSessionTransport, port: 0]}
     ]
 
     Supervisor.init(children, strategy: :rest_for_one)

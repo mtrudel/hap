@@ -1,6 +1,6 @@
 defmodule HAP.AccessoryServerManager do
   @moduledoc false
-  # Holds the top-level state of a HAP accessory server
+  # Holds the top-level state of a HAP instance, most notably a HAP.AccessoryServer struct
 
   use GenServer
 
@@ -20,10 +20,10 @@ defmodule HAP.AccessoryServerManager do
   def ltsk, do: HAP.PersistentStorage.get(:ltsk)
 
   @doc false
-  def port(pid \\ __MODULE__), do: GenServer.call(pid, {:get, :port})
+  def port(pid \\ __MODULE__), do: GenServer.call(pid, :get_port)
 
   @doc false
-  def set_port(port, pid \\ __MODULE__), do: GenServer.call(pid, {:put, :port, port})
+  def set_port(port, pid \\ __MODULE__), do: GenServer.call(pid, {:put_port, port})
 
   @doc false
   def display_module(pid \\ __MODULE__), do: GenServer.call(pid, {:get, :display_module})
@@ -94,19 +94,24 @@ defmodule HAP.AccessoryServerManager do
       HAP.PersistentStorage.get_and_update(:config_number, &{:ok, &1 + 1})
     end
 
-    {:ok, accessory_server}
     HAP.PersistentStorage.put(:config_hash, new_config_hash)
+    {:ok, %{accessory_server: accessory_server, port: 0}}
   end
 
-  def handle_call({:get, param}, _from, state) do
-    {:reply, Map.get(state, param), state}
+  def handle_call(:get_port, _from, state) do
+    {:reply, state[:port], state}
   end
 
-  def handle_call({:put, :port, port}, _from, state) do
-    {:reply, :ok, Map.put(state, :port, port)}
+  def handle_call({:put_port, port}, _from, state) do
+    {:reply, :ok, %{state | port: port}}
+  end
+
   def handle_call(:get_pairing_url, _from, state) do
     {:reply, HAP.AccessoryServer.pairing_url(state[:accessory_server]), state}
   end
+
+  def handle_call({:get, param}, _from, state) do
+    {:reply, Map.get(state[:accessory_server], param), state}
   end
 
   def handle_call(:paired?, _from, state) do

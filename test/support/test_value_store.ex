@@ -28,11 +28,11 @@ defmodule HAP.Test.TestValueStore do
 
   @impl GenServer
   def handle_call({:get, opts}, _from, state) do
-    {:reply, Map.get(state, Keyword.get(opts, :label), 0), state}
+    {:reply, Map.get(state, Keyword.get(opts, :value_name), 0), state}
   end
 
   @impl GenServer
   def handle_call({:put, value, opts}, _from, state) do
-    {:reply, :ok, Map.put(state, Keyword.get(opts, :label), value)}
+    {:reply, :ok, Map.put(state, Keyword.get(opts, :value_name), value)}
   end
 end

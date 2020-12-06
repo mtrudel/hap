@@ -1,14 +1,18 @@
 defmodule HAP.Services.LightBulb do
   @moduledoc """
-  Factory for the `public.hap.service.lightbulb` service
+  Struct representing an instance of the `public.hap.service.lightbulb` service
   """
 
-  alias HAP.{Characteristics, Service}
+  defstruct on: nil
 
-  def build_service(mod, opts \\ []) do
-    %Service{
-      type: "43",
-      characteristics: [Characteristics.On.build_characteristic(mod, opts)]
-    }
+  defimpl HAP.ServiceSource do
+    def compile(value) do
+      %HAP.Service{
+        type: "43",
+        characteristics: [
+          HAP.Characteristics.On.build_characteristic(value.on)
+        ]
+      }
+    end
   end
 end

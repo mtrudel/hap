@@ -35,4 +35,9 @@ defmodule HAP.Service do
     characteristics
     |> Enum.at(HAP.IID.characteristic_index(iid))
   end
+
+  # Provide an identity transform for services to allow for direct definition of services within a `HAP.Accessory`
+  defimpl HAP.ServiceSource do
+    def compile(value), do: value
+  end
 end

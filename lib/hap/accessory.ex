@@ -3,25 +3,66 @@ defmodule HAP.Accessory do
   Represents a single accessory object, containing a number of services
   """
 
-  alias HAP.{IID, Service, Services}
-
-  defstruct services: []
+  defstruct name: "Generic HAP Accessory",
+            model: "Generic HAP Model",
+            manufacturer: "Generic HAP Manufacturer",
+            serial_number: "Generic Serial Number",
+            firmware_revision: "1.0",
+            services: []
 
   @typedoc """
-  Represents an accessory consisting of a number of services
+  Represents an accessory consisting of a number of services. Contains the following
+  fields:
+
+  * `name`: The name to assign to this accessory, for example 'Ceiling Fan'
+  * `model`: The model name to assign to this accessory, for example 'FanCo Whisper III'
+  * `manufacturer`: The manufacturer of this accessory, for example 'FanCo'
+  * `serial_number`: The serial number of this accessory, for example '0012345'
+  * `firmware_revision`: The firmware revision of this accessory, for example '1.0'
+  * `services`: A list of services to include in this accessory
   """
   @type t :: %__MODULE__{
+          name: name(),
+          model: model(),
+          manufacturer: manufacturer(),
+          serial_number: serial_number(),
+          firmware_revision: firmware_revision(),
           services: [HAP.Service.t()]
         }
 
+  @typedoc """
+  The name to advertise for this accessory, for example 'HAP Light Bulb'
+  """
+  @type name :: String.t()
+
+  @typedoc """
+  The model of this accessory, for example 'HAP Light Bulb Supreme'
+  """
+  @type model :: String.t()
+
+  @typedoc """
+  The manufacturer of this accessory, for example 'HAP Co.'
+  """
+  @type manufacturer :: String.t()
+
+  @typedoc """
+  The serial number of this accessory, for example '0012345'
+  """
+  @type serial_number :: String.t()
+
+  @typedoc """
+  The firmware recvision of this accessory, for example '1.0' or '1.0.1'
+  """
+  @type firmware_revision :: String.t()
+
   @doc false
-  def build_accessory(accessory) do
-    {[services: services], metadata} = Keyword.split(accessory, [:services])
+  def compile(%__MODULE__{services: services} = accessory) do
+    all_services =
+      [%HAP.Services.AccessoryInformation{accessory: accessory}, %HAP.Services.ProtocolInformation{}] ++
+        services
 
     %__MODULE__{
-      services:
-        [Services.AccessoryInformation.build_service(metadata), Services.ProtocolInformation.build_service()] ++
-          services
+      services: all_services |> Enum.map(&HAP.ServiceSource.compile/1)
     }
   end
 
@@ -31,7 +72,7 @@ defmodule HAP.Accessory do
       services
       |> Enum.with_index()
       |> Enum.map(fn {service, service_index} ->
-        Service.accessories_tree(service, service_index, opts)
+        HAP.Service.accessories_tree(service, service_index, opts)
       end)
 
     %{aid: aid, services: formatted_services}
@@ -40,7 +81,7 @@ defmodule HAP.Accessory do
   @doc false
   def get_characteristic(%__MODULE__{services: services}, iid) do
     services
-    |> Enum.at(IID.service_index(iid))
-    |> Service.get_characteristic(iid)
+    |> Enum.at(HAP.IID.service_index(iid))
+    |> HAP.Service.get_characteristic(iid)
   end
 end

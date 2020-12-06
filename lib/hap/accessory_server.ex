@@ -3,10 +3,7 @@ defmodule HAP.AccessoryServer do
   Represents a top-level HAP instance configuration
   """
 
-  alias HAP.{Accessory, Characteristic, ConsoleDisplay, Crypto.SHA512}
-
-  defstruct port: nil,
-            display_module: nil,
+  defstruct display_module: nil,
             data_path: nil,
             name: nil,
             model: nil,
@@ -14,31 +11,46 @@ defmodule HAP.AccessoryServer do
             pairing_code: nil,
             setup_id: nil,
             accessory_type: nil,
-            accessories: nil
+            accessories: []
 
   @typedoc """
-  Represents an accessory server consisting of a number of accessories
+  Represents an accessory server consisting of a number of accessories. Contains the following fields:
+
+  * `name`: The name to assign to this device, for example 'HAP Bridge'
+  * `model`: The model name to assign to this device, for example 'HAP Co. Super Bridge III'
+  * `identifier`: A unique identifier string in the form "AA:BB:CC:DD:EE:FF"
+  * `pairing_code`: A pairing code of the form 123-45-678 to be used for pairing. 
+  If not specified one will be defined dynamically.
+  * `setup_id`: A 4 character string used as part of the accessory discovery process. 
+  If not specified one will be defined dynamically.
+  * `display_module`: An optional implementation of `HAP.Display` used to present pairing 
+  and other information to the user. If not specified then a basic console-based
+  display is used.
+  * `data_path`: The path to where HAP will store its internal data. Will be created if
+  it does not exist. If not specified, `hap_data` is used.
+  * `accessory_type`: A HAP specified value indicating the primary function of this 
+  device. See `t:HAP.AccessoryServer.accessory_type/0` for details
+  * `accessories`: A list of `HAP.Accessory` structs to include in this accessory server
   """
   @type t :: %__MODULE__{
-          port: :inet.port_number(),
-          display_module: module(),
-          data_path: String.t(),
           name: name(),
           model: model(),
           identifier: accessory_identifier(),
           pairing_code: pairing_code(),
           setup_id: setup_id(),
+          display_module: module(),
+          data_path: String.t(),
           accessory_type: accessory_type(),
           accessories: [HAP.Accessory.t()]
         }
 
   @typedoc """
-  The name of an accessory server
+  The name to advertise for this accessory server, for example 'HAP Bridge'
   """
   @type name :: String.t()
 
   @typedoc """
-  The model of an accessory server
+  The model of this accessory server, for example 'HAP Co. Super Bridge III'
   """
   @type model :: String.t()
 
@@ -57,7 +69,10 @@ defmodule HAP.AccessoryServer do
   """
   @type pairing_url :: String.t()
 
-  @typep setup_id :: String.t()
+  @typedoc """
+  A 4 character string used as part of the accessory discovery process
+  """
+  @type setup_id :: String.t()
 
   @typedoc """
   A HAP specified value indicating the primary function of this device as found 
@@ -115,19 +130,18 @@ defmodule HAP.AccessoryServer do
   end
 
   @doc false
-  def build_accessory_server(accessory_server) do
-    %__MODULE__{
-      port: Keyword.get(accessory_server, :port, 0),
-      display_module: Keyword.get(accessory_server, :display_module, ConsoleDisplay),
-      data_path: Keyword.get(accessory_server, :data_path, "hap_data"),
-      name: Keyword.get(accessory_server, :name, "Generic HAP Device"),
-      model: Keyword.get(accessory_server, :model, "Generic HAP Model"),
-      identifier: Keyword.get(accessory_server, :identifier),
-      pairing_code: Keyword.get(accessory_server, :pairing_code, random_pairing_code()),
-      setup_id: Keyword.get(accessory_server, :setup_id, random_setup_id()),
-      accessory_type: Keyword.get(accessory_server, :accessory_type, 1),
-      accessories: Keyword.get(accessory_server, :accessories, [])
-    }
+  def compile(%__MODULE__{} = accessory_server) do
+    accessory_server
+    |> Map.update!(:display_module, &(&1 || HAP.ConsoleDisplay))
+    |> Map.update!(:data_path, &(&1 || "hap_data"))
+    |> Map.update!(:name, &(&1 || "Generic HAP Device"))
+    |> Map.update!(:model, &(&1 || "Generic HAP Model"))
+    |> Map.update!(:pairing_code, &(&1 || random_pairing_code()))
+    |> Map.update!(:setup_id, &(&1 || random_setup_id()))
+    |> Map.update!(:accessory_type, &(&1 || 1))
+    |> Map.update!(:accessories, fn accessories ->
+      accessories |> Enum.map(&HAP.Accessory.compile/1)
+    end)
   end
 
   @doc false
@@ -135,7 +149,7 @@ defmodule HAP.AccessoryServer do
     accessory_server
     |> accessories_tree(static_only: true)
     |> Jason.encode!()
-    |> SHA512.hash()
+    |> HAP.Crypto.SHA512.hash()
   end
 
   @doc false
@@ -144,7 +158,7 @@ defmodule HAP.AccessoryServer do
       accessories
       |> Enum.with_index(1)
       |> Enum.map(fn {accessory, aid} ->
-        Accessory.accessories_tree(accessory, aid, opts)
+        HAP.Accessory.accessories_tree(accessory, aid, opts)
       end)
 
     %{accessories: formatted_accessories}
@@ -158,8 +172,8 @@ defmodule HAP.AccessoryServer do
         value =
           accessories
           |> Enum.at(aid - 1)
-          |> Accessory.get_characteristic(iid)
-          |> Characteristic.get_value()
+          |> HAP.Accessory.get_characteristic(iid)
+          |> HAP.Characteristic.get_value()
 
         %{aid: aid, iid: iid, value: value}
       end)
@@ -175,8 +189,8 @@ defmodule HAP.AccessoryServer do
         result =
           accessories
           |> Enum.at(aid - 1)
-          |> Accessory.get_characteristic(iid)
-          |> Characteristic.put_value(value)
+          |> HAP.Accessory.get_characteristic(iid)
+          |> HAP.Characteristic.put_value(value)
 
         {result, characteristic}
 

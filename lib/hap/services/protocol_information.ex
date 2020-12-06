@@ -1,14 +1,18 @@
 defmodule HAP.Services.ProtocolInformation do
   @moduledoc """
-  Factory for the `public.hap.service.protocol.information.service` service
+  Struct representing an instance of the `public.hap.service.protocol.information.service` service
   """
 
-  def build_service(_opts \\ []) do
-    %HAP.Service{
-      type: "A2",
-      characteristics: [
-        HAP.Characteristics.Version.build_characteristic("1.1.0")
-      ]
-    }
+  defstruct []
+
+  defimpl HAP.ServiceSource do
+    def compile(_value) do
+      %HAP.Service{
+        type: "A2",
+        characteristics: [
+          HAP.Characteristics.Version.build_characteristic("1.1.0")
+        ]
+      }
+    end
   end
 end
