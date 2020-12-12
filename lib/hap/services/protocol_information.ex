@@ -10,7 +10,7 @@ defmodule HAP.Services.ProtocolInformation do
       %HAP.Service{
         type: "A2",
         characteristics: [
-          HAP.Characteristics.Version.build_characteristic("1.1.0")
+          {HAP.Characteristics.Version, "1.1.0"}
         ]
       }
     end

@@ -3,6 +3,8 @@ defmodule HAP.Services.AccessoryInformation do
   Struct representing an instance of the `public.hap.service.accessory-information` service
   """
 
+  @behaviour HAP.ValueStore
+
   defstruct accessory: nil
 
   defimpl HAP.ServiceSource do
@@ -10,14 +12,24 @@ defmodule HAP.Services.AccessoryInformation do
       %HAP.Service{
         type: "3E",
         characteristics: [
-          HAP.Characteristics.Name.build_characteristic(accessory.name),
-          HAP.Characteristics.Model.build_characteristic(accessory.model),
-          HAP.Characteristics.Manufacturer.build_characteristic(accessory.manufacturer),
-          HAP.Characteristics.SerialNumber.build_characteristic(accessory.serial_number),
-          HAP.Characteristics.FirmwareRevision.build_characteristic(accessory.firmware_revision),
-          HAP.Characteristics.Identify.build_characteristic(accessory.name)
+          {HAP.Characteristics.Name, accessory.name},
+          {HAP.Characteristics.Model, accessory.model},
+          {HAP.Characteristics.Manufacturer, accessory.manufacturer},
+          {HAP.Characteristics.SerialNumber, accessory.serial_number},
+          {HAP.Characteristics.FirmwareRevision, accessory.firmware_revision},
+          {HAP.Characteristics.Identify, {HAP.Services.AccessoryInformation, name: accessory.name}}
         ]
       }
     end
+  end
+
+  @impl HAP.ValueStore
+  def get_value(_) do
+    raise "Cannot get value for identify"
+  end
+
+  @impl HAP.ValueStore
+  def put_value(_value, name: name) do
+    HAP.Display.identify(name)
   end
 end

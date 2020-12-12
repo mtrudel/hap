@@ -62,7 +62,7 @@ defmodule HAP.Accessory do
         services
 
     %__MODULE__{
-      services: all_services |> Enum.map(&HAP.ServiceSource.compile/1)
+      services: all_services |> Enum.map(&HAP.Service.compile/1)
     }
   end
 

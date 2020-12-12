@@ -19,6 +19,17 @@ defmodule HAP.Service do
   @type type :: String.t()
 
   @doc false
+  @spec compile(HAP.ServiceSource.t()) :: t()
+  def compile(source) do
+    service = source |> HAP.ServiceSource.compile()
+
+    characteristics =
+      service.characteristics |> Enum.map(&HAP.Characteristic.compile/1) |> Enum.reject(&Kernel.is_nil/1)
+
+    %{service | characteristics: characteristics}
+  end
+
+  @doc false
   def accessories_tree(%__MODULE__{type: type, characteristics: characteristics}, service_index, opts \\ []) do
     formatted_characteristics =
       characteristics

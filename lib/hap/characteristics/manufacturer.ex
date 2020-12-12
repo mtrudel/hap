@@ -3,7 +3,8 @@ defmodule HAP.Characteristics.Manufacturer do
   Factory for the `public.hap.characteristic.manufacturer` characteristic
   """
 
-  def build_characteristic(value) do
-    %HAP.Characteristic{type: "20", value: value, perms: ["pr"], format: "string"}
-  end
+  def type, do: "20"
+  def perms, do: ["pr"]
+  def format, do: "string"
+  def max_length, do: 64
 end

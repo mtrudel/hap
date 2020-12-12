@@ -3,7 +3,7 @@ defmodule HAP.Characteristics.FirmwareRevision do
   Factory for the `public.hap.characteristic.firmware.revision` characteristic
   """
 
-  def build_characteristic(value) do
-    %HAP.Characteristic{type: "52", value: value, perms: ["pr"], format: "string"}
-  end
+  def type, do: "52"
+  def perms, do: ["pr"]
+  def format, do: "string"
 end

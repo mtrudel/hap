@@ -10,7 +10,7 @@ defmodule HAP.Services.LightBulb do
       %HAP.Service{
         type: "43",
         characteristics: [
-          HAP.Characteristics.On.build_characteristic(value.on)
+          {HAP.Characteristics.On, value.on}
         ]
       }
     end

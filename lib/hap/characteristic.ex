@@ -12,9 +12,7 @@ defmodule HAP.Characteristic do
           type: type(),
           perms: [perm()],
           format: format(),
-          value: value(),
-          value_mod: HAP.ValueStore.t(),
-          value_opts: HAP.ValueStore.opts()
+          value: value() | {HAP.ValueStore.t(), value_opts: HAP.ValueStore.opts()}
         }
 
   @typedoc """
@@ -40,6 +38,20 @@ defmodule HAP.Characteristic do
   @type value :: any()
 
   @doc false
+  def compile({_characrteristic, nil}) do
+    nil
+  end
+
+  def compile({characteristic_mod, value}) do
+    %__MODULE__{
+      type: characteristic_mod.type(),
+      perms: characteristic_mod.perms(),
+      format: characteristic_mod.format(),
+      value: value
+    }
+  end
+
+  @doc false
   def accessories_tree(
         %__MODULE__{type: type, perms: perms, format: format} = characteristic,
         service_index,
@@ -56,19 +68,17 @@ defmodule HAP.Characteristic do
   end
 
   @doc false
-  def get_value(%__MODULE__{value: value}) when not is_nil(value) do
-    value
-  end
-
-  @doc false
-  def get_value(%__MODULE__{value_mod: mod, value_opts: opts}) when not is_nil(mod) do
-    # TODO -- type checking here
+  def get_value(%__MODULE__{value: {mod, opts}}) do
     mod.get_value(opts)
   end
 
   @doc false
-  def put_value(%__MODULE__{value_mod: mod, value_opts: opts}, value) when not is_nil(mod) do
-    # TODO -- type checking here
+  def get_value(%__MODULE__{value: value}) do
+    value
+  end
+
+  @doc false
+  def put_value(%__MODULE__{value: {mod, opts}}, value) do
     mod.put_value(value, opts)
   end
 end
