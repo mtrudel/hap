@@ -17,6 +17,11 @@ defmodule HAP.Services.HeaterCooler do
 
   defimpl HAP.ServiceSource do
     def compile(value) do
+      HAP.Service.ensure_required!(__MODULE__, "active", value.active)
+      HAP.Service.ensure_required!(__MODULE__, "current_temp", value.current_temp)
+      HAP.Service.ensure_required!(__MODULE__, "current_state", value.current_state)
+      HAP.Service.ensure_required!(__MODULE__, "target_state", value.target_state)
+
       %HAP.Service{
         type: "BC",
         characteristics: [

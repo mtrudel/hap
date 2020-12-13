@@ -29,6 +29,10 @@ defmodule HAP.Service do
   end
 
   @doc false
+  def ensure_required!(module, name, nil), do: raise("Value for #{name} required for service definition #{module}")
+  def ensure_required!(_module, _name, _characteristic_value), do: :ok
+
+  @doc false
   def accessories_tree(%__MODULE__{type: type, characteristics: characteristics}, service_index, opts \\ []) do
     formatted_characteristics =
       characteristics

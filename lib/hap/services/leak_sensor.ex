@@ -7,6 +7,8 @@ defmodule HAP.Services.LeakSensor do
 
   defimpl HAP.ServiceSource do
     def compile(value) do
+      HAP.Service.ensure_required!(__MODULE__, "leak", value.leak)
+
       %HAP.Service{
         type: "83",
         characteristics: [

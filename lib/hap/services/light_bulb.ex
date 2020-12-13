@@ -7,6 +7,8 @@ defmodule HAP.Services.LightBulb do
 
   defimpl HAP.ServiceSource do
     def compile(value) do
+      HAP.Service.ensure_required!(__MODULE__, "on", value.on)
+
       %HAP.Service{
         type: "43",
         characteristics: [

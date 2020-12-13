@@ -7,6 +7,8 @@ defmodule HAP.Services.LightSensor do
 
   defimpl HAP.ServiceSource do
     def compile(value) do
+      HAP.Service.ensure_required!(__MODULE__, "light_level", value.light_level)
+
       %HAP.Service{
         type: "84",
         characteristics: [

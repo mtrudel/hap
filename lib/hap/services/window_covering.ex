@@ -16,6 +16,10 @@ defmodule HAP.Services.WindowCovering do
 
   defimpl HAP.ServiceSource do
     def compile(value) do
+      HAP.Service.ensure_required!(__MODULE__, "current_position", value.current_position)
+      HAP.Service.ensure_required!(__MODULE__, "target_position", value.target_position)
+      HAP.Service.ensure_required!(__MODULE__, "position_state", value.position_state)
+
       %HAP.Service{
         type: "8C",
         characteristics: [

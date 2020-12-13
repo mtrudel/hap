@@ -7,6 +7,9 @@ defmodule HAP.Services.Outlet do
 
   defimpl HAP.ServiceSource do
     def compile(value) do
+      HAP.Service.ensure_required!(__MODULE__, "on", value.on)
+      HAP.Service.ensure_required!(__MODULE__, "outlet_in_use", value.outlet_in_use)
+
       %HAP.Service{
         type: "47",
         characteristics: [

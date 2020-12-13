@@ -7,6 +7,8 @@ defmodule HAP.Services.OccupancySensor do
 
   defimpl HAP.ServiceSource do
     def compile(value) do
+      HAP.Service.ensure_required!(__MODULE__, "occupancy", value.occupancy)
+
       %HAP.Service{
         type: "86",
         characteristics: [

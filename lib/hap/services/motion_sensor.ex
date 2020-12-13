@@ -7,6 +7,8 @@ defmodule HAP.Services.MotionSensor do
 
   defimpl HAP.ServiceSource do
     def compile(value) do
+      HAP.Service.ensure_required!(__MODULE__, "motion", value.motion)
+
       %HAP.Service{
         type: "85",
         characteristics: [
