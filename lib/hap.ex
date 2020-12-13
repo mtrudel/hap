@@ -23,8 +23,8 @@ defmodule HAP do
   A service is made up of one or more *Characteristics*, each of which represents a specific aspect of the given service. 
   For example, a light bulb service exposes an On Characteristic, which is a boolean value reflecting the current on or
   off state of the light. If it is a dimmable light, it may also expose a Brightness Characteristic. If it is a color
-  changing light, it may also expose a Hue Characteristic. Within HAP, a characteristic is represented by a `HAP.Characteristic`
-  struct.
+  changing light, it may also expose a Hue Characteristic. Within HAP, a characteristic is represented by a tuple of a
+  `HAP.CharacteristicDefinition` and a value source.
 
   ## Using HAP
 
@@ -68,9 +68,9 @@ defmodule HAP do
   HAP compiles these structs into generic `HAP.Service` structs when starting up, based on each source struct's implementation
   of the `HAP.ServiceSource` protocol. This allows for expressive definition of services by the application developer, while
   providing for less boilerplate within HAP itself. For users who wish to create additional device types not defined in
-  HAP, users may define their accessories in terms of low-level `HAP.Service` and `HAP.Characteristic` structs. For more
+  HAP, users may define their accessories in terms of low-level `HAP.Service` and `HAP.CharacteristicDefinition` structs. For more
   information, consult the type definitions for `t:HAP.AccessoryServer.t/0`, `t:HAP.Accessory.t/0`, `t:HAP.Service.t/0`,
-  and `t:HAP.Characteristic.t/0`.
+  `t:HAP.Characteristic.t/0`, and the `HAP.CharacteristicDefinition` behaviour.
   """
 
   use Supervisor
