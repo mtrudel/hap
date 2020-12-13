@@ -9,20 +9,42 @@ defmodule HAP.CharacteristicDefinition do
   this behaviour as the first value in the characteristic definition tuple in a service.
   """
 
+  @typedoc """
+  The type of a characteristic as defined in Section 6.6.1 of Apple's [HomeKit Accessory Protocol Specification](https://developer.apple.com/homekit/).
+  """
+  @type type :: String.t()
+
+  @typedoc """
+  A permission of a characteristic as defined in Table 6.4 of Apple's [HomeKit Accessory Protocol Specification](https://developer.apple.com/homekit/).
+  One of `pr`, `pw`, `ev`, `aa`, `tw`, `hd`, or `wr`
+  """
+  @type perm :: String.t()
+
+  @typedoc """
+  The format of a characteristic as defined in Table 6.5 of Apple's [HomeKit Accessory Protocol Specification](https://developer.apple.com/homekit/).
+  One of `bool`, `uint8`, `uint16`, `uint32`, `uint64`, `int`, `float`, `string`, `tlv8`, or `data`
+  """
+  @type format :: String.t()
+
+  @typedoc """
+  The unit of measure of a characrteristic's value
+  """
+  @type unit :: any()
+
   @doc """
   The HomeKit type code for this characteristic
   """
-  @callback type :: HAP.Characteristic.type()
+  @callback type :: type()
 
   @doc """
   The permissions to allow for this characteristic
   """
-  @callback perms :: HAP.Characteristic.perms()
+  @callback perms :: [perm()]
 
   @doc """
   The format of this characteristic's data
   """
-  @callback format :: HAP.Characteristic.format()
+  @callback format :: format()
 
   @doc """
   The minimum value allowed for this characteristic's value
@@ -42,5 +64,7 @@ defmodule HAP.CharacteristicDefinition do
   @doc """
   The units of this Characteristic's value
   """
-  @callback units :: HAP.Characteristic.units()
+  @callback units :: unit()
+
+  @optional_callbacks min_value: 0, max_value: 0, step_value: 0, units: 0
 end

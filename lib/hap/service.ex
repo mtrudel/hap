@@ -23,8 +23,7 @@ defmodule HAP.Service do
   def compile(source) do
     service = source |> HAP.ServiceSource.compile()
 
-    characteristics =
-      service.characteristics |> Enum.map(&HAP.Characteristic.compile/1) |> Enum.reject(&Kernel.is_nil/1)
+    characteristics = service.characteristics |> Enum.reject(fn {_characteristic_mod, value} -> is_nil(value) end)
 
     %{service | characteristics: characteristics}
   end
