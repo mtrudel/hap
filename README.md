@@ -13,18 +13,50 @@ As shown in the [HAP Demo](https://github.com/mtrudel/hap_demo) project, integra
 project is extremely straightforward - all that is required in most cases is to define the services and characteristics
 you wish to expose, and to provide an implementation of `HAP.ValueStore` for each non-static characteristic you define.
 
+In many cases, integrating with HAP can be as simple as:
+
+```elixir
+accessory_server =
+  %HAP.AccessoryServer{
+    name: "My HAP Demo Device",
+    model: "HAP Demo Device",
+    identifier: "11:22:33:44:12:66",
+    accessory_type: 5,
+    accessories: [
+      %HAP.Accessory{
+        name: "My HAP Lightbulb",
+        services: [
+          %HAP.Services.LightBulb{on: {MyApp.Lightbulb, gpio_pin: 23}}
+        ]
+      }
+    ]
+  )
+
+children = [{HAP, accessory_server}]
+
+Supervisor.start_link(children, opts)
+
+...
+```
+
+## Supported Services & Characteristics
+
+As originally developed, HAP included a fairly small set of services & characteristics (mostly due to the author's
+laziness & the immediate need for only a handful of the ~45 services & ~128 characteristics defined in the
+specification). However, it is quite easy to add definitions for new services & characteristics, and PRs to add such
+definitions are extremely welcome. The [lightbulb service](https://github.com/mtrudel/hap/blob/master/lib/hap/services/light_bulb.ex) 
+is a complete implementation of a service and serves as an excellent starting point for creating your own. You can consult
+sections 8 and 9 of the [HomeKit Accessory Protocol Specification](https://developer.apple.com/homekit/) to determine
+what characteristics are required and optional for a given service. Note that only implementations of public services and
+characteristcs as defined in the HomeKit specification will be considered for inclusion in HAP. 
+
 ## Known Issues
 
 As HAP is stil in active development, there are a number of known rough edges. These include:
 
-* Only a few services & characteristics have been pre-defined (many more coming soon, though
-note that in the interim you are always free to pass in any service / characteristic configuration you like. The
-pre-defined values are just conveniences for common cases)
-* Automatic configuration validation (coming soon)
-* Type validation for characteristic values (coming soon)
-* Improved support for pre-defined pairing codes (coming soon)
 * No support for 207 Multi-Status responses to characteristic requests (coming soon)
 * No support for asynchronous events (this is slated for HAP 2.0)
+* No support for dynamically updating the services advertised by a HAP instance (this is slated for HAP 2.0)
 * Incomplete support for tearing down existing sessions on pairing removal (this is slated for HAP 2.0)
 * No support for HomeKit Secure Video / RTP (support is not currently planned, but PRs are of course welcome)
 

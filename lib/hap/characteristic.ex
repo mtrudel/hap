@@ -4,7 +4,7 @@ defmodule HAP.Characteristic do
   """
 
   @typedoc """
-  Represents a single characteristic optionally backed by an instance of ValueStore
+  Represents a single characteristic consisting of a static definition and a value source
   """
   @type t :: {module(), value_source()}
 
@@ -51,5 +51,10 @@ defmodule HAP.Characteristic do
   @doc false
   def put_value({_definition, {mod, opts}}, value) do
     mod.put_value(value, opts)
+  end
+
+  @doc false
+  def put_value({_definition, _static_value}, _value) do
+    raise "Cannot write to a statically defined characteristic"
   end
 end
