@@ -3,6 +3,8 @@ defmodule HAP.Characteristics.HeatingThresholdTemperature do
   Definition of the `public.hap.characteristic.temperature.heating-threshold` characteristic
   """
 
+  @behaviour HAP.CharacteristicDefinition
+
   def type, do: "12"
   def perms, do: ["pr", "pw", "ev"]
   def format, do: "float"

@@ -6,6 +6,8 @@ defmodule HAP.Characteristics.ContactSensorState do
   that the contact is not detected.
   """
 
+  @behaviour HAP.CharacteristicDefinition
+
   def type, do: "6A"
   def perms, do: ["pr", "ev"]
   def format, do: "uint8"

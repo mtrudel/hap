@@ -8,6 +8,8 @@ defmodule HAP.Characteristics.SwingMode do
   1: Swing enabled
   """
 
+  @behaviour HAP.CharacteristicDefinition
+
   def type, do: "B6"
   def perms, do: ["pr", "pw", "ev"]
   def format, do: "uint8"

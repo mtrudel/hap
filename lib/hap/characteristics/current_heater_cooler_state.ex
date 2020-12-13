@@ -10,6 +10,8 @@ defmodule HAP.Characteristics.CurrentHeaterCoolerState do
   3 Cooling
   """
 
+  @behaviour HAP.CharacteristicDefinition
+
   def type, do: "B1"
   def perms, do: ["pr", "ev"]
   def format, do: "uint8"

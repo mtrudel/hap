@@ -3,6 +3,8 @@ defmodule HAP.Characteristics.Manufacturer do
   Definition of the `public.hap.characteristic.manufacturer` characteristic
   """
 
+  @behaviour HAP.CharacteristicDefinition
+
   def type, do: "20"
   def perms, do: ["pr"]
   def format, do: "string"

@@ -8,6 +8,8 @@ defmodule HAP.Characteristics.TemperatureDisplayUnits do
   1: Fahrenheit
   """
 
+  @behaviour HAP.CharacteristicDefinition
+
   def type, do: "36"
   def perms, do: ["pr", "pw", "ev"]
   def format, do: "uint8"

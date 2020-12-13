@@ -3,6 +3,8 @@ defmodule HAP.Characteristics.Brightness do
   Definition of the `public.hap.characteristic.brightness` characteristic
   """
 
+  @behaviour HAP.CharacteristicDefinition
+
   def type, do: "8"
   def perms, do: ["pr", "pw", "ev"]
   def format, do: "int"

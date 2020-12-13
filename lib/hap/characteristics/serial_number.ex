@@ -3,6 +3,8 @@ defmodule HAP.Characteristics.SerialNumber do
   Definition of the `public.hap.characteristic.serial-number` characteristic
   """
 
+  @behaviour HAP.CharacteristicDefinition
+
   def type, do: "30"
   def perms, do: ["pr"]
   def format, do: "string"

@@ -3,6 +3,8 @@ defmodule HAP.Characteristics.Active do
   Definition of the `public.hap.characteristic.active` characteristic
   """
 
+  @behaviour HAP.CharacteristicDefinition
+
   def type, do: "B0"
   def perms, do: ["pr", "pw", "ev"]
   def format, do: "uint8"

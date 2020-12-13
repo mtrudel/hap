@@ -3,6 +3,8 @@ defmodule HAP.Characteristics.Hue do
   Definition of the `public.hap.characteristic.hue` characteristic
   """
 
+  @behaviour HAP.CharacteristicDefinition
+
   def type, do: "13"
   def perms, do: ["pr", "pw", "ev"]
   def format, do: "float"

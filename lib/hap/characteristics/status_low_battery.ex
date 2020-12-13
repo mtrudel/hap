@@ -7,6 +7,8 @@ defmodule HAP.Characteristics.StatusLowBattery do
   low threshold.
   """
 
+  @behaviour HAP.CharacteristicDefinition
+
   def type, do: "79"
   def perms, do: ["pr", "ev"]
   def format, do: "uint8"

@@ -7,6 +7,8 @@ defmodule HAP.Characteristics.ColorTemperature do
   value and K is temperature in Kelvin)
   """
 
+  @behaviour HAP.CharacteristicDefinition
+
   def type, do: "CE"
   def perms, do: ["pr", "pw", "ev"]
   def format, do: "uint32"

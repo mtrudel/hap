@@ -37,6 +37,11 @@ defmodule HAP.Characteristic do
   """
   @type value :: any()
 
+  @typedoc """
+  The unit of measure of a characrteristic's value
+  """
+  @type units :: any()
+
   @doc false
   def compile({_characrteristic, nil}) do
     nil

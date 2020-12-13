@@ -8,6 +8,8 @@ defmodule HAP.Characteristics.LockPhysicalControls do
   1: Control lock enabled
   """
 
+  @behaviour HAP.CharacteristicDefinition
+
   def type, do: "A7"
   def perms, do: ["pr", "pw", "ev"]
   def format, do: "uint8"

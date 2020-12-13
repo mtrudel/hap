@@ -7,6 +7,8 @@ defmodule HAP.Characteristics.StatusFault do
   that there is no fault.
   """
 
+  @behaviour HAP.CharacteristicDefinition
+
   def type, do: "77"
   def perms, do: ["pr", "ev"]
   def format, do: "uint8"

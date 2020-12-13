@@ -3,6 +3,8 @@ defmodule HAP.Characteristics.CoolingThresholdTemperature do
   Definition of the `public.hap.characteristic.temperature.cooling-threshold` characteristic
   """
 
+  @behaviour HAP.CharacteristicDefinition
+
   def type, do: "0D"
   def perms, do: ["pr", "pw", "ev"]
   def format, do: "float"

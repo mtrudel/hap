@@ -3,6 +3,8 @@ defmodule HAP.Characteristics.Name do
   Definition of the `public.hap.characteristic.name` characteristic
   """
 
+  @behaviour HAP.CharacteristicDefinition
+
   def type, do: "23"
   def perms, do: ["pr"]
   def format, do: "string"

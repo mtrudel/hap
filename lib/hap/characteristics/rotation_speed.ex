@@ -3,6 +3,8 @@ defmodule HAP.Characteristics.RotationSpeed do
   Definition of the `public.hap.characteristic.rotation.speed` characteristic
   """
 
+  @behaviour HAP.CharacteristicDefinition
+
   def type, do: "29"
   def perms, do: ["pr", "pw", "ev"]
   def format, do: "float"

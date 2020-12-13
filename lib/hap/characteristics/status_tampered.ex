@@ -7,6 +7,8 @@ defmodule HAP.Characteristics.StatusTampered do
   should return to 0 when the accessory has been reset to a non-tampered state.
   """
 
+  @behaviour HAP.CharacteristicDefinition
+
   def type, do: "7A"
   def perms, do: ["pr", "ev"]
   def format, do: "uint8"

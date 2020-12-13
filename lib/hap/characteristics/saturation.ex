@@ -3,6 +3,8 @@ defmodule HAP.Characteristics.Saturation do
   Definition of the `public.hap.characteristic.saturation` characteristic
   """
 
+  @behaviour HAP.CharacteristicDefinition
+
   def type, do: "2F"
   def perms, do: ["pr", "pw", "ev"]
   def format, do: "float"

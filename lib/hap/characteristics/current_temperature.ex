@@ -3,6 +3,8 @@ defmodule HAP.Characteristics.CurrentTemperature do
   Definition of the `public.hap.characteristic.temperature.current` characteristic
   """
 
+  @behaviour HAP.CharacteristicDefinition
+
   def type, do: "11"
   def perms, do: ["pr", "ev"]
   def format, do: "float"

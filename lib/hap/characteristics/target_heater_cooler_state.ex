@@ -10,6 +10,8 @@ defmodule HAP.Characteristics.TargetHeaterCoolerState do
   3 Auto (turn on heating or cooling to maintain temperature within the target temperatures)
   """
 
+  @behaviour HAP.CharacteristicDefinition
+
   def type, do: "33"
   def perms, do: ["pr", "pw", "ev"]
   def format, do: "uint8"
