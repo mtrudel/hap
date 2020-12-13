@@ -8,6 +8,6 @@ defmodule HAP.Characteristics.Brightness do
   def format, do: "int"
   def min_value, do: 0
   def max_value, do: 100
-  def step_unit, do: 1
+  def step_value, do: 1
   def unit, do: "percentage"
 end

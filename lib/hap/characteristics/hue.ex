@@ -8,6 +8,6 @@ defmodule HAP.Characteristics.Hue do
   def format, do: "float"
   def min_value, do: 0.0
   def max_value, do: 360.0
-  def step_unit, do: 1.0
+  def step_value, do: 1.0
   def unit, do: "arcdegrees"
 end

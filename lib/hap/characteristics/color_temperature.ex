@@ -12,5 +12,5 @@ defmodule HAP.Characteristics.ColorTemperature do
   def format, do: "uint32"
   def min_value, do: 50
   def max_value, do: 400
-  def step_unit, do: 1
+  def step_value, do: 1
 end

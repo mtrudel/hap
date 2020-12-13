@@ -13,5 +13,5 @@ defmodule HAP.Characteristics.LockPhysicalControls do
   def format, do: "uint8"
   def min_value, do: 0
   def max_value, do: 1
-  def step_unit, do: 1
+  def step_value, do: 1
 end

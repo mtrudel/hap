@@ -8,6 +8,6 @@ defmodule HAP.Characteristics.CurrentTemperature do
   def format, do: "float"
   def min_value, do: 0.0
   def max_value, do: 100.0
-  def step_unit, do: 0.1
+  def step_value, do: 0.1
   def unit, do: "celsius"
 end

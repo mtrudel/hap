@@ -8,6 +8,6 @@ defmodule HAP.Characteristics.CoolingThresholdTemperature do
   def format, do: "float"
   def min_value, do: 10.0
   def max_value, do: 35.0
-  def step_unit, do: 0.1
+  def step_value, do: 0.1
   def units, do: "celsius"
 end
