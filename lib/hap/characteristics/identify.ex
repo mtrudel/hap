@@ -1,6 +1,6 @@
 defmodule HAP.Characteristics.Identify do
   @moduledoc """
-  Factory for the `public.hap.characteristic.identify` characteristic
+  Definition of the `public.hap.characteristic.identify` characteristic
   """
 
   def type, do: "14"

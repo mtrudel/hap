@@ -1,6 +1,6 @@
 defmodule HAP.Characteristics.LockPhysicalControls do
   @moduledoc """
-  Factory for the `public.hap.characteristic.lock-physical-controls` characteristic
+  Definition of the `public.hap.characteristic.lock-physical-controls` characteristic
 
   Valid values: 
 

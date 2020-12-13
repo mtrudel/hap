@@ -1,6 +1,6 @@
 defmodule HAP.Characteristics.Active do
   @moduledoc """
-  Factory for the `public.hap.characteristic.active` characteristic
+  Definition of the `public.hap.characteristic.active` characteristic
   """
 
   def type, do: "B0"

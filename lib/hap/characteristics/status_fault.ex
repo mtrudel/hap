@@ -1,6 +1,6 @@
 defmodule HAP.Characteristics.StatusFault do
   @moduledoc """
-  Factory for the `public.hap.characteristic.status-fault` characteristic
+  Definition of the `public.hap.characteristic.status-fault` characteristic
 
   A non-zero value indicates that the accessory has experienced a fault that 
   may be interfering with its intended functionality. A value of 0 indicates 

@@ -1,6 +1,6 @@
 defmodule HAP.Characteristics.CurrentTemperature do
   @moduledoc """
-  Factory for the `public.hap.characteristic.temperature.current` characteristic
+  Definition of the `public.hap.characteristic.temperature.current` characteristic
   """
 
   def type, do: "11"

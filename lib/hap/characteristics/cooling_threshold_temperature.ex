@@ -1,6 +1,6 @@
 defmodule HAP.Characteristics.CoolingThresholdTemperature do
   @moduledoc """
-  Factory for the `public.hap.characteristic.temperature.cooling-threshold` characteristic
+  Definition of the `public.hap.characteristic.temperature.cooling-threshold` characteristic
   """
 
   def type, do: "0D"

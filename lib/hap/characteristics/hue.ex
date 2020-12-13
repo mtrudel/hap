@@ -1,6 +1,6 @@
 defmodule HAP.Characteristics.Hue do
   @moduledoc """
-  Factory for the `public.hap.characteristic.hue` characteristic
+  Definition of the `public.hap.characteristic.hue` characteristic
   """
 
   def type, do: "13"

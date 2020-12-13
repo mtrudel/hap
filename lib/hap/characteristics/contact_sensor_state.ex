@@ -1,6 +1,6 @@
 defmodule HAP.Characteristics.ContactSensorState do
   @moduledoc """
-  Factory for the `public.hap.characteristic.contact-state` characteristic
+  Definition of the `public.hap.characteristic.contact-state` characteristic
 
   A value of 0 indicates that the contact is detected. A value of 1 indicates 
   that the contact is not detected.

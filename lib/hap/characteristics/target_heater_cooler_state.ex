@@ -1,6 +1,6 @@
 defmodule HAP.Characteristics.TargetHeaterCoolerState do
   @moduledoc """
-  Factory for the `public.hap.characteristic.heater-cooler.target` characteristic
+  Definition of the `public.hap.characteristic.heater-cooler.target` characteristic
 
   Valid values: 
 

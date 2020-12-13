@@ -1,6 +1,6 @@
 defmodule HAP.Characteristics.TemperatureDisplayUnits do
   @moduledoc """
-  Factory for the `public.hap.characteristic.temperature.units` characteristic
+  Definition of the `public.hap.characteristic.temperature.units` characteristic
 
   Valid values:
 

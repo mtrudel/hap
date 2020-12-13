@@ -1,6 +1,6 @@
 defmodule HAP.Characteristics.Version do
   @moduledoc """
-  Factory for the `public.hap.characteristic.version` characteristic
+  Definition of the `public.hap.characteristic.version` characteristic
   """
 
   def type, do: "37"

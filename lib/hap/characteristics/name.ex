@@ -1,6 +1,6 @@
 defmodule HAP.Characteristics.Name do
   @moduledoc """
-  Factory for the `public.hap.characteristic.name` characteristic
+  Definition of the `public.hap.characteristic.name` characteristic
   """
 
   def type, do: "23"

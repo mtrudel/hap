@@ -1,6 +1,6 @@
 defmodule HAP.Characteristics.Brightness do
   @moduledoc """
-  Factory for the `public.hap.characteristic.brightness` characteristic
+  Definition of the `public.hap.characteristic.brightness` characteristic
   """
 
   def type, do: "8"

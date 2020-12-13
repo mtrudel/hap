@@ -1,6 +1,6 @@
 defmodule HAP.Characteristics.ColorTemperature do
   @moduledoc """
-  Factory for the `public.hap.characteristic.color-temperature` characteristic
+  Definition of the `public.hap.characteristic.color-temperature` characteristic
 
   This characteristic describes color temperature which is represented in reciprocal 
   megaKelvin (MK-1) or mirek scale. (M = 1,000,000 / K where M is the desired mirek 

@@ -1,6 +1,6 @@
 defmodule HAP.Characteristics.SerialNumber do
   @moduledoc """
-  Factory for the `public.hap.characteristic.serial-number` characteristic
+  Definition of the `public.hap.characteristic.serial-number` characteristic
   """
 
   def type, do: "30"

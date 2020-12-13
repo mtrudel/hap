@@ -1,6 +1,6 @@
 defmodule HAP.Characteristics.StatusTampered do
   @moduledoc """
-  Factory for the `public.hap.characteristic.status-tampered` characteristic
+  Definition of the `public.hap.characteristic.status-tampered` characteristic
 
   This characteristic describes an accessory which has been tampered with. 
   A status of 1 indicates that the accessory has been tampered with. Value 

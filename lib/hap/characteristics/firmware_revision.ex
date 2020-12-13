@@ -1,6 +1,6 @@
 defmodule HAP.Characteristics.FirmwareRevision do
   @moduledoc """
-  Factory for the `public.hap.characteristic.firmware.revision` characteristic
+  Definition of the `public.hap.characteristic.firmware.revision` characteristic
   """
 
   def type, do: "52"

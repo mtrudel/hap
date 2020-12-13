@@ -1,6 +1,6 @@
 defmodule HAP.Characteristics.StatusActive do
   @moduledoc """
-  Factory for the `public.hap.characteristic.status-active` characteristic
+  Definition of the `public.hap.characteristic.status-active` characteristic
   """
 
   def type, do: "75"

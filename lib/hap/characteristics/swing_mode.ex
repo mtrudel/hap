@@ -1,6 +1,6 @@
 defmodule HAP.Characteristics.SwingMode do
   @moduledoc """
-  Factory for the `public.hap.characteristic.swing-mode` characteristic
+  Definition of the `public.hap.characteristic.swing-mode` characteristic
 
   Valid values:
 

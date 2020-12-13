@@ -1,6 +1,6 @@
 defmodule HAP.Characteristics.RotationSpeed do
   @moduledoc """
-  Factory for the `public.hap.characteristic.rotation.speed` characteristic
+  Definition of the `public.hap.characteristic.rotation.speed` characteristic
   """
 
   def type, do: "29"

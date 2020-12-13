@@ -1,6 +1,6 @@
 defmodule HAP.Characteristics.CurrentHeaterCoolerState do
   @moduledoc """
-  Factory for the `public.hap.characteristic.heater-cooler.state.current` characteristic
+  Definition of the `public.hap.characteristic.heater-cooler.state.current` characteristic
 
   Valid values:
 

@@ -1,6 +1,6 @@
 defmodule HAP.Characteristics.Saturation do
   @moduledoc """
-  Factory for the `public.hap.characteristic.saturation` characteristic
+  Definition of the `public.hap.characteristic.saturation` characteristic
   """
 
   def type, do: "2F"

@@ -1,6 +1,6 @@
 defmodule HAP.Characteristics.HeatingThresholdTemperature do
   @moduledoc """
-  Factory for the `public.hap.characteristic.temperature.heating-threshold` characteristic
+  Definition of the `public.hap.characteristic.temperature.heating-threshold` characteristic
   """
 
   def type, do: "12"
