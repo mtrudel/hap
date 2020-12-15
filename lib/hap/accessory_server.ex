@@ -165,39 +165,45 @@ defmodule HAP.AccessoryServer do
   end
 
   @doc false
-  def get_characteristics(%__MODULE__{accessories: accessories}, characteristics) do
-    formatted_characteristics =
-      characteristics
-      |> Enum.map(fn %{aid: aid, iid: iid} ->
-        value =
-          accessories
-          |> Enum.at(aid - 1)
-          |> HAP.Accessory.get_characteristic(iid)
-          |> HAP.Characteristic.get_value()
-
-        %{aid: aid, iid: iid, value: value}
-      end)
-
-    %{characteristics: formatted_characteristics}
+  def get_characteristics(%__MODULE__{} = accessory_server, characteristics) do
+    characteristics
+    |> Enum.map(fn %{aid: aid, iid: iid} ->
+      with {:ok, accessory} <- get_accessory(accessory_server, aid),
+           {:ok, service} <- HAP.Accessory.get_service(accessory, iid),
+           {:ok, characteristic} <- HAP.Service.get_characteristic(service, iid),
+           {:ok, value} <- HAP.Characteristic.get_value(characteristic) do
+        %{aid: aid, iid: iid, value: value, status: 0}
+      else
+        {:error, reason} -> %{aid: aid, iid: iid, status: reason}
+      end
+    end)
   end
 
   @doc false
-  def put_characteristics(%__MODULE__{accessories: accessories}, characteristics) do
+  def put_characteristics(%__MODULE__{} = accessory_server, characteristics) do
     characteristics
     |> Enum.map(fn
-      %{"aid" => aid, "iid" => iid, "value" => value} = characteristic ->
-        result =
-          accessories
-          |> Enum.at(aid - 1)
-          |> HAP.Accessory.get_characteristic(iid)
-          |> HAP.Characteristic.put_value(value)
+      %{"aid" => aid, "iid" => iid, "value" => value} ->
+        with {:ok, accessory} <- get_accessory(accessory_server, aid),
+             {:ok, service} <- HAP.Accessory.get_service(accessory, iid),
+             {:ok, characteristic} <- HAP.Service.get_characteristic(service, iid),
+             :ok <- HAP.Characteristic.put_value(characteristic, value) do
+          %{aid: aid, iid: iid, status: 0}
+        else
+          {:error, reason} -> %{aid: aid, iid: iid, status: reason}
+        end
 
-        {result, characteristic}
-
-      %{"aid" => _aid, "iid" => _iid, "ev" => _} = characteristic ->
+      %{"aid" => aid, "iid" => iid, "ev" => _} ->
         # TODO -- event registration should be handled somewhere w/ state
-        {:ok, characteristic}
+        %{aid: aid, iid: iid, status: 0}
     end)
+  end
+
+  defp get_accessory(%__MODULE__{accessories: accessories}, aid) do
+    case Enum.at(accessories, aid - 1) do
+      nil -> {:error, -70_409}
+      accessory -> {:ok, accessory}
+    end
   end
 
   defp random_pairing_code do

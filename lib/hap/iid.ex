@@ -19,18 +19,24 @@ defmodule HAP.IID do
   @doc false
   def service_index(iid) when iid in 1..65_536 do
     <<service_index::8, _characteristic_index::8, 1::1>> = <<iid::17>>
-    service_index
+    {:ok, service_index}
   end
+
+  @doc false
+  def service_index(_iid), do: {:error, :invalid_iid}
 
   @doc false
   def characteristic_index(iid) when iid in 1..65_536 do
     <<_service_index::8, characteristic_index::8, 1::1>> = <<iid::17>>
 
     case characteristic_index do
-      0 -> :error
-      result -> result - 1
+      0 -> {:error, :invalid_iid}
+      result -> {:ok, result - 1}
     end
   end
+
+  @doc false
+  def characteristic_index(_iid), do: {:error, :invalid_iid}
 
   @doc false
   def to_iid(service_index) when service_index in 0..255 do

@@ -40,6 +40,38 @@ defmodule HAP.CharacteristicsTest do
              }
     end
 
+    test "it should return requested characteristics if some are invalid reads", context do
+      # Setup an encrypted session
+      :ok = HAP.Test.HTTPClient.setup_encrypted_session(context.client)
+
+      {:ok, 207, headers, body} = HAP.Test.HTTPClient.get(context.client, "/characteristics?id=1.3,1.13")
+
+      assert Keyword.get(headers, :"content-type") == "application/hap+json"
+
+      assert Jason.decode!(body) == %{
+               "characteristics" => [
+                 %{"iid" => 3, "value" => "Generic HAP Accessory", "aid" => 1, "status" => 0},
+                 %{"iid" => 13, "aid" => 1, "status" => -70_405}
+               ]
+             }
+    end
+
+    test "it should return requested characteristics if some are invalid iids", context do
+      # Setup an encrypted session
+      :ok = HAP.Test.HTTPClient.setup_encrypted_session(context.client)
+
+      {:ok, 207, headers, body} = HAP.Test.HTTPClient.get(context.client, "/characteristics?id=1.3,1.9999999")
+
+      assert Keyword.get(headers, :"content-type") == "application/hap+json"
+
+      assert Jason.decode!(body) == %{
+               "characteristics" => [
+                 %{"iid" => 3, "value" => "Generic HAP Accessory", "aid" => 1, "status" => 0},
+                 %{"iid" => 9_999_999, "aid" => 1, "status" => -70_409}
+               ]
+             }
+    end
+
     test "it should require an authenticated session", context do
       {:ok, 401, _headers, _body} = HAP.Test.HTTPClient.get(context.client, "/characteristics?id=1.3,1.515")
     end
@@ -62,7 +94,65 @@ defmodule HAP.CharacteristicsTest do
         )
 
       assert HAP.AccessoryServerManager.get_characteristics([%{iid: 1027, aid: 1}]) ==
-               %{characteristics: [%{iid: 1027, value: true, aid: 1}]}
+               [%{iid: 1027, value: true, aid: 1, status: 0}]
+    end
+
+    test "it should set the requested characteristics even if some are invalid writes", context do
+      # Setup an encrypted session
+      :ok = HAP.Test.HTTPClient.setup_encrypted_session(context.client)
+
+      request = %{
+        characteristics: [
+          %{"iid" => 1027, "value" => true, "aid" => 1},
+          %{"iid" => 3, "value" => "new name", "aid" => 1}
+        ]
+      }
+
+      {:ok, 207, headers, body} =
+        HAP.Test.HTTPClient.put(context.client, "/characteristics", Jason.encode!(request),
+          "content-type": "application/hap+json"
+        )
+
+      assert Keyword.get(headers, :"content-type") == "application/hap+json"
+
+      assert Jason.decode!(body) == %{
+               "characteristics" => [
+                 %{"iid" => 1027, "aid" => 1, "status" => 0},
+                 %{"iid" => 3, "aid" => 1, "status" => -70_404}
+               ]
+             }
+
+      assert HAP.AccessoryServerManager.get_characteristics([%{iid: 1027, aid: 1}]) ==
+               [%{iid: 1027, value: true, aid: 1, status: 0}]
+    end
+
+    test "it should set the requested characteristics even if some are invalid iids", context do
+      # Setup an encrypted session
+      :ok = HAP.Test.HTTPClient.setup_encrypted_session(context.client)
+
+      request = %{
+        characteristics: [
+          %{"iid" => 1027, "value" => true, "aid" => 1},
+          %{"iid" => 9_999_999, "value" => "new", "aid" => 1}
+        ]
+      }
+
+      {:ok, 207, headers, body} =
+        HAP.Test.HTTPClient.put(context.client, "/characteristics", Jason.encode!(request),
+          "content-type": "application/hap+json"
+        )
+
+      assert Keyword.get(headers, :"content-type") == "application/hap+json"
+
+      assert Jason.decode!(body) == %{
+               "characteristics" => [
+                 %{"iid" => 1027, "aid" => 1, "status" => 0},
+                 %{"iid" => 9_999_999, "aid" => 1, "status" => -70_409}
+               ]
+             }
+
+      assert HAP.AccessoryServerManager.get_characteristics([%{iid: 1027, aid: 1}]) ==
+               [%{iid: 1027, value: true, aid: 1, status: 0}]
     end
 
     test "it should require an authenticated session", context do

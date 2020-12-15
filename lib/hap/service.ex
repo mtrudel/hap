@@ -46,8 +46,12 @@ defmodule HAP.Service do
 
   @doc false
   def get_characteristic(%__MODULE__{characteristics: characteristics}, iid) do
-    characteristics
-    |> Enum.at(HAP.IID.characteristic_index(iid))
+    with {:ok, characteristic_index} <- HAP.IID.characteristic_index(iid),
+         characteristic when not is_nil(characteristic) <- Enum.at(characteristics, characteristic_index) do
+      {:ok, characteristic}
+    else
+      _ -> {:error, -70_409}
+    end
   end
 
   # Provide an identity transform for services to allow for direct definition of services within a `HAP.Accessory`

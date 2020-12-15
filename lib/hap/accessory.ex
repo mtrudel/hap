@@ -79,9 +79,12 @@ defmodule HAP.Accessory do
   end
 
   @doc false
-  def get_characteristic(%__MODULE__{services: services}, iid) do
-    services
-    |> Enum.at(HAP.IID.service_index(iid))
-    |> HAP.Service.get_characteristic(iid)
+  def get_service(%__MODULE__{services: services}, iid) do
+    with {:ok, service_index} <- HAP.IID.service_index(iid),
+         %HAP.Service{} = service <- Enum.at(services, service_index) do
+      {:ok, service}
+    else
+      _ -> {:error, -70_409}
+    end
   end
 end
