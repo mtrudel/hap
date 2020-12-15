@@ -33,18 +33,6 @@ defmodule HAP.Service do
   def ensure_required!(_module, _name, _characteristic_value), do: :ok
 
   @doc false
-  def accessories_tree(%__MODULE__{type: type, characteristics: characteristics}, service_index, opts \\ []) do
-    formatted_characteristics =
-      characteristics
-      |> Enum.with_index()
-      |> Enum.map(fn {characteristic, characteristic_index} ->
-        HAP.Characteristic.accessories_tree(characteristic, service_index, characteristic_index, opts)
-      end)
-
-    %{iid: HAP.IID.to_iid(service_index), type: type, characteristics: formatted_characteristics}
-  end
-
-  @doc false
   def get_characteristic(%__MODULE__{characteristics: characteristics}, iid) do
     with {:ok, characteristic_index} <- HAP.IID.characteristic_index(iid),
          characteristic when not is_nil(characteristic) <- Enum.at(characteristics, characteristic_index) do

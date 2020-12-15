@@ -20,23 +20,18 @@ defmodule HAP.Characteristic do
   @type value :: any()
 
   @doc false
-  def accessories_tree({characteristic_definition, value_source}, service_index, characteristic_index, opts \\ []) do
-    iid = HAP.IID.to_iid(service_index, characteristic_index)
-    type = characteristic_definition.type()
-    perms = characteristic_definition.perms()
-    format = characteristic_definition.format()
+  def get_type({characteristic_definition, _value_source}) do
+    characteristic_definition.type()
+  end
 
-    cond do
-      Keyword.get(opts, :static_only) ->
-        %{iid: iid, type: type}
+  @doc false
+  def get_perms({characteristic_definition, _value_source}) do
+    characteristic_definition.perms()
+  end
 
-      "pr" not in perms ->
-        %{iid: iid, type: type, perms: perms, format: format}
-
-      true ->
-        {:ok, value} = get_value_from_source(value_source)
-        %{iid: iid, type: type, perms: perms, format: format, value: value}
-    end
+  @doc false
+  def get_format({characteristic_definition, _value_source}) do
+    characteristic_definition.format()
   end
 
   @doc false
@@ -46,6 +41,12 @@ defmodule HAP.Characteristic do
     else
       {:error, -70_405}
     end
+  end
+
+  @doc false
+  def get_value!(characteristic) do
+    {:ok, value} = get_value(characteristic)
+    value
   end
 
   @doc false

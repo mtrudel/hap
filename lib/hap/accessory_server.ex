@@ -147,21 +147,49 @@ defmodule HAP.AccessoryServer do
   @doc false
   def config_hash(%__MODULE__{} = accessory_server) do
     accessory_server
-    |> accessories_tree(static_only: true)
+    |> accessories_tree(false)
     |> Jason.encode!()
     |> HAP.Crypto.SHA512.hash()
   end
 
   @doc false
-  def accessories_tree(%__MODULE__{accessories: accessories}, opts \\ []) do
-    formatted_accessories =
-      accessories
-      |> Enum.with_index(1)
-      |> Enum.map(fn {accessory, aid} ->
-        HAP.Accessory.accessories_tree(accessory, aid, opts)
-      end)
+  def accessories_tree(%__MODULE__{accessories: accessories}, include_values \\ true) do
+    %{
+      accessories:
+        accessories
+        |> Enum.with_index(1)
+        |> Enum.map(fn {%HAP.Accessory{services: services}, aid} ->
+          %{
+            aid: aid,
+            services:
+              services
+              |> Enum.with_index()
+              |> Enum.map(fn {%HAP.Service{type: type, characteristics: characteristics}, service_index} ->
+                %{
+                  iid: HAP.IID.to_iid(service_index),
+                  type: type,
+                  characteristics:
+                    characteristics
+                    |> Enum.with_index()
+                    |> Enum.map(fn {characteristic, characteristic_index} ->
+                      result = %{
+                        iid: HAP.IID.to_iid(service_index, characteristic_index),
+                        type: HAP.Characteristic.get_type(characteristic),
+                        perms: HAP.Characteristic.get_perms(characteristic),
+                        format: HAP.Characteristic.get_format(characteristic)
+                      }
 
-    %{accessories: formatted_accessories}
+                      if "pr" in HAP.Characteristic.get_perms(characteristic) && include_values do
+                        result |> Map.put(:value, HAP.Characteristic.get_value!(characteristic))
+                      else
+                        result
+                      end
+                    end)
+                }
+              end)
+          }
+        end)
+    }
   end
 
   @doc false

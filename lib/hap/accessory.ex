@@ -67,18 +67,6 @@ defmodule HAP.Accessory do
   end
 
   @doc false
-  def accessories_tree(%__MODULE__{services: services}, aid, opts \\ []) do
-    formatted_services =
-      services
-      |> Enum.with_index()
-      |> Enum.map(fn {service, service_index} ->
-        HAP.Service.accessories_tree(service, service_index, opts)
-      end)
-
-    %{aid: aid, services: formatted_services}
-  end
-
-  @doc false
   def get_service(%__MODULE__{services: services}, iid) do
     with {:ok, service_index} <- HAP.IID.service_index(iid),
          %HAP.Service{} = service <- Enum.at(services, service_index) do
