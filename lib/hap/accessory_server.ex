@@ -220,12 +220,16 @@ defmodule HAP.AccessoryServer do
   def put_characteristics(%__MODULE__{} = accessory_server, characteristics) do
     characteristics
     |> Enum.map(fn
-      %{"aid" => aid, "iid" => iid, "value" => value} ->
+      %{"aid" => aid, "iid" => iid, "value" => value} = map ->
         with {:ok, accessory} <- get_accessory(accessory_server, aid),
              {:ok, service} <- HAP.Accessory.get_service(accessory, iid),
              {:ok, characteristic} <- HAP.Service.get_characteristic(service, iid),
              :ok <- HAP.Characteristic.put_value(characteristic, value) do
-          %{aid: aid, iid: iid, status: 0}
+          if map["r"] do
+            %{aid: aid, iid: iid, status: 0, value: value}
+          else
+            %{aid: aid, iid: iid, status: 0}
+          end
         else
           {:error, reason} -> %{aid: aid, iid: iid, status: reason}
         end

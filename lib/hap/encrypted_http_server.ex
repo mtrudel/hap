@@ -68,7 +68,10 @@ defmodule HAP.EncryptedHTTPServer do
       conn.body_params["characteristics"]
       |> HAP.AccessoryServerManager.put_characteristics()
 
-    if Enum.all?(characteristics, fn %{status: status} -> status == 0 end) do
+    all_success = Enum.all?(characteristics, fn %{status: status} -> status == 0 end)
+    no_values = Enum.all?(characteristics, fn result -> !Map.has_key?(result, :value) end)
+
+    if all_success && no_values do
       conn
       |> put_resp_header("content-type", "application/hap+json")
       |> send_resp(204, "")

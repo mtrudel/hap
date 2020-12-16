@@ -203,6 +203,30 @@ defmodule HAP.CharacteristicsTest do
                [%{iid: 1027, value: true, aid: 1, status: 0}]
     end
 
+    test "it should return the requested characteristics values when requested", context do
+      # Setup an encrypted session
+      :ok = HAP.Test.HTTPClient.setup_encrypted_session(context.client)
+
+      request = %{
+        characteristics: [
+          %{"iid" => 1027, "value" => true, "aid" => 1, "r" => true}
+        ]
+      }
+
+      {:ok, 207, headers, body} =
+        HAP.Test.HTTPClient.put(context.client, "/characteristics", Jason.encode!(request),
+          "content-type": "application/hap+json"
+        )
+
+      assert Keyword.get(headers, :"content-type") == "application/hap+json"
+
+      assert Jason.decode!(body) == %{
+               "characteristics" => [
+                 %{"iid" => 1027, "aid" => 1, "status" => 0, "value" => true}
+               ]
+             }
+    end
+
     test "it should require an authenticated session", context do
       request = %{
         characteristics: [
