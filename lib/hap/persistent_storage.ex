@@ -9,45 +9,40 @@ defmodule HAP.PersistentStorage do
   end
 
   @doc false
-  def get(param, pid \\ __MODULE__), do: GenServer.call(pid, {:get, param})
+  def get(key, default \\ nil, pid \\ __MODULE__), do: GenServer.call(pid, {:get, key, default})
 
   @doc false
-  def put(param, value, pid \\ __MODULE__), do: GenServer.call(pid, {:put, param, value})
+  def put(key, value, pid \\ __MODULE__), do: GenServer.call(pid, {:put, key, value})
 
   @doc false
-  def get_and_update(param, func, pid \\ __MODULE__), do: GenServer.call(pid, {:get_and_update, param, func})
+  def put_new_lazy(key, func, pid \\ __MODULE__), do: GenServer.call(pid, {:put_new_lazy, key, func})
+
+  @doc false
+  def get_and_update(key, func, pid \\ __MODULE__), do: GenServer.call(pid, {:get_and_update, key, func})
 
   def init(path) do
     {:ok, cub_pid} = CubDB.start_link(path)
 
-    set_if_missing(cub_pid, :config_number, 0)
-
-    if !CubDB.has_key?(cub_pid, :ltpk) || !CubDB.has_key?(cub_pid, :ltsk) do
-      {:ok, ltpk, ltsk} = HAP.Crypto.EDDSA.key_gen()
-      CubDB.put(cub_pid, :ltpk, ltpk)
-      CubDB.put(cub_pid, :ltsk, ltsk)
-    end
-
-    set_if_missing(cub_pid, :pairings, %{})
-
     {:ok, %{cub_pid: cub_pid}}
   end
 
-  def handle_call({:get, param}, _from, %{cub_pid: cub_pid} = state) do
-    {:reply, CubDB.get(cub_pid, param), state}
+  def handle_call({:get, key, default}, _from, %{cub_pid: cub_pid} = state) do
+    {:reply, CubDB.get(cub_pid, key, default), state}
   end
 
-  def handle_call({:put, param, value}, _from, %{cub_pid: cub_pid} = state) do
-    {:reply, CubDB.put(cub_pid, param, value), state}
+  def handle_call({:put, key, value}, _from, %{cub_pid: cub_pid} = state) do
+    {:reply, CubDB.put(cub_pid, key, value), state}
   end
 
-  def handle_call({:get_and_update, param, func}, _from, %{cub_pid: cub_pid} = state) do
-    {:reply, CubDB.get_and_update(cub_pid, param, func), state}
-  end
-
-  defp set_if_missing(cub_pid, key, value) do
-    if !CubDB.has_key?(cub_pid, key) do
-      CubDB.put(cub_pid, key, value)
+  def handle_call({:put_new_lazy, key, func}, _from, %{cub_pid: cub_pid} = state) do
+    if CubDB.has_key?(cub_pid, key) do
+      {:reply, :ok, state}
+    else
+      {:reply, CubDB.put(cub_pid, key, func.()), state}
     end
+  end
+
+  def handle_call({:get_and_update, key, func}, _from, %{cub_pid: cub_pid} = state) do
+    {:reply, CubDB.get_and_update(cub_pid, key, func), state}
   end
 end

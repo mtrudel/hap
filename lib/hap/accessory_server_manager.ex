@@ -14,10 +14,16 @@ defmodule HAP.AccessoryServerManager do
   def config_number, do: HAP.PersistentStorage.get(:config_number)
 
   @doc false
-  def ltpk, do: HAP.PersistentStorage.get(:ltpk)
+  def ltpk do
+    {ltpk, _} = HAP.PersistentStorage.get(:ltk)
+    ltpk
+  end
 
   @doc false
-  def ltsk, do: HAP.PersistentStorage.get(:ltsk)
+  def ltsk do
+    {_, ltsk} = HAP.PersistentStorage.get(:ltk)
+    ltsk
+  end
 
   @doc false
   def port(pid \\ __MODULE__), do: GenServer.call(pid, :get_port)
@@ -86,7 +92,14 @@ defmodule HAP.AccessoryServerManager do
   end
 
   def init(%HAP.AccessoryServer{} = accessory_server) do
-    old_config_hash = HAP.PersistentStorage.get(:config_hash)
+    HAP.PersistentStorage.put_new_lazy(:ltk, fn ->
+      {:ok, ltpk, ltsk} = HAP.Crypto.EDDSA.key_gen()
+      {ltpk, ltsk}
+    end)
+
+    HAP.PersistentStorage.put_new_lazy(:pairings, fn -> %{} end)
+
+    old_config_hash = HAP.PersistentStorage.get(:config_hash, 0)
     new_config_hash = HAP.AccessoryServer.config_hash(accessory_server)
 
     if old_config_hash != new_config_hash do
