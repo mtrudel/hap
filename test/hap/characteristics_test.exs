@@ -72,6 +72,54 @@ defmodule HAP.CharacteristicsTest do
              }
     end
 
+    test "it should return permissions when requested", context do
+      # Setup an encrypted session
+      :ok = HAP.Test.HTTPClient.setup_encrypted_session(context.client)
+
+      {:ok, 200, headers, body} = HAP.Test.HTTPClient.get(context.client, "/characteristics?id=1.3,1.515&perms=1")
+
+      assert Keyword.get(headers, :"content-type") == "application/hap+json"
+
+      assert Jason.decode!(body) == %{
+               "characteristics" => [
+                 %{"iid" => 3, "value" => "Generic HAP Accessory", "aid" => 1, "perms" => ["pr"]},
+                 %{"iid" => 515, "value" => "1.1.0", "aid" => 1, "perms" => ["pr"]}
+               ]
+             }
+    end
+
+    test "it should return type when requested", context do
+      # Setup an encrypted session
+      :ok = HAP.Test.HTTPClient.setup_encrypted_session(context.client)
+
+      {:ok, 200, headers, body} = HAP.Test.HTTPClient.get(context.client, "/characteristics?id=1.3,1.515&type=1")
+
+      assert Keyword.get(headers, :"content-type") == "application/hap+json"
+
+      assert Jason.decode!(body) == %{
+               "characteristics" => [
+                 %{"iid" => 3, "value" => "Generic HAP Accessory", "aid" => 1, "type" => "23"},
+                 %{"iid" => 515, "value" => "1.1.0", "aid" => 1, "type" => "37"}
+               ]
+             }
+    end
+
+    test "it should return meta when requested", context do
+      # Setup an encrypted session
+      :ok = HAP.Test.HTTPClient.setup_encrypted_session(context.client)
+
+      {:ok, 200, headers, body} = HAP.Test.HTTPClient.get(context.client, "/characteristics?id=1.3,1.515&meta=1")
+
+      assert Keyword.get(headers, :"content-type") == "application/hap+json"
+
+      assert Jason.decode!(body) == %{
+               "characteristics" => [
+                 %{"iid" => 3, "value" => "Generic HAP Accessory", "aid" => 1, "format" => "string", "maxLength" => 64},
+                 %{"iid" => 515, "value" => "1.1.0", "aid" => 1, "format" => "string", "maxLength" => 64}
+               ]
+             }
+    end
+
     test "it should require an authenticated session", context do
       {:ok, 401, _headers, _body} = HAP.Test.HTTPClient.get(context.client, "/characteristics?id=1.3,1.515")
     end

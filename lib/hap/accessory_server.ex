@@ -193,14 +193,23 @@ defmodule HAP.AccessoryServer do
   end
 
   @doc false
-  def get_characteristics(%__MODULE__{} = accessory_server, characteristics) do
+  def get_characteristics(%__MODULE__{} = accessory_server, characteristics, opts) do
     characteristics
     |> Enum.map(fn %{aid: aid, iid: iid} ->
       with {:ok, accessory} <- get_accessory(accessory_server, aid),
            {:ok, service} <- HAP.Accessory.get_service(accessory, iid),
            {:ok, characteristic} <- HAP.Service.get_characteristic(service, iid),
            {:ok, value} <- HAP.Characteristic.get_value(characteristic) do
-        %{aid: aid, iid: iid, value: value, status: 0}
+        opts
+        |> Enum.reduce(%{aid: aid, iid: iid, value: value, status: 0}, fn opt, acc ->
+          # TODO -- should return ev state here
+          case opt do
+            :meta -> Map.merge(acc, HAP.Characteristic.get_meta(characteristic))
+            :perms -> Map.put(acc, :perms, HAP.Characteristic.get_perms(characteristic))
+            :type -> Map.put(acc, :type, HAP.Characteristic.get_type(characteristic))
+            _ -> acc
+          end
+        end)
       else
         {:error, reason} -> %{aid: aid, iid: iid, status: reason}
       end

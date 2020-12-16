@@ -37,12 +37,18 @@ defmodule HAP.EncryptedHTTPServer do
   end
 
   get "/characteristics" do
+    opts =
+      conn.params
+      |> Map.take(~w[meta perms type ev])
+      |> Enum.filter(fn {_k, v} -> v == "1" end)
+      |> Enum.map(fn {k, _v} -> String.to_atom(k) end)
+
     characteristics =
       conn.params["id"]
       |> String.split(",")
       |> Enum.map(&String.split(&1, "."))
       |> Enum.map(fn [aid, iid] -> %{aid: String.to_integer(aid), iid: String.to_integer(iid)} end)
-      |> HAP.AccessoryServerManager.get_characteristics()
+      |> HAP.AccessoryServerManager.get_characteristics(opts)
 
     if Enum.all?(characteristics, fn %{status: status} -> status == 0 end) do
       characteristics = characteristics |> Enum.map(fn characteristic -> characteristic |> Map.delete(:status) end)

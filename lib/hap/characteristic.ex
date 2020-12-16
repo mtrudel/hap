@@ -35,6 +35,25 @@ defmodule HAP.Characteristic do
   end
 
   @doc false
+  def get_meta({characteristic_definition, _value_source}) do
+    [
+      {:format, :format},
+      {:minValue, :min_value},
+      {:maxValue, :max_value},
+      {:minStep, :step_value},
+      {:unit, :unit},
+      {:maxLength, :max_length}
+    ]
+    |> Enum.reduce(%{}, fn {return_key, call_key}, acc ->
+      if function_exported?(characteristic_definition, call_key, 0) do
+        Map.put(acc, return_key, apply(characteristic_definition, call_key, []))
+      else
+        acc
+      end
+    end)
+  end
+
+  @doc false
   def get_value({characteristic_definition, value_source}) do
     if "pr" in characteristic_definition.perms() do
       get_value_from_source(value_source)
