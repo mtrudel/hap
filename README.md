@@ -54,7 +54,6 @@ characteristcs as defined in the HomeKit specification will be considered for in
 
 As HAP is stil in active development, there are a number of known rough edges. These include:
 
-* No support for 207 Multi-Status responses to characteristic requests (coming soon)
 * No support for asynchronous events (this is slated for HAP 2.0)
 * No support for dynamically updating the services advertised by a HAP instance (this is slated for HAP 2.0)
 * Incomplete support for tearing down existing sessions on pairing removal (this is slated for HAP 2.0)
