@@ -94,6 +94,7 @@ defmodule HAP.AccessoryServerManager do
   def init(%HAP.AccessoryServer{} = accessory_server) do
     HAP.PersistentStorage.put_new_lazy(:config_number, fn -> 1 end)
     HAP.PersistentStorage.put_new_lazy(:pairings, fn -> %{} end)
+
     HAP.PersistentStorage.put_new_lazy(:ltk, fn ->
       {:ok, ltpk, ltsk} = HAP.Crypto.EDDSA.key_gen()
       {ltpk, ltsk}
