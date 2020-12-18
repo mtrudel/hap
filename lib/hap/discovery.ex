@@ -12,6 +12,8 @@ defmodule HAP.Discovery do
     <<setup_hash::binary-4, _rest::binary>> =
       :crypto.hash(:sha512, HAP.AccessoryServerManager.setup_id() <> HAP.AccessoryServerManager.identifier())
 
+    MdnsLite.remove_mdns_services(HAP.AccessoryServerManager.name())
+
     %{
       name: HAP.AccessoryServerManager.name(),
       protocol: "hap",
