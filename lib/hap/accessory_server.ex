@@ -27,7 +27,10 @@ defmodule HAP.AccessoryServer do
   and other information to the user. If not specified then a basic console-based
   display is used.
   * `data_path`: The path to where HAP will store its internal data. Will be created if
-  it does not exist. If not specified, `hap_data` is used.
+  it does not exist. If not specified, the default value depends on the value of `Mix.target/0`.
+  If it is `:host` then a value of `hap_data` is used. If it is anything else (as it will be
+  when compiling for a Nerves target, for example), the value of `/root/hap_data` is used. This
+  allows HAP to work out-of-the-box in conventional and Nerves environments.
   * `accessory_type`: A HAP specified value indicating the primary function of this 
   device. See `t:HAP.AccessoryServer.accessory_type/0` for details
   * `accessories`: A list of `HAP.Accessory` structs to include in this accessory server
@@ -108,6 +111,8 @@ defmodule HAP.AccessoryServer do
   """
   @type accessory_type :: integer()
 
+  @target Mix.target()
+
   @doc """
   Generates the pairing url to be used to pair with this accessory server. This 
   URL can be encoded in a QR code to enable pairing directly from an iOS device
@@ -133,7 +138,7 @@ defmodule HAP.AccessoryServer do
   def compile(%__MODULE__{} = accessory_server) do
     accessory_server
     |> Map.update!(:display_module, &(&1 || HAP.ConsoleDisplay))
-    |> Map.update!(:data_path, &(&1 || "hap_data"))
+    |> Map.update!(:data_path, &(&1 || default_data_path()))
     |> Map.update!(:name, &(&1 || "Generic HAP Device"))
     |> Map.update!(:model, &(&1 || "Generic HAP Model"))
     |> Map.update!(:pairing_code, &(&1 || random_pairing_code()))
@@ -244,6 +249,13 @@ defmodule HAP.AccessoryServer do
     case Enum.at(accessories, aid - 1) do
       nil -> {:error, -70_409}
       accessory -> {:ok, accessory}
+    end
+  end
+
+  defp default_data_path do
+    case @target do
+      :host -> "hap_data"
+      _ -> "/root/hap_data"
     end
   end
 
