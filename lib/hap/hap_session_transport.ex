@@ -118,10 +118,7 @@ defmodule HAP.HAPSessionTransport do
   end
 
   @impl ThousandIsland.Transport
-  def setopts(socket, options) do
-    resolved_options = Keyword.merge(options, @hardcoded_options)
-    :inet.setopts(socket, resolved_options)
-  end
+  defdelegate setopts(socket, options), to: :inet
 
   @impl ThousandIsland.Transport
   defdelegate shutdown(socket, way), to: :gen_tcp
