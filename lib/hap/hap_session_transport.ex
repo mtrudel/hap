@@ -72,21 +72,24 @@ defmodule HAP.HAPSessionTransport do
 
   @impl ThousandIsland.Transport
   def recv(socket, length, timeout) do
+    case :gen_tcp.recv(socket, length, timeout) do
+      {:ok, data} -> decrypt_if_needed(data)
+      other -> other
+    end
+  end
+
+  def decrypt_if_needed(<<packet::binary>>) do
     case Process.get(@recv_key_key) do
       nil ->
-        :gen_tcp.recv(socket, length, timeout)
+        {:ok, packet}
 
       recv_key ->
-        with {:ok, <<packet::binary>>} <- :gen_tcp.recv(socket, length, timeout),
-             <<length::integer-size(16)-little, encrypted_data::binary-size(length), tag::binary-size(16)>> <- packet,
+        with <<length::integer-size(16)-little, encrypted_data::binary-size(length), tag::binary-size(16)>> <- packet,
              <<length_aad::binary-size(2), _rest::binary>> <- packet,
              counter <- Process.get(:recv_counter, 0),
              nonce <- pad_counter(counter) do
           Process.put(:recv_counter, counter + 1)
           HAP.Crypto.ChaCha20.decrypt_and_verify(encrypted_data <> tag, recv_key, nonce, length_aad)
-        else
-          error ->
-            error
         end
     end
   end
