@@ -91,6 +91,11 @@ defmodule HAP.AccessoryServerManager do
     GenServer.call(pid, {:put_characteristics, characteristics})
   end
 
+  @doc false
+  def value_changed(value_token, pid \\ __MODULE__) do
+    GenServer.cast(pid, {:value_changed, value_token})
+  end
+
   def init(%HAP.AccessoryServer{} = accessory_server) do
     HAP.PersistentStorage.put_new_lazy(:config_number, fn -> 1 end)
     HAP.PersistentStorage.put_new_lazy(:pairings, fn -> %{} end)
@@ -173,5 +178,10 @@ defmodule HAP.AccessoryServerManager do
   def handle_call({:put_characteristics, characteristics}, {from, _}, state) do
     response = HAP.AccessoryServer.put_characteristics(state[:accessory_server], characteristics, from)
     {:reply, response, state}
+  end
+
+  def handle_cast({:value_changed, {aid, iid}}, state) do
+    HAP.AccessoryServer.value_changed(state[:accessory_server], %{aid: aid, iid: iid})
+    {:noreply, state}
   end
 end

@@ -100,4 +100,11 @@ defmodule HAP do
 
     Supervisor.init(children, strategy: :rest_for_one)
   end
+
+  @doc """
+  Called by user applications whenever a characteristic value has changed. The change token is passed to `HAP.ValueStore`
+  instances via the `c:HAP.ValueStore.set_change_token/2` callback.
+  """
+  @spec value_changed(HAP.ValueStore.change_token()) :: :ok
+  defdelegate value_changed(change_token), to: HAP.AccessoryServerManager
 end

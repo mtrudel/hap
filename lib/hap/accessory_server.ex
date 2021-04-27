@@ -207,7 +207,6 @@ defmodule HAP.AccessoryServer do
            {:ok, value} <- HAP.Characteristic.get_value(characteristic) do
         opts
         |> Enum.reduce(%{aid: aid, iid: iid, value: value, status: 0}, fn opt, acc ->
-          # TODO -- should return ev state here
           case opt do
             :meta -> Map.merge(acc, HAP.Characteristic.get_meta(characteristic))
             :perms -> Map.put(acc, :perms, HAP.Characteristic.get_perms(characteristic))
@@ -260,6 +259,16 @@ defmodule HAP.AccessoryServer do
         else
           {:error, reason} -> %{aid: aid, iid: iid, status: reason}
         end
+    end)
+  end
+
+  @doc false
+  def value_changed(%__MODULE__{} = accessory_server, characteristic) do
+    msg = %{characteristics: accessory_server |> get_characteristics([characteristic], [])}
+
+    HAP.EventManager.get_listeners(characteristic.aid, characteristic.iid)
+    |> Enum.each(fn pid ->
+      HAP.HAPSessionHandler.push(pid, msg)
     end)
   end
 
