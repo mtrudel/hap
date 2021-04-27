@@ -50,11 +50,18 @@ sections 8 and 9 of the [HomeKit Accessory Protocol Specification](https://devel
 what characteristics are required and optional for a given service. Note that only implementations of public services and
 characteristcs as defined in the HomeKit specification will be considered for inclusion in HAP. 
 
+### Asynchronous Change Notifications
+
+As of version 0.4.0 HAP supports notifications (as defined in section 6.8 of the [HomeKit Accessory Protocol
+Specification](https://developer.apple.com/homekit/)). This allows your accessory to notify HomeKit of changes which
+happen asynchronously, such as a user pushing a button on the accessory, or a sensor detecting a water leak. To send
+such notifications, your `HAP.ValueStore` implementation must support the `c:HAP.ValueStore.set_change_token/2`
+callback. Consult the `HAP.ValueStore` documentation for more detail.
+
 ## Known Issues
 
 As HAP is stil in active development, there are a number of known rough edges. These include:
 
-* No support for asynchronous events (this is slated for HAP 2.0)
 * No support for dynamically updating the services advertised by a HAP instance (this is slated for HAP 2.0)
 * Incomplete support for tearing down existing sessions on pairing removal (this is slated for HAP 2.0)
 * No support for HomeKit Secure Video / RTP (support is not currently planned, but PRs are of course welcome)
