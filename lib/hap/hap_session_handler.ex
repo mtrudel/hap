@@ -1,12 +1,12 @@
 defmodule HAP.HAPSessionHandler do
   @moduledoc false
-  # HAP requires a number of low-level changes to HTTP, which are provided by a mix 
+  # HAP requires a number of low-level changes to HTTP, which are provided by a mix
   # of this module and a specialized Thousand Island transport module
 
   use ThousandIsland.Handler
 
   @doc false
-  # Push an asynchronous message to the client as described in section 6.8 of the 
+  # Push an asynchronous message to the client as described in section 6.8 of the
   # HomeKit Accessory Protocol specification
   def push(pid, data) do
     GenServer.cast(pid, {:push, data})
@@ -14,7 +14,7 @@ defmodule HAP.HAPSessionHandler do
 
   @impl ThousandIsland.Handler
   def handle_data(data, socket, plug) do
-    # TODO - we should be holding encryption state in state and not in 
+    # TODO - we should be holding encryption state in state and not in
     # the process dictionary
     {:ok, data} = HAP.HAPSessionTransport.decrypt_if_needed(data)
     {:ok, adapter_mod, req} = Bandit.HTTP1Request.request(socket, data)

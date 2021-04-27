@@ -1,4 +1,6 @@
 defmodule HAP.EventManager do
+  @moduledoc false
+
   use GenServer
 
   def start_link(arg) do
