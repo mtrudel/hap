@@ -170,8 +170,8 @@ defmodule HAP.AccessoryServerManager do
     {:reply, response, state}
   end
 
-  def handle_call({:put_characteristics, characteristics}, _from, state) do
-    response = HAP.AccessoryServer.put_characteristics(state[:accessory_server], characteristics)
+  def handle_call({:put_characteristics, characteristics}, {from, _}, state) do
+    response = HAP.AccessoryServer.put_characteristics(state[:accessory_server], characteristics, from)
     {:reply, response, state}
   end
 end

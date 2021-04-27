@@ -222,26 +222,44 @@ defmodule HAP.AccessoryServer do
   end
 
   @doc false
-  def put_characteristics(%__MODULE__{} = accessory_server, characteristics) do
+  def put_characteristics(%__MODULE__{} = accessory_server, characteristics, sender) do
     characteristics
     |> Enum.map(fn
-      %{"aid" => aid, "iid" => iid, "value" => value} = map ->
+      %{"aid" => aid, "iid" => iid} = map ->
         with {:ok, accessory} <- get_accessory(accessory_server, aid),
              {:ok, service} <- HAP.Accessory.get_service(accessory, iid),
-             {:ok, characteristic} <- HAP.Service.get_characteristic(service, iid),
-             :ok <- HAP.Characteristic.put_value(characteristic, value) do
-          if map["r"] do
-            %{aid: aid, iid: iid, status: 0, value: value}
-          else
-            %{aid: aid, iid: iid, status: 0}
+             {:ok, characteristic} <- HAP.Service.get_characteristic(service, iid) do
+          case map do
+            %{"value" => value} ->
+              case HAP.Characteristic.put_value(characteristic, value) do
+                :ok ->
+                  if map["r"] do
+                    %{aid: aid, iid: iid, status: 0, value: value}
+                  else
+                    %{aid: aid, iid: iid, status: 0}
+                  end
+
+                {:error, reason} ->
+                  %{aid: aid, iid: iid, status: reason}
+              end
+
+            %{"ev" => true} ->
+              with {:ok, token} <- HAP.EventManager.register(sender, aid, iid),
+                   :ok <- HAP.Characteristic.set_change_token(characteristic, token) do
+                %{aid: aid, iid: iid, status: 0}
+              else
+                {:error, reason} -> %{aid: aid, iid: iid, status: reason}
+              end
+
+            %{"ev" => false} ->
+              case HAP.EventManager.unregister(sender, aid, iid) do
+                :ok -> %{aid: aid, iid: iid, status: 0}
+                {:error, reason} -> %{aid: aid, iid: iid, status: reason}
+              end
           end
         else
           {:error, reason} -> %{aid: aid, iid: iid, status: reason}
         end
-
-      %{"aid" => aid, "iid" => iid, "ev" => _} ->
-        # TODO -- event registration should be handled somewhere w/ state
-        %{aid: aid, iid: iid, status: 0}
     end)
   end
 

@@ -6,6 +6,7 @@ defmodule HAP.ValueStore do
 
   @type t :: module()
   @type opts :: keyword()
+  @opaque change_token :: {term(), term()}
 
   @doc """
   Return the value of a value hosted by this value store. The passed list of opts
@@ -25,4 +26,16 @@ defmodule HAP.ValueStore do
   Returns `:ok` or `{:error, reason}`
   """
   @callback put_value(value :: HAP.Characteristic.value(), opts :: opts()) :: :ok | {:error, String.t()}
+
+  @doc """
+
+  Informs the value store of the change token to use when notifying HAP of asynchronous 
+  changes to the value in this store. This token should be provided to `HAP.value_changed/1` as the 
+  sole argument; HAP will make a subsequent call to `c:get_value/1` to obtain the changed value
+
+  Returns `:ok` or `{:error, reason}`
+  """
+  @callback set_change_token(change_token :: change_token(), opts :: opts()) :: :ok | {:error, String.t()}
+
+  @optional_callbacks set_change_token: 2
 end

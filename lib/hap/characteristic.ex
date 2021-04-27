@@ -77,6 +77,20 @@ defmodule HAP.Characteristic do
     end
   end
 
+  @doc false
+
+  def set_change_token({_characteristic_definition, {mod, opts}}, token) do
+    if function_exported?(mod, :set_change_token, 2) do
+      mod.set_change_token(token, opts)
+    else
+      {:error, -70_406}
+    end
+  end
+
+  def set_change_token({_characteristic_definition, _value_source}, _token) do
+    raise "Cannot set change token on a statically defined characteristic"
+  end
+
   defp get_value_from_source({mod, opts}) do
     mod.get_value(opts)
   end
