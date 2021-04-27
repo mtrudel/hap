@@ -89,6 +89,7 @@ defmodule HAP do
     children = [
       {HAP.PersistentStorage, accessory_server.data_path},
       {HAP.AccessoryServerManager, accessory_server},
+      HAP.EventManager,
       HAP.PairSetup,
       {ThousandIsland,
        handler_module: HAP.HAPSessionHandler,
