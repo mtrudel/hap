@@ -15,6 +15,7 @@ jobs:
     runs-on: ubuntu-20.04
 
     strategy:
+      fail-fast: false
       matrix:
         elixir: [1.10.4, 1.11.2, master]
         otp: [23.0.4, 23.1.4]
@@ -49,9 +50,6 @@ jobs:
     - name: Run Credo
       run: mix credo --strict
 
-    - name: Run Tests
-      run: mix test
-
     - name: Retrieve PLT Cache
       uses: actions/cache@v1
       id: plt-cache
@@ -67,3 +65,6 @@ jobs:
 
     - name: Run dialyzer
       run: mix dialyzer --no-check
+
+    - name: Run Tests
+      run: mix test
