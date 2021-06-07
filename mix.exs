@@ -8,7 +8,6 @@ defmodule HAP.MixProject do
       elixir: "~> 1.10",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      elixirc_paths: elixirc_paths(Mix.env()),
       dialyzer: dialyzer(),
       name: "HAP",
       description: "An implementation of the HomeKit Accessory Protocol",
@@ -46,9 +45,6 @@ defmodule HAP.MixProject do
       {:ex_doc, "~> 0.21", only: [:dev, :test], runtime: false}
     ]
   end
-
-  defp elixirc_paths(:test), do: ["lib", "test/support"]
-  defp elixirc_paths(_), do: ["lib"]
 
   defp dialyzer do
     [plt_core_path: "priv/plts", plt_file: {:no_warn, "priv/plts/dialyzer.plt"}]
