@@ -14,6 +14,21 @@ defmodule HAP.Crypto.HKDF do
   """
   @spec generate(ikm(), salt(), info()) :: {:ok, session_key()}
   def generate(ikm, salt, info) do
-    {:ok, HKDF.derive(:sha512, ikm, 32, salt, info)}
+    # Taken from https://github.com/jschneider1207/hkdf/pull/3. Review if/when the
+    # referenced PR lands
+    prk = :crypto.mac(:hmac, :sha512, salt, ikm)
+
+    hash_len = :crypto.hash(:sha512, "") |> byte_size()
+    n = Float.ceil(32 / hash_len) |> round()
+
+    full =
+      Enum.scan(1..n, "", fn index, prev ->
+        data = prev <> info <> <<index>>
+        :crypto.mac(:hmac, :sha512, prk, data)
+      end)
+      |> Enum.reduce("", &Kernel.<>(&2, &1))
+
+    <<output::unit(8)-size(32), _::binary>> = full
+    {:ok, <<output::unit(8)-size(32)>>}
   end
 end
