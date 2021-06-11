@@ -52,7 +52,7 @@ characteristcs as defined in the HomeKit specification will be considered for in
 
 ### Asynchronous Change Notifications
 
-As of version 0.4.0 HAP supports notifications (as defined in section 6.8 of the [HomeKit Accessory Protocol
+HAP supports notifications (as defined in section 6.8 of the [HomeKit Accessory Protocol
 Specification](https://developer.apple.com/homekit/)). This allows your accessory to notify HomeKit of changes which
 happen asynchronously, such as a user pushing a button on the accessory, or a sensor detecting a water leak. To send
 such notifications, your `HAP.ValueStore` implementation must support the `c:HAP.ValueStore.set_change_token/2`
@@ -76,7 +76,7 @@ HAP is available in Hex. The package can be installed by adding hap to your list
 ```
 def deps do
   [
-    {:hap, "~> 0.3.0"}
+    {:hap, "~> 0.4.0"}
   ]
 end
 ```
@@ -86,8 +86,7 @@ characteristics. Check out the [HAP Demo](https://github.com/mtrudel/hap_demo) a
 
 Documentation can be found at https://hexdocs.pm/hap/.
 
-Note that in order to have access to the required crypto methods for HAP to function, at
-least version 23.0 of Erlang is required.
+Note that in order to have access to the required crypto methods for HAP to function, OTP 23 or newer is required.
 
 ## License
 
