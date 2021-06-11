@@ -17,7 +17,7 @@ defmodule HAP.TLVParser do
   def parse(conn, _type, _subtype, _params, _opts), do: {:next, conn}
 
   @doc """
-  Parses a TLV binary into a map (does not allow for repeating keys
+  Parses a TLV binary into a map (does not allow for repeating keys)
   """
   def parse_tlv(str) do
     str
@@ -26,7 +26,7 @@ defmodule HAP.TLVParser do
   end
 
   @doc """
-  Parses a TLV binary into a keyword list (allows for repeating keys
+  Parses a TLV binary into a keyword list (allows for repeating keys)
   """
   def parse_tlv_as_keyword(str) do
     str
