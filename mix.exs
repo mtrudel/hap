@@ -4,7 +4,7 @@ defmodule HAP.MixProject do
   def project do
     [
       app: :hap,
-      version: "0.4.1",
+      version: "0.4.2",
       elixir: "~> 1.10",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
