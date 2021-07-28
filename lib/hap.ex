@@ -1,6 +1,6 @@
 defmodule HAP do
   @moduledoc """
-  HAP is an implementation of the [HomeKit Accessory Protocol Specification](https://developer.apple.com/homekit/).
+  HAP is an implementation of the [HomeKit Accessory Protocol](https://developer.apple.com/homekit/) specification.
   It allows for the creation of Elixir powered HomeKit accessories which can be controlled from a user's
   iOS device in a similar manner to commercially available HomeKit accessories such as light bulbs, window 
   coverings and other smart home accessories.
