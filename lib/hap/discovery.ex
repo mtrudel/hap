@@ -15,7 +15,7 @@ defmodule HAP.Discovery do
     MdnsLite.remove_mdns_service(HAP.AccessoryServerManager.name())
 
     %{
-      name: HAP.AccessoryServerManager.name(),
+      id: HAP.AccessoryServerManager.name(),
       protocol: "hap",
       transport: "tcp",
       port: HAP.AccessoryServerManager.port(),
