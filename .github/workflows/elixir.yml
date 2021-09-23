@@ -30,6 +30,9 @@ jobs:
         otp-version: ${{ matrix.otp }}
         experimental-otp: true
 
+    - name: Install vintage_net dependencies
+      run: sudo apt-get install build-base linux-headers libmnl-dev libnl3-dev
+
     - name: Retrieve Mix Dependencies Cache
       uses: actions/cache@v1
       id: mix-cache
