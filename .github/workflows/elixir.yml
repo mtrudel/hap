@@ -31,7 +31,7 @@ jobs:
         experimental-otp: true
 
     - name: Install vintage_net dependencies
-      run: sudo apt-get install build-base linux-headers libmnl-dev libnl3-dev
+      run: sudo apt-get install libmnl-dev libnl-3-dev
 
     - name: Retrieve Mix Dependencies Cache
       uses: actions/cache@v1
