@@ -1,9 +1,8 @@
 ![HAP](https://user-images.githubusercontent.com/79646/67910894-dd4dc280-fb5a-11e9-9ca9-4be6633cc1a6.png)
 
 [![Build Status](https://github.com/mtrudel/hap/workflows/Elixir%20CI/badge.svg)](https://github.com/mtrudel/hap/actions)
+[![Docs](https://img.shields.io/badge/api-docs-green.svg?style=flat)](https://hexdocs.pm/hap)
 [![Hex.pm](https://img.shields.io/hexpm/v/hap.svg?style=flat-square)](https://hex.pm/packages/hap)
-
-[Documentation](https://hexdocs.pm/hap/)
 
 HAP is a framework for building DIY HomeKit accessories based on Apple's [HomeKit Accessory Protocol](https://developer.apple.com/homekit/) specification. 
 You can think of it as [homebridge](https://github.com/nfarina/homebridge) for Elixir (with a bit more of a focus on
