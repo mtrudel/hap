@@ -43,7 +43,7 @@ Supervisor.start_link(children, opts)
 As originally developed, HAP included a fairly small set of services & characteristics (mostly due to the author's
 laziness & the immediate need for only a handful of the ~45 services & ~128 characteristics defined in the
 specification). However, it is quite easy to add definitions for new services & characteristics, and PRs to add such
-definitions are extremely welcome. The [lightbulb service](https://github.com/mtrudel/hap/blob/master/lib/hap/services/light_bulb.ex) 
+definitions are extremely welcome. The [lightbulb service](https://github.com/mtrudel/hap/blob/main/lib/hap/services/light_bulb.ex) 
 is a complete implementation of a service and serves as an excellent starting point for creating your own. You can consult
 sections 8 and 9 of the [HomeKit Accessory Protocol Specification](https://developer.apple.com/homekit/) to determine
 what characteristics are required and optional for a given service. Note that only implementations of public services and
