@@ -36,7 +36,7 @@ defmodule HAP.MixProject do
       {:eqrcode, "~> 0.1.7"},
       {:hkdf, "~> 0.1.0"},
       {:jason, "~> 1.2"},
-      {:mdns_lite, "~> 0.8.2", github: "mtrudel/mdns_lite"},
+      {:mdns_lite, "~> 0.8.3"},
       {:strap, "~> 0.1.1"},
       {:temp, "~> 0.4", only: :test},
       {:mix_test_watch, "~> 0.8", only: :dev, runtime: false},
