@@ -12,10 +12,13 @@ defmodule HAP.Discovery do
     <<setup_hash::binary-4, _rest::binary>> =
       :crypto.hash(:sha512, HAP.AccessoryServerManager.setup_id() <> HAP.AccessoryServerManager.identifier())
 
-    MdnsLite.remove_mdns_service(HAP.AccessoryServerManager.name())
+    identifier_atom = HAP.AccessoryServerManager.identifier() |> String.to_atom()
+
+    MdnsLite.remove_mdns_service(identifier_atom)
 
     %{
-      id: HAP.AccessoryServerManager.name(),
+      id: identifier_atom,
+      instance_name: HAP.AccessoryServerManager.name(),
       protocol: "hap",
       transport: "tcp",
       port: HAP.AccessoryServerManager.port(),
