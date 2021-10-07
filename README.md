@@ -87,6 +87,8 @@ Documentation can be found at https://hexdocs.pm/hap/.
 
 Note that in order to have access to the required crypto methods for HAP to function, OTP 23 or newer is required.
 
+Also note that although we still support Elixir 1.10 and 1.11, use of the Kino display module requires Elixir 1.12 or newer.
+
 ## License
 
 MIT
