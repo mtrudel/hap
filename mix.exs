@@ -58,6 +58,7 @@ defmodule HAP.MixProject do
   defp docs do
     [
       main: "HAP",
+      nest_modules_by_prefix: [HAP.Services, HAP.Characteristics],
       groups_for_modules: [
         Behaviours: [
           HAP.Display,
