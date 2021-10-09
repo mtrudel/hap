@@ -118,6 +118,7 @@ defmodule HAP.MixProject do
           HAP.Characteristics.RotationSpeed,
           HAP.Characteristics.Saturation,
           HAP.Characteristics.SerialNumber,
+          HAP.Characteristics.SmokeDetected,
           HAP.Characteristics.StatusActive,
           HAP.Characteristics.StatusFault,
           HAP.Characteristics.StatusLowBattery,
