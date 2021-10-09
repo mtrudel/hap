@@ -69,6 +69,7 @@ defmodule HAP.MixProject do
           HAP.ServiceSource,
           HAP.Services.AccessoryInformation,
           HAP.Services.ContactSensor,
+          HAP.Services.Faucet,
           HAP.Services.HeaterCooler,
           HAP.Services.HumiditySensor,
           HAP.Services.LeakSensor,
