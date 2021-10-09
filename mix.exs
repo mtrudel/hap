@@ -71,6 +71,7 @@ defmodule HAP.MixProject do
           HAP.Services.CarbonDioxideSensor,
           HAP.Services.CarbonMonoxideSensor,
           HAP.Services.ContactSensor,
+          HAP.Services.Faucet,
           HAP.Services.HeaterCooler,
           HAP.Services.HumiditySensor,
           HAP.Services.LeakSensor,
