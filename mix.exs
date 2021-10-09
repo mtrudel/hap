@@ -78,6 +78,7 @@ defmodule HAP.MixProject do
           HAP.Services.OccupancySensor,
           HAP.Services.Outlet,
           HAP.Services.ProtocolInformation,
+          HAP.Services.SmokeSensor,
           HAP.Services.Switch,
           HAP.Services.TemperatureSensor,
           HAP.Services.Window,
