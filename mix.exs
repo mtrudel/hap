@@ -68,6 +68,8 @@ defmodule HAP.MixProject do
           HAP.Service,
           HAP.ServiceSource,
           HAP.Services.AccessoryInformation,
+          HAP.Services.CarbonDioxideSensor,
+          HAP.Services.CarbonMonoxideSensor,
           HAP.Services.ContactSensor,
           HAP.Services.HeaterCooler,
           HAP.Services.HumiditySensor,
