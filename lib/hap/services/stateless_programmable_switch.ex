@@ -15,7 +15,7 @@ defmodule HAP.Services.StatelessProgrammableSwitch do
         type: "89",
         characteristics: [
           {HAP.Characteristics.InputEvent, value.input_event},
-          {HAP.Characteristics.Name, value.name}
+          {HAP.Characteristics.Name, value.name},
           {HAP.Characteristics.ServiceLabelIndex, value.service_label_index}
         ]
       }
