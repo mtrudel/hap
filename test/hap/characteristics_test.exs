@@ -141,7 +141,7 @@ defmodule HAP.CharacteristicsTest do
           "content-type": "application/hap+json"
         )
 
-      assert HAP.AccessoryServerManager.get_characteristics([%{iid: 1027, aid: 1}]) ==
+      assert HAP.AccessoryServerManager.get_characteristics([%{iid: 1027, aid: 1}], :pr) ==
                [%{iid: 1027, value: true, aid: 1, status: 0}]
     end
 
@@ -170,7 +170,7 @@ defmodule HAP.CharacteristicsTest do
                ]
              }
 
-      assert HAP.AccessoryServerManager.get_characteristics([%{iid: 1027, aid: 1}]) ==
+      assert HAP.AccessoryServerManager.get_characteristics([%{iid: 1027, aid: 1}], :pr) ==
                [%{iid: 1027, value: true, aid: 1, status: 0}]
     end
 
@@ -199,7 +199,7 @@ defmodule HAP.CharacteristicsTest do
                ]
              }
 
-      assert HAP.AccessoryServerManager.get_characteristics([%{iid: 1027, aid: 1}]) ==
+      assert HAP.AccessoryServerManager.get_characteristics([%{iid: 1027, aid: 1}], :pr) ==
                [%{iid: 1027, value: true, aid: 1, status: 0}]
     end
 
@@ -239,7 +239,7 @@ defmodule HAP.CharacteristicsTest do
           "content-type": "application/hap+json"
         )
 
-      refute HAP.AccessoryServerManager.get_characteristics([%{iid: 1027, aid: 1}]) ==
+      refute HAP.AccessoryServerManager.get_characteristics([%{iid: 1027, aid: 1}], :pr) ==
                %{characteristics: [%{iid: 1027, value: true, aid: 1}]}
     end
   end

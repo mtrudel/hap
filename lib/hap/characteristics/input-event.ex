@@ -21,4 +21,5 @@ defmodule HAP.Characteristics.InputEvent do
   def min_value, do: 0
   def max_value, do: 2
   def step_value, do: 1
+  def event_only, do: true
 end

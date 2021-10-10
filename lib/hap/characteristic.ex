@@ -54,8 +54,20 @@ defmodule HAP.Characteristic do
   end
 
   @doc false
-  def get_value({characteristic_definition, value_source}) do
+  def get_value({characteristic_definition, value_source}, :pr) do
     if "pr" in characteristic_definition.perms() do
+      if function_exported?(characteristic_definition, :event_only, 0) && characteristic_definition.event_only() do
+        {:ok, nil}
+      else
+        get_value_from_source(value_source)
+      end
+    else
+      {:error, -70_405}
+    end
+  end
+
+  def get_value({characteristic_definition, value_source}, :ev) do
+    if "ev" in characteristic_definition.perms() do
       get_value_from_source(value_source)
     else
       {:error, -70_405}
@@ -63,8 +75,8 @@ defmodule HAP.Characteristic do
   end
 
   @doc false
-  def get_value!(characteristic) do
-    {:ok, value} = get_value(characteristic)
+  def get_value!(characteristic, disposition) do
+    {:ok, value} = get_value(characteristic, disposition)
     value
   end
 

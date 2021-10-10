@@ -48,7 +48,7 @@ defmodule HAP.EncryptedHTTPServer do
       |> String.split(",")
       |> Enum.map(&String.split(&1, "."))
       |> Enum.map(fn [aid, iid] -> %{aid: String.to_integer(aid), iid: String.to_integer(iid)} end)
-      |> HAP.AccessoryServerManager.get_characteristics(opts)
+      |> HAP.AccessoryServerManager.get_characteristics(:pr, opts)
 
     if Enum.all?(characteristics, fn %{status: status} -> status == 0 end) do
       characteristics = characteristics |> Enum.map(fn characteristic -> characteristic |> Map.delete(:status) end)
