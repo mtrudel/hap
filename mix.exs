@@ -71,6 +71,8 @@ defmodule HAP.MixProject do
           HAP.Services.CarbonDioxideSensor,
           HAP.Services.CarbonMonoxideSensor,
           HAP.Services.ContactSensor,
+          HAP.Services.Door,
+          HAP.Services.DoorBell,
           HAP.Services.Faucet,
           HAP.Services.HeaterCooler,
           HAP.Services.HumiditySensor,
@@ -138,7 +140,8 @@ defmodule HAP.MixProject do
           HAP.Characteristics.TargetPosition,
           HAP.Characteristics.TargetVerticalTiltAngle,
           HAP.Characteristics.TemperatureDisplayUnits,
-          HAP.Characteristics.Version
+          HAP.Characteristics.Version,
+          HAP.Characteristics.Volume
         ]
       ]
     ]
