@@ -12,7 +12,7 @@ defmodule HAP.Services.AirQualitySensor do
       %HAP.Service{
         type: "8A",
         characteristics: [
-          {HAP.Characteristics.CurrentTemperature, value.temperature},
+          {HAP.Characteristics.AirQuality, value.air_quality},
           {HAP.Characteristics.Name, value.name},
           # TODO: The following optional characteristics still have to be implemented
           # ”9.71 Ozone Density” (page 191)
