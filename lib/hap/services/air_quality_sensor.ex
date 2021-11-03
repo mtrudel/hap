@@ -10,7 +10,7 @@ defmodule HAP.Services.AirQualitySensor do
       HAP.Service.ensure_required!(__MODULE__, "air_quality", value.air_quality)
 
       %HAP.Service{
-        type: "8A",
+        type: "8D",
         characteristics: [
           {HAP.Characteristics.AirQuality, value.air_quality},
           {HAP.Characteristics.Name, value.name},
