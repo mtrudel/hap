@@ -3,7 +3,18 @@ defmodule HAP.Services.AirQualitySensor do
   Struct representing an instance of the `public.hap.service.sensor.air-quality` service
   """
 
-  defstruct air_quality: nil, name: nil, active: nil, fault: nil, tampered: nil, low_battery: nil
+  defstruct air_quality: nil,
+            name: nil,
+            ozone_density: nil,
+            nitrogen_dioxide_density: nil,
+            sulphur_dioxide_density: nil,
+            pm2_5_density: nil,
+            pm10_density: nil,
+            voc_density: nil,
+            active: nil,
+            fault: nil,
+            tampered: nil,
+            low_battery: nil
 
   defimpl HAP.ServiceSource do
     def compile(value) do
@@ -14,13 +25,12 @@ defmodule HAP.Services.AirQualitySensor do
         characteristics: [
           {HAP.Characteristics.AirQuality, value.air_quality},
           {HAP.Characteristics.Name, value.name},
-          # TODO: The following optional characteristics still have to be implemented
-          # ”9.71 Ozone Density” (page 191)
-          # ”9.64 Nitrogen Dioxide Density” (page 189)
-          # ”9.106 Sulphur Dioxide Density” (page 221)
-          # ”9.66 PM2.5 Density” (page 190)
-          # ”9.72 PM10 Density” (page 192)
-          # ”9.126 VOC Density” (page 233)
+          {Hap.Characteristics.OzoneDensity, value.ozone_density},
+          {HAP.Characteristics.NitrogenDioxideDensity, value.nitrogen_dioxide_density},
+          {HAP.Characteristics.SulphurDioxideDensity, value.sulphur_dioxide_density},
+          {HAP.Characteristics.PM25Density, value.pm2_5_density},
+          {HAP.Characteristics.PM10Density, value.pm10_density},
+          {HAP.Characteristics.VocDensity, value.voc_density},
           {HAP.Characteristics.StatusActive, value.active},
           {HAP.Characteristics.StatusFault, value.fault},
           {HAP.Characteristics.StatusTampered, value.tampered},
