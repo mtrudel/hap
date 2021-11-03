@@ -30,7 +30,7 @@ defmodule HAP.Services.AirQualitySensor do
           {HAP.Characteristics.SulphurDioxideDensity, value.sulphur_dioxide_density},
           {HAP.Characteristics.PM25Density, value.pm2_5_density},
           {HAP.Characteristics.PM10Density, value.pm10_density},
-          {HAP.Characteristics.VocDensity, value.voc_density},
+          {HAP.Characteristics.VOCDensity, value.voc_density},
           {HAP.Characteristics.StatusActive, value.active},
           {HAP.Characteristics.StatusFault, value.fault},
           {HAP.Characteristics.StatusTampered, value.tampered},

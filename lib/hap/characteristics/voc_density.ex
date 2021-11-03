@@ -1,4 +1,4 @@
-defmodule HAP.Characteristics.VocDensity do
+defmodule HAP.Characteristics.VOCDensity do
   @moduledoc """
   Definition of the `public.hap.characteristic.density.voc` characteristic
   """
