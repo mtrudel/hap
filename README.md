@@ -85,9 +85,9 @@ characteristics. Check out the [HAP Demo](https://github.com/mtrudel/hap_demo) a
 
 Documentation can be found at https://hexdocs.pm/hap/.
 
-Note that in order to have access to the required crypto methods for HAP to function, OTP 23 or newer is required.
+Note that in order to have access to the required crypto methods for HAP to function, OTP 23 or newer is required. Also note that OTP 25.0.x has a [defect](https://github.com/erlang/otp/issues/6313) that breaks HAP (fixed in OTP 25.1 and newer).
 
-Also note that although we still support Elixir 1.10 and 1.11, use of the Kino display module requires Elixir 1.12 or newer.
+Also note that although we still support Elixir 1.11, use of the Kino display module requires Elixir 1.12 or newer.
 
 ## License
 

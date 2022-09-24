@@ -1,10 +1,6 @@
 name: Elixir CI
 
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+on: [push, pull_request]
 
 env:
   MIX_ENV: test
@@ -12,14 +8,34 @@ env:
 jobs:
   test:
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     strategy:
       fail-fast: false
       matrix:
-        elixir: [1.11.2, 1.12.1]
-        otp: [23.0.4, 23.1.4, 24.0.1]
+        include:
+          - elixir:  1.11.4
+            otp: 23.3.4
+          - elixir:  1.11.4
+            otp: 24.3.4.5
 
+          - elixir:  1.12.3
+            otp: 23.3.4
+          - elixir:  1.11.4
+            otp: 24.3.4.5
+
+          - elixir:  1.13.4
+            otp: 23.3.4
+          - elixir:  1.13.4
+            otp: 24.3.4.5
+          - elixir:  1.13.4
+            otp: 25.1
+
+          - elixir:  1.13.4
+            otp: 24.3.4.5
+          - elixir:  1.13.4
+            otp: 25.1
+            lint: true
     steps:
     - uses: actions/checkout@v2
 
@@ -50,6 +66,7 @@ jobs:
         mix deps.get
 
     - name: Check Formatting
+      if: ${{ matrix.lint }}
       run: mix format --check-formatted
 
     - name: Run Credo
