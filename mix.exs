@@ -30,7 +30,7 @@ defmodule HAP.MixProject do
 
   defp deps do
     [
-      {:bandit, "0.2.1"},
+      {:bandit, "0.5.11"},
       {:base36, "~> 1.0"},
       {:cubdb, "~> 0.17.0"},
       {:eqrcode, "~> 0.1.7"},
