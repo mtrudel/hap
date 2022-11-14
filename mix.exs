@@ -34,7 +34,7 @@ defmodule HAP.MixProject do
       {:base36, "~> 1.0"},
       {:cubdb, "~> 0.17.0"},
       {:eqrcode, "~> 0.1.7"},
-      {:hkdf, "~> 0.1.0"},
+      {:hkdf, "~> 0.2.0"},
       {:jason, "~> 1.2"},
       {:mdns_lite, "~> 0.8.3"},
       {:strap, "~> 0.1.1"},
