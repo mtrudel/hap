@@ -40,7 +40,7 @@ defmodule HAP.MixProject do
       {:strap, "~> 0.1.1"},
       {:kino, "~> 0.7.0", optional: true},
       {:temp, "~> 0.4", only: :test},
-      {:mix_test_watch, "~> 0.8", only: :dev, runtime: false},
+      {:mix_test_watch, "~> 1.1", only: :dev, runtime: false},
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.21", only: [:dev, :test], runtime: false}
