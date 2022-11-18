@@ -2,16 +2,12 @@ name: Elixir CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
   workflow_dispatch:
 
 jobs:
   test:
     uses: mtrudel/elixir-ci-actions/.github/workflows/test.yml@main
-    with:
-      apt-packages: "libmnl-dev libnl-3-dev"
   lint:
     uses: mtrudel/elixir-ci-actions/.github/workflows/lint.yml@main
-    with:
-      apt-packages: "libmnl-dev libnl-3-dev"
