@@ -43,6 +43,6 @@ defmodule HAP.PersistentStorage do
   end
 
   def handle_call({:get_and_update, key, func}, _from, %{cub_pid: cub_pid} = state) do
-    {:reply, CubDB.get_and_update(cub_pid, key, func), state}
+    {:reply, {:ok, CubDB.get_and_update(cub_pid, key, func)}, state}
   end
 end
