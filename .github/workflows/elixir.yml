@@ -9,9 +9,5 @@ on:
 jobs:
   test:
     uses: mtrudel/elixir-ci-actions/.github/workflows/test.yml@main
-    with:
-      apt-packages: ""
   lint:
     uses: mtrudel/elixir-ci-actions/.github/workflows/lint.yml@main
-    with:
-      apt-packages: ""
