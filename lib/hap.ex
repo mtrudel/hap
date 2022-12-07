@@ -93,7 +93,7 @@ defmodule HAP do
       HAP.PairSetup,
       {ThousandIsland,
        handler_module: HAP.HAPSessionHandler,
-       handler_options: {HAP.HTTPServer, []},
+       handler_options: %{plug: {HAP.HTTPServer, []}},
        transport_module: HAP.HAPSessionTransport,
        port: 0}
     ]

@@ -1,11 +1,13 @@
 defmodule HAP.HAPSessionHandler do
   @moduledoc false
-  # HAP requires a number of low-level changes to HTTP, which are provided by a mix
-  # of this module and a specialized Thousand Island transport module
+  # A thin wrapper around Bandit's HTTP1 support, which does two things:
+  #
+  # 1. HAP requires socket-level encryption at least part of the time. This handler implementation
+  #    shims such support into the `c:handle_data/3` callback
+  # 2. Provides for the ability to send async (and non-standard) `EVENT` messages to a client
 
   use ThousandIsland.Handler
 
-  @doc false
   # Push an asynchronous message to the client as described in section 6.8 of the
   # HomeKit Accessory Protocol specification
   def push(pid, data) do
@@ -13,26 +15,9 @@ defmodule HAP.HAPSessionHandler do
   end
 
   @impl ThousandIsland.Handler
-  def handle_data(data, socket, plug) do
-    # TODO - we should be holding encryption state in state and not in
-    # the process dictionary
+  def handle_data(data, socket, state) do
     {:ok, data} = HAP.HAPSessionTransport.decrypt_if_needed(data)
-
-    try do
-      case Bandit.HTTP1.Handler.handle_data(data, socket, %{plug: plug}) do
-        {:continue, _ok} ->
-          {:continue, plug}
-
-        {:close, _ok} ->
-          {:close, plug}
-
-        {:error, _code, reason} ->
-          {:error, reason, plug}
-      end
-    rescue
-      exception ->
-        {:error, exception, plug}
-    end
+    Bandit.HTTP1.Handler.handle_data(data, socket, state)
   end
 
   @impl GenServer
@@ -56,5 +41,5 @@ defmodule HAP.HAPSessionHandler do
     {:noreply, {socket, state}}
   end
 
-  def handle_info({:plug_conn, :sent}, state), do: {:noreply, state}
+  def handle_info(msg, state), do: Bandit.HTTP1.Handler.handle_info(msg, state)
 end
