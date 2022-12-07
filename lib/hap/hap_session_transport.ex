@@ -139,7 +139,7 @@ defmodule HAP.HAPSessionTransport do
   end
 
   @impl ThousandIsland.Transport
-  def secure?(), do: false
+  def secure?, do: false
 
   @impl ThousandIsland.Transport
   defdelegate getopts(socket, options), to: :inet
