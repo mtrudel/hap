@@ -24,7 +24,7 @@ defmodule HAP.HAPSessionTransportTest do
         HAP.HAPSessionTransport.close(server_socket)
       end)
 
-    {:ok, client_socket} = HAP.HAPSessionTransport.connect(:localhost, port, mode: :binary, active: false)
+    {:ok, client_socket} = :gen_tcp.connect(:localhost, port, mode: :binary, active: false)
 
     :ok = HAP.HAPSessionTransport.send(client_socket, <<1, 2, 3>>)
     assert {:ok, <<1, 2, 3>>} == HAP.HAPSessionTransport.recv(client_socket, 0, :infinity)

@@ -5,7 +5,7 @@ defmodule HAP.Test.HTTPClient do
   """
 
   def init(host, port) do
-    HAP.HAPSessionTransport.connect(host, port, mode: :binary, active: false)
+    :gen_tcp.connect(host, port, mode: :binary, active: false)
   end
 
   def get(socket, path, headers \\ []) do
