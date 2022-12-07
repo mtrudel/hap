@@ -38,7 +38,7 @@ defmodule HAP.MixProject do
       {:jason, "~> 1.2"},
       {:mdns_lite, "~> 0.8.3"},
       {:strap, "~> 0.1.1"},
-      {:kino, "~> 0.7.0", optional: true},
+      {:kino, "~> 0.7", optional: true},
       {:temp, "~> 0.4", only: :test},
       {:mix_test_watch, "~> 1.1", only: :dev, runtime: false},
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
