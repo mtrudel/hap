@@ -14,7 +14,7 @@ defmodule HAP.TLVParserTest do
     }
 
     {:ok, result, _conn} =
-      conn("METHOD", "path", data)
+      conn("METHOD", "/path", data)
       |> HAP.TLVParser.parse("application", "pairing+tlv8", {}, {})
 
     assert result == expected
