@@ -68,6 +68,7 @@ defmodule HAP.MixProject do
           HAP.Service,
           HAP.ServiceSource,
           HAP.Services.AccessoryInformation,
+          HAP.Services.AirQualitySensor,
           HAP.Services.CarbonDioxideSensor,
           HAP.Services.CarbonMonoxideSensor,
           HAP.Services.ContactSensor,
@@ -95,6 +96,7 @@ defmodule HAP.MixProject do
           HAP.Characteristic,
           HAP.CharacteristicDefinition,
           HAP.Characteristics.Active,
+          HAP.Characteristics.AirQuality,
           HAP.Characteristics.Brightness,
           HAP.Characteristics.CarbonDioxideDetected,
           HAP.Characteristics.CarbonDioxideLevel,
@@ -124,10 +126,14 @@ defmodule HAP.MixProject do
           HAP.Characteristics.MotionDetected,
           HAP.Characteristics.Mute,
           HAP.Characteristics.Name,
+          HAP.Characteristics.NitrogenDioxideDensity,
           HAP.Characteristics.ObstructionDetected,
           HAP.Characteristics.OccupancyDetected,
           HAP.Characteristics.On,
           HAP.Characteristics.OutletInUse,
+          HAP.Characteristics.OzoneDensity,
+          HAP.Characteristics.PM10Density,
+          HAP.Characteristics.PM25Density,
           HAP.Characteristics.PositionState,
           HAP.Characteristics.RotationSpeed,
           HAP.Characteristics.Saturation,
@@ -137,6 +143,7 @@ defmodule HAP.MixProject do
           HAP.Characteristics.StatusFault,
           HAP.Characteristics.StatusLowBattery,
           HAP.Characteristics.StatusTampered,
+          HAP.Characteristics.SulphurDioxideDensity,
           HAP.Characteristics.SwingMode,
           HAP.Characteristics.TargetHeaterCoolerState,
           HAP.Characteristics.TargetHorizontalTiltAngle,
@@ -144,7 +151,9 @@ defmodule HAP.MixProject do
           HAP.Characteristics.TargetVerticalTiltAngle,
           HAP.Characteristics.TemperatureDisplayUnits,
           HAP.Characteristics.Version,
-          HAP.Characteristics.Volume
+          HAP.Characteristics.VOCDensity,
+          HAP.Characteristics.Volume,
+          HAP.Characteristics.WaterLevel
         ]
       ]
     ]
