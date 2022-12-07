@@ -21,10 +21,13 @@ defmodule HAP.Test.HTTPClient do
   end
 
   def request(socket, method, path, body, headers) do
+    %{port: port} = HAP.HAPSessionTransport.local_info(socket)
+
     request = [
       "#{method} #{path} HTTP/1.1\r\n",
       Enum.map(headers, fn {k, v} -> "#{k}: #{v}\r\n" end),
       ["connection: keep-alive\r\n"],
+      ["host: localhost:#{port}\r\n"],
       ["content-length: #{byte_size(body)}\r\n"],
       "\r\n",
       body
@@ -35,7 +38,7 @@ defmodule HAP.Test.HTTPClient do
 
     ["HTTP/1.1" <> code | lines] = result |> String.split("\r\n")
 
-    code = code |> String.trim() |> String.to_integer()
+    {code, _text} = code |> String.trim() |> Integer.parse()
 
     {headers, [_ | [body]]} =
       lines
@@ -44,7 +47,7 @@ defmodule HAP.Test.HTTPClient do
     headers =
       headers
       |> Enum.map(fn header ->
-        [k, v] = header |> String.split(":")
+        [k, v] = header |> String.split(":", parts: 2)
         {k |> String.trim() |> String.to_atom(), String.trim(v)}
       end)
 
