@@ -17,24 +17,20 @@ defmodule HAP.HAPSessionHandler do
     # TODO - we should be holding encryption state in state and not in
     # the process dictionary
     {:ok, data} = HAP.HAPSessionTransport.decrypt_if_needed(data)
-    {:ok, adapter_mod, req} = Bandit.HTTP1Request.request(socket, data)
 
     try do
-      case Bandit.ConnPipeline.run(adapter_mod, req, plug) do
-        {:ok, req} ->
-          if adapter_mod.keepalive?(req) do
-            {:ok, :continue, plug}
-          else
-            {:ok, :close, plug}
-          end
+      case Bandit.HTTP1.Handler.handle_data(data, socket, %{plug: plug}) do
+        {:continue, _ok} ->
+          {:continue, plug}
 
-        {:error, code, reason} ->
-          adapter_mod.send_fallback_resp(req, code)
+        {:close, _ok} ->
+          {:close, plug}
+
+        {:error, _code, reason} ->
           {:error, reason, plug}
       end
     rescue
       exception ->
-        adapter_mod.send_fallback_resp(req, 500)
         {:error, exception, plug}
     end
   end
@@ -48,7 +44,13 @@ defmodule HAP.HAPSessionHandler do
       "content-type" => "application/hap+json"
     }
 
-    to_send = ["EVENT/1.0 200 OK\r\n", Enum.map(headers, fn {k, v} -> [k, ": ", v, "\r\n"] end), "\r\n", data]
+    to_send = [
+      "EVENT/1.0 200 OK\r\n",
+      Enum.map(headers, fn {k, v} -> [k, ": ", v, "\r\n"] end),
+      "\r\n",
+      data
+    ]
+
     ThousandIsland.Socket.send(socket, to_send)
 
     {:noreply, {socket, state}}

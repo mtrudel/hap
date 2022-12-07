@@ -59,9 +59,6 @@ defmodule HAP.HAPSessionTransport do
   end
 
   @impl ThousandIsland.Transport
-  defdelegate listen_port(listener_socket), to: :inet, as: :port
-
-  @impl ThousandIsland.Transport
   defdelegate accept(listener_socket), to: :gen_tcp
 
   @impl ThousandIsland.Transport
@@ -140,6 +137,15 @@ defmodule HAP.HAPSessionTransport do
     {:ok, {ip, port}} = :inet.peername(socket)
     %{address: ip, port: port, ssl_cert: nil}
   end
+
+  @impl ThousandIsland.Transport
+  def secure?(), do: false
+
+  @impl ThousandIsland.Transport
+  defdelegate getopts(socket, options), to: :inet
+
+  @impl ThousandIsland.Transport
+  def negotiated_protocol(_socket), do: {:error, :protocol_not_negotiated}
 
   @impl ThousandIsland.Transport
   defdelegate getstat(socket), to: :inet
