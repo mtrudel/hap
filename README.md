@@ -29,7 +29,7 @@ accessory_server =
         ]
       }
     ]
-  )
+  }
 
 children = [{HAP, accessory_server}]
 
