@@ -50,7 +50,7 @@ defmodule HAP do
           ]
         }
       ]
-    )
+    }
 
   children = [{HAP, accessory_server}]
 
