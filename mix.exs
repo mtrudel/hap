@@ -5,7 +5,7 @@ defmodule HAP.MixProject do
     [
       app: :hap,
       version: "0.4.5",
-      elixir: "~> 1.11",
+      elixir: "~> 1.12",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       dialyzer: dialyzer(),
@@ -30,7 +30,7 @@ defmodule HAP.MixProject do
 
   defp deps do
     [
-      {:bandit, "0.6.2"},
+      {:bandit, "~> 0.6"},
       {:base36, "~> 1.0"},
       {:cubdb, "~> 2.0.0"},
       {:eqrcode, "~> 0.1.7"},
