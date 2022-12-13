@@ -75,7 +75,7 @@ HAP is available in Hex. The package can be installed by adding hap to your list
 ```
 def deps do
   [
-    {:hap, "~> 0.4.0"}
+    {:hap, "~> 0.4"}
   ]
 end
 ```
