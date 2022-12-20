@@ -64,6 +64,7 @@ As HAP is still in active development, there are a number of known rough edges. 
 * No support for dynamically updating the services advertised by a HAP instance (this is slated for HAP 2.0)
 * Incomplete support for tearing down existing sessions on pairing removal (this is slated for HAP 2.0)
 * No support for HomeKit Secure Video / RTP (support is not currently planned, but PRs are of course welcome)
+* Timed write support is supported, but timeouts are not enforced
 
 In addition, there may well be bugs or gaps in functionality not listed above. If you encounter any, please feel free
 to file an issue.
