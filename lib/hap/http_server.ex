@@ -22,6 +22,7 @@ defmodule HAP.HTTPServer do
   get("/accessories", to: HAP.EncryptedHTTPServer)
   get("/characteristics", to: HAP.EncryptedHTTPServer)
   put("/characteristics", to: HAP.EncryptedHTTPServer)
+  put("/prepare", to: HAP.EncryptedHTTPServer)
 
   defp tidy_headers(conn, _opts) do
     delete_resp_header(conn, "cache-control")
