@@ -2,7 +2,7 @@
 
 [![Build Status](https://github.com/mtrudel/hap/workflows/Elixir%20CI/badge.svg)](https://github.com/mtrudel/hap/actions)
 [![Docs](https://img.shields.io/badge/api-docs-green.svg?style=flat)](https://hexdocs.pm/hap)
-[![Hex.pm](https://img.shields.io/hexpm/v/hap.svg?style=flat-square)](https://hex.pm/packages/hap)
+[![Hex.pm](https://img.shields.io/hexpm/v/hap.svg?style=flat&color=blue)](https://hex.pm/packages/hap)
 
 HAP is a framework for building DIY HomeKit accessories based on Apple's [HomeKit Accessory Protocol](https://developer.apple.com/homekit/) specification. 
 You can think of it as [homebridge](https://github.com/nfarina/homebridge) for Elixir (with a bit more of a focus on
@@ -29,7 +29,7 @@ accessory_server =
         ]
       }
     ]
-  )
+  }
 
 children = [{HAP, accessory_server}]
 
@@ -64,6 +64,7 @@ As HAP is still in active development, there are a number of known rough edges. 
 * No support for dynamically updating the services advertised by a HAP instance (this is slated for HAP 2.0)
 * Incomplete support for tearing down existing sessions on pairing removal (this is slated for HAP 2.0)
 * No support for HomeKit Secure Video / RTP (support is not currently planned, but PRs are of course welcome)
+* Timed write support is supported, but timeouts are not enforced
 
 In addition, there may well be bugs or gaps in functionality not listed above. If you encounter any, please feel free
 to file an issue.
@@ -75,7 +76,7 @@ HAP is available in Hex. The package can be installed by adding hap to your list
 ```
 def deps do
   [
-    {:hap, "~> 0.4.0"}
+    {:hap, "~> 0.4"}
   ]
 end
 ```
@@ -85,9 +86,7 @@ characteristics. Check out the [HAP Demo](https://github.com/mtrudel/hap_demo) a
 
 Documentation can be found at https://hexdocs.pm/hap/.
 
-Note that in order to have access to the required crypto methods for HAP to function, OTP 23 or newer is required.
-
-Also note that although we still support Elixir 1.10 and 1.11, use of the Kino display module requires Elixir 1.12 or newer.
+Note that in order to have access to the required crypto methods for HAP to function, OTP 23 or newer is required. Also note that OTP 25.0.x has a [defect](https://github.com/erlang/otp/issues/6313) that breaks HAP (fixed in OTP 25.1 and newer).
 
 ## License
 

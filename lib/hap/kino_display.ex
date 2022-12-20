@@ -5,8 +5,9 @@ defmodule HAP.KinoDisplay do
   @behaviour HAP.Display
 
   @impl HAP.Display
-  def display_pairing_code(name, pairing_code, pairing_url) do
-    if Code.ensure_loaded?(Kino) do
+
+  if Code.ensure_loaded?(Kino) do
+    def display_pairing_code(name, pairing_code, pairing_url) do
       intro = Kino.Markdown.new("### #{name} available for pairing. Connect using the following QR Code")
 
       png_qr_code =
@@ -25,7 +26,9 @@ defmodule HAP.KinoDisplay do
       Kino.render(intro)
       Kino.render(png_qr_code)
       Kino.render(manual_pairing_info)
-    else
+    end
+  else
+    def display_pairing_code(_name, _pairing_code, _pairing_url) do
       IO.puts("Kino not available - use other HAP display module, or ensure Kino is installed")
     end
   end

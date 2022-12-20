@@ -5,7 +5,7 @@ defmodule HAP.CharacteristicDefinition do
   contains the runtime values for the characteristic itself, as well as metadata about
   the characteristic. A `HAP.CharacteristicDefinition` is used to provide the template
   values for these fields. HAP contains definitions for many common HomeKit characteristics
-  already, and users may define other characteristics by providing an implemenation of
+  already, and users may define other characteristics by providing an implementation of
   this behaviour as the first value in the characteristic definition tuple in a service.
   """
 

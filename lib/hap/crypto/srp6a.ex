@@ -2,7 +2,7 @@ defmodule HAP.Crypto.SRP6A do
   @moduledoc false
   # Implements the various steps within the Stanford Remote Password (version 6a) flow
 
-  use Bitwise
+  import Bitwise
 
   def verifier(i, p) do
     s = :crypto.strong_rand_bytes(16)

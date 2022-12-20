@@ -2,74 +2,12 @@ name: Elixir CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
-
-env:
-  MIX_ENV: test
+  workflow_dispatch:
 
 jobs:
   test:
-
-    runs-on: ubuntu-20.04
-
-    strategy:
-      fail-fast: false
-      matrix:
-        elixir: [1.11.2, 1.12.1]
-        otp: [23.0.4, 23.1.4, 24.0.1]
-
-    steps:
-    - uses: actions/checkout@v2
-
-    - name: Setup elixir
-      uses: erlef/setup-beam@v1
-      with:
-        elixir-version: ${{ matrix.elixir }}
-        otp-version: ${{ matrix.otp }}
-        experimental-otp: true
-
-    - name: Install vintage_net dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y libmnl-dev libnl-3-dev
-
-    - name: Retrieve Mix Dependencies Cache
-      uses: actions/cache@v1
-      id: mix-cache
-      with:
-        path: deps
-        key: ${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-mix-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
-
-    - name: Install Mix Dependencies
-      if: steps.mix-cache.outputs.cache-hit != 'true'
-      run: |
-        mix local.rebar --force
-        mix local.hex --force
-        mix deps.get
-
-    - name: Check Formatting
-      run: mix format --check-formatted
-
-    - name: Run Credo
-      run: mix credo --strict
-
-    - name: Retrieve PLT Cache
-      uses: actions/cache@v1
-      id: plt-cache
-      with:
-        path: priv/plts
-        key: ${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-plts-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
-
-    - name: Create PLTs
-      if: steps.plt-cache.outputs.cache-hit != 'true'
-      run: |
-        mkdir -p priv/plts
-        mix dialyzer --plt
-
-    - name: Run dialyzer
-      run: mix dialyzer --no-check
-
-    - name: Run Tests
-      run: mix test
+    uses: mtrudel/elixir-ci-actions/.github/workflows/test.yml@main
+  lint:
+    uses: mtrudel/elixir-ci-actions/.github/workflows/lint.yml@main
