@@ -82,6 +82,13 @@ defmodule HAP.EncryptedHTTPServer do
     end
   end
 
+  # Note that we do not enforce timed writes per 6.7.2.4; we just throw this request on the ground
+  put "/prepare" do
+    conn
+    |> put_resp_header("content-type", "application/hap+json")
+    |> send_resp(200, Jason.encode!(%{status: 0}))
+  end
+
   defp require_authenticated_session(conn, _opts) do
     if HAP.HAPSessionTransport.encrypted_session?() do
       conn
