@@ -66,5 +66,11 @@ defmodule HAP.CharacteristicDefinition do
   """
   @callback units :: unit()
 
-  @optional_callbacks min_value: 0, max_value: 0, step_value: 0, units: 0
+  @doc """
+  Whether or not to only return values via events. Required mostly to satisfy the somewhat oddball *Programmable Switch Event*
+  characteristic as defined in section 9.75 of Apple's [HomeKit Accessory Protocol Specification](https://developer.apple.com/homekit/).
+  """
+  @callback event_only :: boolean()
+
+  @optional_callbacks min_value: 0, max_value: 0, step_value: 0, units: 0, event_only: 0
 end

@@ -185,7 +185,7 @@ defmodule HAP.AccessoryServer do
                       }
 
                       if "pr" in HAP.Characteristic.get_perms(characteristic) && include_values do
-                        result |> Map.put(:value, HAP.Characteristic.get_value!(characteristic))
+                        result |> Map.put(:value, HAP.Characteristic.get_value!(characteristic, :pr))
                       else
                         result
                       end
@@ -198,13 +198,13 @@ defmodule HAP.AccessoryServer do
   end
 
   @doc false
-  def get_characteristics(%__MODULE__{} = accessory_server, characteristics, opts) do
+  def get_characteristics(%__MODULE__{} = accessory_server, characteristics, disposition, opts) do
     characteristics
     |> Enum.map(fn %{aid: aid, iid: iid} ->
       with {:ok, accessory} <- get_accessory(accessory_server, aid),
            {:ok, service} <- HAP.Accessory.get_service(accessory, iid),
            {:ok, characteristic} <- HAP.Service.get_characteristic(service, iid),
-           {:ok, value} <- HAP.Characteristic.get_value(characteristic) do
+           {:ok, value} <- HAP.Characteristic.get_value(characteristic, disposition) do
         opts
         |> Enum.reduce(%{aid: aid, iid: iid, value: value, status: 0}, fn opt, acc ->
           case opt do
@@ -264,7 +264,7 @@ defmodule HAP.AccessoryServer do
 
   @doc false
   def value_changed(%__MODULE__{} = accessory_server, characteristic) do
-    msg = %{characteristics: accessory_server |> get_characteristics([characteristic], [])}
+    msg = %{characteristics: get_characteristics(accessory_server, [characteristic], :ev, [])}
 
     HAP.EventManager.get_listeners(characteristic.aid, characteristic.iid)
     |> Enum.each(fn pid ->

@@ -82,8 +82,8 @@ defmodule HAP.AccessoryServerManager do
   end
 
   @doc false
-  def get_characteristics(characteristics, opts \\ [], pid \\ __MODULE__) do
-    GenServer.call(pid, {:get_characteristics, characteristics, opts})
+  def get_characteristics(characteristics, disposition, opts \\ [], pid \\ __MODULE__) do
+    GenServer.call(pid, {:get_characteristics, characteristics, disposition, opts})
   end
 
   @doc false
@@ -170,8 +170,8 @@ defmodule HAP.AccessoryServerManager do
     {:reply, response, state}
   end
 
-  def handle_call({:get_characteristics, characteristics, opts}, _from, state) do
-    response = HAP.AccessoryServer.get_characteristics(state[:accessory_server], characteristics, opts)
+  def handle_call({:get_characteristics, characteristics, disposition, opts}, _from, state) do
+    response = HAP.AccessoryServer.get_characteristics(state[:accessory_server], characteristics, disposition, opts)
     {:reply, response, state}
   end
 
