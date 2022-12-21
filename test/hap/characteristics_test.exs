@@ -9,7 +9,10 @@ defmodule HAP.CharacteristicsTest do
         accessories: [
           %HAP.Accessory{
             services: [
-              %HAP.Services.LightBulb{on: {HAP.Test.TestValueStore, value_name: :lightbulb}}
+              %HAP.Services.LightBulb{
+                on: {HAP.Test.TestValueStore, value_name: :lightbulb},
+                brightness: {HAP.Test.TestValueStore, value_name: :brightness}
+              }
             ]
           }
         ]
@@ -143,6 +146,72 @@ defmodule HAP.CharacteristicsTest do
 
       assert HAP.AccessoryServerManager.get_characteristics([%{iid: 1027, aid: 1}], :pr) ==
                [%{iid: 1027, value: true, aid: 1, status: 0}]
+    end
+
+    test "it should translate 0 and 1 to boolean values on boolean characteristics", context do
+      # Setup an encrypted session
+      :ok = HAP.Test.HTTPClient.setup_encrypted_session(context.client)
+
+      request = %{
+        characteristics: [
+          %{"iid" => 1027, "value" => 1, "aid" => 1}
+        ]
+      }
+
+      {:ok, 204, _headers, _body} =
+        HAP.Test.HTTPClient.put(context.client, "/characteristics", Jason.encode!(request),
+          "content-type": "application/hap+json"
+        )
+
+      assert HAP.AccessoryServerManager.get_characteristics([%{iid: 1027, aid: 1}], :pr) ==
+               [%{iid: 1027, value: true, aid: 1, status: 0}]
+
+      request = %{
+        characteristics: [
+          %{"iid" => 1027, "value" => 0, "aid" => 1}
+        ]
+      }
+
+      {:ok, 204, _headers, _body} =
+        HAP.Test.HTTPClient.put(context.client, "/characteristics", Jason.encode!(request),
+          "content-type": "application/hap+json"
+        )
+
+      assert HAP.AccessoryServerManager.get_characteristics([%{iid: 1027, aid: 1}], :pr) ==
+               [%{iid: 1027, value: false, aid: 1, status: 0}]
+    end
+
+    test "it should not translate non-boolean values", context do
+      # Setup an encrypted session
+      :ok = HAP.Test.HTTPClient.setup_encrypted_session(context.client)
+
+      request = %{
+        characteristics: [
+          %{"iid" => 1029, "value" => 1, "aid" => 1}
+        ]
+      }
+
+      {:ok, 204, _headers, _body} =
+        HAP.Test.HTTPClient.put(context.client, "/characteristics", Jason.encode!(request),
+          "content-type": "application/hap+json"
+        )
+
+      assert HAP.AccessoryServerManager.get_characteristics([%{iid: 1029, aid: 1}], :pr) ==
+               [%{iid: 1029, value: 1, aid: 1, status: 0}]
+
+      request = %{
+        characteristics: [
+          %{"iid" => 1029, "value" => 0, "aid" => 1}
+        ]
+      }
+
+      {:ok, 204, _headers, _body} =
+        HAP.Test.HTTPClient.put(context.client, "/characteristics", Jason.encode!(request),
+          "content-type": "application/hap+json"
+        )
+
+      assert HAP.AccessoryServerManager.get_characteristics([%{iid: 1029, aid: 1}], :pr) ==
+               [%{iid: 1029, value: 0, aid: 1, status: 0}]
     end
 
     test "it should set the requested characteristics even if some are invalid writes", context do

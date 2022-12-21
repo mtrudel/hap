@@ -83,14 +83,21 @@ defmodule HAP.Characteristic do
   @doc false
   def put_value({characteristic_definition, value_source}, value) do
     if "pw" in characteristic_definition.perms() do
+      value = maybe_cast_value({characteristic_definition, value_source}, value)
       put_value_to_source(value_source, value)
     else
       {:error, -70_404}
     end
   end
 
-  @doc false
+  defp maybe_cast_value(characteristic, value) do
+    case get_type(characteristic) do
+      "25" -> value in [true, 1]
+      _other_type -> value
+    end
+  end
 
+  @doc false
   def set_change_token({_characteristic_definition, {mod, opts}}, token) do
     if function_exported?(mod, :set_change_token, 2) do
       mod.set_change_token(token, opts)
