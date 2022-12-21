@@ -242,5 +242,34 @@ defmodule HAP.CharacteristicsTest do
       refute HAP.AccessoryServerManager.get_characteristics([%{iid: 1027, aid: 1}], :pr) ==
                %{characteristics: [%{iid: 1027, value: true, aid: 1}]}
     end
+
+    test "it should support timed writes (ignoring timeouts)", context do
+      # Setup an encrypted session
+      :ok = HAP.Test.HTTPClient.setup_encrypted_session(context.client)
+
+      request = %{"ttl" => 5000, "pid" => 123_456_789}
+
+      {:ok, 200, _headers, body} =
+        HAP.Test.HTTPClient.put(context.client, "/prepare", Jason.encode!(request),
+          "content-type": "application/hap+json"
+        )
+
+      assert Jason.decode!(body) == %{"status" => 0}
+
+      request = %{
+        characteristics: [
+          %{"iid" => 1027, "value" => true, "aid" => 1}
+        ],
+        pid: 123_456_789
+      }
+
+      {:ok, 204, _headers, _body} =
+        HAP.Test.HTTPClient.put(context.client, "/characteristics", Jason.encode!(request),
+          "content-type": "application/hap+json"
+        )
+
+      assert HAP.AccessoryServerManager.get_characteristics([%{iid: 1027, aid: 1}], :pr) ==
+               [%{iid: 1027, value: true, aid: 1, status: 0}]
+    end
   end
 end
