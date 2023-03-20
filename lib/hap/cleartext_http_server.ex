@@ -6,8 +6,8 @@ defmodule HAP.CleartextHTTPServer do
   use Plug.Router
 
   plug(:match)
-  plug(:prohibit_authenticated_session, builder_opts())
-  plug(:dispatch, builder_opts())
+  plug(:prohibit_authenticated_session)
+  plug(:dispatch)
 
   def init(opts) do
     opts

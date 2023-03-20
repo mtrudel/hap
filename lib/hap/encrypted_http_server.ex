@@ -5,8 +5,8 @@ defmodule HAP.EncryptedHTTPServer do
   use Plug.Router
 
   plug(:match)
-  plug(:require_authenticated_session, builder_opts())
-  plug(:dispatch, builder_opts())
+  plug(:require_authenticated_session)
+  plug(:dispatch)
 
   def init(opts) do
     opts

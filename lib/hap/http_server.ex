@@ -7,8 +7,8 @@ defmodule HAP.HTTPServer do
   plug(Plug.Logger)
   plug(:match)
   plug(Plug.Parsers, parsers: [HAP.TLVParser, :json], json_decoder: Jason)
-  plug(:tidy_headers, builder_opts())
-  plug(:dispatch, builder_opts())
+  plug(:tidy_headers)
+  plug(:dispatch)
 
   def init(opts) do
     opts
