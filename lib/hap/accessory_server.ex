@@ -113,6 +113,8 @@ defmodule HAP.AccessoryServer do
 
   @default_data_path if(Mix.target() == :host, do: "hap_data", else: "/root/hap_data")
 
+  # credo:disable-for-this-file Credo.Check.Refactor.Nesting
+
   @doc """
   Generates the pairing url to be used to pair with this accessory server. This 
   URL can be encoded in a QR code to enable pairing directly from an iOS device
