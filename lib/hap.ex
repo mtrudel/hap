@@ -93,7 +93,8 @@ defmodule HAP do
       HAP.PairSetup,
       {Bandit,
        plug: HAP.HTTPServer,
-       options: [handler_module: HAP.HAPSessionHandler, transport_module: HAP.HAPSessionTransport, port: 0]}
+       port: 0,
+       thousand_island_options: [handler_module: HAP.HAPSessionHandler, transport_module: HAP.HAPSessionTransport]}
     ]
 
     Supervisor.init(children, strategy: :rest_for_one)
