@@ -13,6 +13,6 @@ defmodule HAP.Test.Display do
 
   @impl HAP.Display
   def identify(name) do
-    Logger.warn("IDENTIFY #{name}")
+    Logger.warning("IDENTIFY #{name}")
   end
 end
