@@ -3,7 +3,7 @@ defmodule HAP.HAPSessionTransportTest do
 
   test "can send in the clear & upgrade a live socket to encrypted transport" do
     {:ok, listener_socket} = HAP.HAPSessionTransport.listen(0, skip_registration: true)
-    %{port: port} = HAP.HAPSessionTransport.local_info(listener_socket)
+    {:ok, {_ip, port}} = HAP.HAPSessionTransport.sockname(listener_socket)
 
     server_task =
       Task.async(fn ->
@@ -48,7 +48,7 @@ defmodule HAP.HAPSessionTransportTest do
 
   test "transmits encrypted over the wire when so configured" do
     {:ok, listener_socket} = HAP.HAPSessionTransport.listen(0, skip_registration: true)
-    %{port: port} = HAP.HAPSessionTransport.local_info(listener_socket)
+    {:ok, {_ip, port}} = HAP.HAPSessionTransport.sockname(listener_socket)
 
     server_task =
       Task.async(fn ->

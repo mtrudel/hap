@@ -21,7 +21,7 @@ defmodule HAP.Test.HTTPClient do
   end
 
   def request(socket, method, path, body, headers) do
-    %{port: port} = HAP.HAPSessionTransport.local_info(socket)
+    {:ok, {_ip, port}} = HAP.HAPSessionTransport.sockname(socket)
 
     request = [
       "#{method} #{path} HTTP/1.1\r\n",
