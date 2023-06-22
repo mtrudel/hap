@@ -80,10 +80,13 @@ defmodule HAP.HAPSessionTransport do
   defdelegate close(socket), to: ThousandIsland.Transports.TCP
 
   @impl ThousandIsland.Transport
-  defdelegate local_info(socket), to: ThousandIsland.Transports.TCP
+  defdelegate sockname(socket), to: ThousandIsland.Transports.TCP
 
   @impl ThousandIsland.Transport
-  defdelegate peer_info(socket), to: ThousandIsland.Transports.TCP
+  defdelegate peername(socket), to: ThousandIsland.Transports.TCP
+
+  @impl ThousandIsland.Transport
+  defdelegate peercert(socket), to: ThousandIsland.Transports.TCP
 
   @impl ThousandIsland.Transport
   defdelegate secure?(), to: ThousandIsland.Transports.TCP
