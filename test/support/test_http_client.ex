@@ -40,7 +40,7 @@ defmodule HAP.Test.HTTPClient do
 
     {code, _text} = code |> String.trim() |> Integer.parse()
 
-    {headers, [_ | [body]]} =
+    {headers, [_ | body]} =
       lines
       |> Enum.split_while(fn line -> line != "" end)
 
@@ -51,7 +51,7 @@ defmodule HAP.Test.HTTPClient do
         {k |> String.trim() |> String.to_atom(), String.trim(v)}
       end)
 
-    {:ok, code, headers, body}
+    {:ok, code, headers, IO.iodata_to_binary(body)}
   end
 
   defdelegate encrypted_session?, to: HAP.HAPSessionTransport
