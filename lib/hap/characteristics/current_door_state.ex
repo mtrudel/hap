@@ -14,7 +14,7 @@ defmodule HAP.Characteristics.CurrentDoorState do
 
   @behaviour HAP.CharacteristicDefinition
 
-  def type, do: "0E"
+  def type, do: "E"
   def perms, do: ["pr", "ev"]
   def format, do: "uint8"
   def min_value, do: 0

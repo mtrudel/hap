@@ -5,7 +5,7 @@ defmodule HAP.Characteristics.CoolingThresholdTemperature do
 
   @behaviour HAP.CharacteristicDefinition
 
-  def type, do: "0D"
+  def type, do: "D"
   def perms, do: ["pr", "pw", "ev"]
   def format, do: "float"
   def min_value, do: 10.0
