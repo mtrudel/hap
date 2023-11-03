@@ -5,7 +5,7 @@ defmodule HAP.MixProject do
     [
       app: :hap,
       version: "0.4.8",
-      elixir: "~> 1.12",
+      elixir: "~> 1.13",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       dialyzer: dialyzer(),
@@ -30,7 +30,7 @@ defmodule HAP.MixProject do
 
   defp deps do
     [
-      {:bandit, "~> 1.0.0-pre.9"},
+      {:bandit, "~> 1.0.0 or ~> 1.1.0"},
       {:base36, "~> 1.0"},
       {:cubdb, "~> 2.0.0"},
       {:eqrcode, "~> 0.1.7"},
@@ -77,6 +77,7 @@ defmodule HAP.MixProject do
           HAP.Services.DoorBell,
           HAP.Services.FanV2,
           HAP.Services.Faucet,
+          HAP.Services.GarageDoor,
           HAP.Services.HeaterCooler,
           HAP.Services.HumiditySensor,
           HAP.Services.LeakSensor,
@@ -115,6 +116,7 @@ defmodule HAP.MixProject do
           HAP.Characteristics.CoolingThresholdTemperature,
           HAP.Characteristics.CurrentAirPurifierState,
           HAP.Characteristics.CurrentAmbientLightLevel,
+          HAP.Characteristics.CurrentDoorState,
           HAP.Characteristics.CurrentFanState,
           HAP.Characteristics.CurrentHeaterCoolerState,
           HAP.Characteristics.CurrentHeatingCoolingState,
@@ -132,6 +134,8 @@ defmodule HAP.MixProject do
           HAP.Characteristics.Identify,
           HAP.Characteristics.InputEvent,
           HAP.Characteristics.LeakDetected,
+          HAP.Characteristics.LockCurrentState,
+          HAP.Characteristics.LockTargetState,
           HAP.Characteristics.LockPhysicalControls,
           HAP.Characteristics.Manufacturer,
           HAP.Characteristics.Model,
@@ -162,6 +166,7 @@ defmodule HAP.MixProject do
           HAP.Characteristics.SulphurDioxideDensity,
           HAP.Characteristics.SwingMode,
           HAP.Characteristics.TargetAirPurifierState,
+          HAP.Characteristics.TargetDoorState,
           HAP.Characteristics.TargetFanState,
           HAP.Characteristics.TargetHeaterCoolerState,
           HAP.Characteristics.TargetHorizontalTiltAngle,
