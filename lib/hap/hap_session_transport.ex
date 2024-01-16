@@ -36,6 +36,9 @@ defmodule HAP.HAPSessionTransport do
   defdelegate handshake(socket), to: ThousandIsland.Transports.TCP
 
   @impl ThousandIsland.Transport
+  defdelegate upgrade(socket, options), to: ThousandIsland.Transports.TCP
+
+  @impl ThousandIsland.Transport
   defdelegate controlling_process(socket, pid), to: ThousandIsland.Transports.TCP
 
   @impl ThousandIsland.Transport
