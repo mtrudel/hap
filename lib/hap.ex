@@ -94,6 +94,7 @@ defmodule HAP do
       {Bandit,
        plug: HAP.HTTPServer,
        port: 0,
+       http_1_options: [clear_process_dict: false],
        thousand_island_options: [handler_module: HAP.HAPSessionHandler, transport_module: HAP.HAPSessionTransport]}
     ]
 
