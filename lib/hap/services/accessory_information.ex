@@ -30,6 +30,8 @@ defmodule HAP.Services.AccessoryInformation do
 
   @impl HAP.ValueStore
   def put_value(_value, name: name) do
-    HAP.Display.identify(name)
+    # identify is a GenServer call that otherwise would be calling its own process
+    Task.start(fn -> HAP.Display.identify(name) end)
+    :ok
   end
 end
