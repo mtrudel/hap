@@ -4,7 +4,7 @@
 [![Docs](https://img.shields.io/badge/api-docs-green.svg?style=flat)](https://hexdocs.pm/hap)
 [![Hex.pm](https://img.shields.io/hexpm/v/hap.svg?style=flat&color=blue)](https://hex.pm/packages/hap)
 
-HAP is a framework for building DIY HomeKit accessories based on Apple's [HomeKit Accessory Protocol](https://developer.apple.com/homekit/) specification. 
+HAP is a framework for building DIY HomeKit accessories based on Apple's [HomeKit Accessory Protocol](https://developer.apple.com/homekit/) specification.
 You can think of it as [homebridge](https://github.com/nfarina/homebridge) for Elixir (with a bit more of a focus on
 building actual accessories via Nerves) in contrast to Homebridge's typical use as a bridge to existing accessories.
 
@@ -43,11 +43,11 @@ Supervisor.start_link(children, opts)
 As originally developed, HAP included a fairly small set of services & characteristics (mostly due to the author's
 laziness & the immediate need for only a handful of the ~45 services & ~128 characteristics defined in the
 specification). However, it is quite easy to add definitions for new services & characteristics, and PRs to add such
-definitions are extremely welcome. The [lightbulb service](https://github.com/mtrudel/hap/blob/main/lib/hap/services/light_bulb.ex) 
+definitions are extremely welcome. The [lightbulb service](https://github.com/mtrudel/hap/blob/main/lib/hap/services/light_bulb.ex)
 is a complete implementation of a service and serves as an excellent starting point for creating your own. You can consult
 sections 8 and 9 of the [HomeKit Accessory Protocol Specification](https://developer.apple.com/homekit/) to determine
 what characteristics are required and optional for a given service. Note that only implementations of public services and
-characteristics as defined in the HomeKit specification will be considered for inclusion in HAP. 
+characteristics as defined in the HomeKit specification will be considered for inclusion in HAP.
 
 ### Asynchronous Change Notifications
 
@@ -58,8 +58,6 @@ such notifications, your `HAP.ValueStore` implementation must support the `c:HAP
 callback. Consult the `HAP.ValueStore` documentation for more detail.
 
 ## Known Issues
-
-As HAP is still in active development, there are a number of known rough edges. These include:
 
 * No support for dynamically updating the services advertised by a HAP instance (this is slated for HAP 2.0)
 * Incomplete support for tearing down existing sessions on pairing removal (this is slated for HAP 2.0)
