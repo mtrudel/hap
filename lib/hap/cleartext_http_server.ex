@@ -41,9 +41,8 @@ defmodule HAP.CleartextHTTPServer do
   end
 
   post "/pair-verify" do
-    pair_state = HAP.HAPSessionTransport.get_pair_state()
-
-    HAP.PairVerify.handle_message(conn.body_params, pair_state)
+    conn.body_params
+    |> HAP.PairVerify.handle_message(HAP.HAPSessionTransport.get_pair_state())
     |> case do
       {:ok, response, new_state, accessory_to_controller_key, controller_to_accessory_key} ->
         conn =
