@@ -2,25 +2,25 @@ defmodule HAP do
   @moduledoc """
   HAP is an implementation of the [HomeKit Accessory Protocol](https://developer.apple.com/homekit/) specification.
   It allows for the creation of Elixir powered HomeKit accessories which can be controlled from a user's
-  iOS device in a similar manner to commercially available HomeKit accessories such as light bulbs, window 
+  iOS device in a similar manner to commercially available HomeKit accessories such as light bulbs, window
   coverings and other smart home accessories.
 
   ## The HomeKit Data Model
 
   The data model of the HomeKit Accessory Protocol is represented as a tree structure. At the top level, a single HAP
   instance represents an *Accessory Server*.  An accessory server hosts one or more *Accessory Objects*. Each accessory object
-  represents a single, discrete physical accessory. In the case of directly connected devices, an accessory server typically 
-  hosts a single accessory object which represents device itself, whereas bridges will have one accessory object for each discrete 
+  represents a single, discrete physical accessory. In the case of directly connected devices, an accessory server typically
+  hosts a single accessory object which represents device itself, whereas bridges will have one accessory object for each discrete
   physical object which they bridge to. Within HAP, an accessory server is represented by a `HAP.AccessoryServer` struct, and
   an accessory by the `HAP.Accessory` struct.
 
-  Each accessory object contains exposes a set of *Services*, each of which represents a unit of functionality.  As an 
-  example, a HomeKit accessory server which represented a ceiling fan with a light would contain one accessory object 
+  Each accessory object contains exposes a set of *Services*, each of which represents a unit of functionality.  As an
+  example, a HomeKit accessory server which represented a ceiling fan with a light would contain one accessory object
   called 'Ceiling Fan', which would contain two services each representing the light and the fan. In addition to user-visible
-  services, each accessory exposes an Accessory Information Service which contains information about the service's name, 
+  services, each accessory exposes an Accessory Information Service which contains information about the service's name,
   manufacturer, serial number and other properties. Within HAP, a service is represented by a `HAP.Service` struct.
 
-  A service is made up of one or more *Characteristics*, each of which represents a specific aspect of the given service. 
+  A service is made up of one or more *Characteristics*, each of which represents a specific aspect of the given service.
   For example, a light bulb service exposes an On Characteristic, which is a boolean value reflecting the current on or
   off state of the light. If it is a dimmable light, it may also expose a Brightness Characteristic. If it is a color
   changing light, it may also expose a Hue Characteristic. Within HAP, a characteristic is represented by a tuple of a
@@ -29,7 +29,7 @@ defmodule HAP do
   ## Using HAP
 
   HAP provides a high-level interface to the HomeKit Accessory Protocol, allowing an application to
-  present any number of accessories to an iOS HomeKit controller. HAP is intended to be embedded within a host 
+  present any number of accessories to an iOS HomeKit controller. HAP is intended to be embedded within a host
   application which is responsible for providing the actual backing implementations of the various characteristics
   exposed via HomeKit. These are provided to HAP in the form of `HAP.ValueStore` implementations.  For example, consider
   a Nerves application which exposes itself to HomeKit as a light bulb. Assume that the actual physical control of the
@@ -107,4 +107,20 @@ defmodule HAP do
   """
   @spec value_changed(HAP.ValueStore.change_token()) :: :ok
   defdelegate value_changed(change_token), to: HAP.AccessoryServerManager
+
+  @doc """
+  Resets all local state for the given server. Removes all key & state information and allows the
+  server to be paired anew.
+  """
+  @spec reset(pid()) :: :ok
+  def reset(server_pid) do
+    storage_pid =
+      Supervisor.which_children(server_pid)
+      |> List.keyfind(HAP.PersistentStorage, 0)
+      |> elem(1)
+
+    HAP.PersistentStorage.clear(storage_pid)
+    Process.exit(storage_pid, :restart)
+    :ok
+  end
 end

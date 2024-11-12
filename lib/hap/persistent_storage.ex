@@ -20,6 +20,9 @@ defmodule HAP.PersistentStorage do
   @doc false
   def get_and_update(key, func, pid \\ __MODULE__), do: GenServer.call(pid, {:get_and_update, key, func})
 
+  @doc false
+  def clear(pid \\ __MODULE__), do: GenServer.call(pid, :clear)
+
   def init(path) do
     {:ok, cub_pid} = CubDB.start_link(path)
 
@@ -44,5 +47,9 @@ defmodule HAP.PersistentStorage do
 
   def handle_call({:get_and_update, key, func}, _from, %{cub_pid: cub_pid} = state) do
     {:reply, {:ok, CubDB.get_and_update(cub_pid, key, func)}, state}
+  end
+
+  def handle_call(:clear, _from, %{cub_pid: cub_pid} = state) do
+    {:reply, {:ok, CubDB.clear(cub_pid)}, state}
   end
 end
