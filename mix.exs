@@ -33,7 +33,7 @@ defmodule HAP.MixProject do
       {:bandit, "~> 1.0"},
       {:base36, "~> 1.0"},
       {:cubdb, "~> 2.0.0"},
-      {:eqrcode, "~> 0.1.7"},
+      {:eqrcode, "~> 0.2.0"},
       {:hkdf, "~> 0.2.0"},
       {:jason, "~> 1.2"},
       {:mdns_lite, "~> 0.8.3"},
