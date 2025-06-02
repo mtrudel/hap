@@ -1,6 +1,7 @@
 defmodule HAP.TLVParserTest do
   use ExUnit.Case
-  use Plug.Test
+
+  import Plug.Test
 
   test "parses multi-segment entries properly in a conn" do
     data =

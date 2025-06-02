@@ -92,6 +92,9 @@ defmodule HAP.HAPSessionTransport do
   defdelegate peercert(socket), to: ThousandIsland.Transports.TCP
 
   @impl ThousandIsland.Transport
+  defdelegate connection_information(socket), to: ThousandIsland.Transports.TCP
+
+  @impl ThousandIsland.Transport
   defdelegate secure?(), to: ThousandIsland.Transports.TCP
 
   @impl ThousandIsland.Transport
