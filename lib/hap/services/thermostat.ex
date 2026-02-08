@@ -31,7 +31,7 @@ defmodule HAP.Services.Thermostat do
           {HAP.Characteristics.CurrentTemperature, value.current_temp},
           {HAP.Characteristics.HeatingThresholdTemperature, value.heating_threshold_temp},
           {HAP.Characteristics.Name, value.name},
-          {HAP.Characteristics.TargetHeaterCoolerState, value.target_state},
+          {HAP.Characteristics.TargetHeatingCoolingState, value.target_state},
           {HAP.Characteristics.TargetRelativeHumidity, value.target_humidity},
           {HAP.Characteristics.TargetTemperature, value.target_temp},
           {HAP.Characteristics.TemperatureDisplayUnits, value.temp_display_units}
