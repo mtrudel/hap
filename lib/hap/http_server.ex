@@ -5,6 +5,7 @@ defmodule HAP.HTTPServer do
   use Plug.Router
 
   plug(:match)
+  plug(Plug.Logger, log: :debug)
   plug(Plug.Parsers, parsers: [HAP.TLVParser, :json], json_decoder: Jason)
   plug(:tidy_headers)
   plug(:dispatch)
