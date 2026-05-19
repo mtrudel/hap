@@ -5,6 +5,7 @@ defmodule HAP.AccessoryServer do
 
   defstruct display_module: nil,
             data_path: nil,
+            bandit_opts: [],
             name: nil,
             model: nil,
             identifier: nil,
@@ -31,7 +32,9 @@ defmodule HAP.AccessoryServer do
   If it is `:host` then a value of `hap_data` is used. If it is anything else (as it will be
   when compiling for a Nerves target, for example), the value of `/root/hap_data` is used. This
   allows HAP to work out-of-the-box in conventional and Nerves environments.
-  * `accessory_type`: A HAP specified value indicating the primary function of this 
+  * `bandit_opts`: Options to pass to Bandit. The values provided will be merged with a number of
+  fixed options required for proper operation; see lib/hap.ex for details.
+  * `accessory_type`: A HAP specified value indicating the primary function of this
   device. See `t:HAP.AccessoryServer.accessory_type/0` for details
   * `accessories`: A list of `HAP.Accessory` structs to include in this accessory server
   """
@@ -43,6 +46,7 @@ defmodule HAP.AccessoryServer do
           setup_id: setup_id(),
           display_module: module(),
           data_path: String.t(),
+          bandit_opts: Bandit.options(),
           accessory_type: accessory_type(),
           accessories: [HAP.Accessory.t()]
         }
@@ -141,6 +145,7 @@ defmodule HAP.AccessoryServer do
     accessory_server
     |> Map.update!(:display_module, &(&1 || HAP.ConsoleDisplay))
     |> Map.update!(:data_path, &(&1 || @default_data_path))
+    |> Map.update!(:bandit_opts, &(&1 || []))
     |> Map.update!(:name, &(&1 || "Generic HAP Device"))
     |> Map.update!(:model, &(&1 || "Generic HAP Model"))
     |> Map.update!(:pairing_code, &(&1 || random_pairing_code()))
