@@ -86,19 +86,21 @@ defmodule HAP do
   def init(%HAP.AccessoryServer{} = accessory_server) do
     accessory_server = accessory_server |> HAP.AccessoryServer.compile()
 
+    bandit_opts =
+      [
+        plug: HAP.HTTPServer,
+        port: 0,
+        http_1_options: [clear_process_dict: false],
+        thousand_island_options: [handler_module: HAP.HAPSessionHandler, transport_module: HAP.HAPSessionTransport]
+      ]
+      |> Keyword.merge(accessory_server.bandit_opts)
+
     children = [
       {HAP.PersistentStorage, accessory_server.data_path},
       {HAP.AccessoryServerManager, accessory_server},
       HAP.EventManager,
       HAP.PairSetup,
-      {Bandit,
-       Keyword.merge(
-         accessory_server.bandit_opts,
-         plug: HAP.HTTPServer,
-         port: 0,
-         http_1_options: [clear_process_dict: false],
-         thousand_island_options: [handler_module: HAP.HAPSessionHandler, transport_module: HAP.HAPSessionTransport]
-       )}
+      {Bandit, bandit_opts}
     ]
 
     Supervisor.init(children, strategy: :rest_for_one)

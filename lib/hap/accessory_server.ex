@@ -32,8 +32,9 @@ defmodule HAP.AccessoryServer do
   If it is `:host` then a value of `hap_data` is used. If it is anything else (as it will be
   when compiling for a Nerves target, for example), the value of `/root/hap_data` is used. This
   allows HAP to work out-of-the-box in conventional and Nerves environments.
-  * `bandit_opts`: Options to pass to Bandit. The values provided will be merged with a number of
-  fixed options required for proper operation; see lib/hap.ex for details.
+  * `bandit_opts`: Options to pass to Bandit. The values provided merged with HAP's default
+  options, many of which are required for proper operation. Care must be taken to ensure that such
+  options are not overwritten; see lib/hap.ex for details.
   * `accessory_type`: A HAP specified value indicating the primary function of this
   device. See `t:HAP.AccessoryServer.accessory_type/0` for details
   * `accessories`: A list of `HAP.Accessory` structs to include in this accessory server
