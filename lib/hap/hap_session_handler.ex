@@ -15,6 +15,9 @@ defmodule HAP.HAPSessionHandler do
   end
 
   @impl ThousandIsland.Handler
+  def handle_connection(socket, state), do: Bandit.HTTP1.Handler.handle_connection(socket, state)
+
+  @impl ThousandIsland.Handler
   def handle_data(data, socket, state) do
     {:ok, data} = HAP.HAPSessionTransport.decrypt_if_needed(data)
     Bandit.HTTP1.Handler.handle_data(data, socket, state)
