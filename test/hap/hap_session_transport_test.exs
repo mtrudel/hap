@@ -12,8 +12,8 @@ defmodule HAP.HAPSessionTransportTest do
         {:ok, data} = HAP.HAPSessionTransport.recv(server_socket, 0, :infinity)
         HAP.HAPSessionTransport.send(server_socket, data)
 
-        HAP.HAPSessionTransport.put_send_key(<<1>>)
-        HAP.HAPSessionTransport.put_recv_key(<<2>>)
+        HAP.HAPSessionTransport.put_send_key(:binary.copy(<<1>>, 32))
+        HAP.HAPSessionTransport.put_recv_key(:binary.copy(<<2>>, 32))
 
         {:ok, data} = HAP.HAPSessionTransport.recv(server_socket, 0, :infinity)
         HAP.HAPSessionTransport.send(server_socket, data)
@@ -32,8 +32,8 @@ defmodule HAP.HAPSessionTransportTest do
     refute HAP.HAPSessionTransport.encrypted_session?()
 
     # Note that these are reversed since we're acting as the controller here
-    HAP.HAPSessionTransport.put_send_key(<<2>>)
-    HAP.HAPSessionTransport.put_recv_key(<<1>>)
+    HAP.HAPSessionTransport.put_send_key(:binary.copy(<<2>>, 32))
+    HAP.HAPSessionTransport.put_recv_key(:binary.copy(<<1>>, 32))
 
     assert HAP.HAPSessionTransport.encrypted_session?()
 
@@ -54,8 +54,8 @@ defmodule HAP.HAPSessionTransportTest do
       Task.async(fn ->
         {:ok, server_socket} = HAP.HAPSessionTransport.accept(listener_socket)
 
-        HAP.HAPSessionTransport.put_send_key(<<1>>)
-        HAP.HAPSessionTransport.put_recv_key(<<2>>)
+        HAP.HAPSessionTransport.put_send_key(:binary.copy(<<1>>, 32))
+        HAP.HAPSessionTransport.put_recv_key(:binary.copy(<<2>>, 32))
 
         HAP.HAPSessionTransport.send(server_socket, <<1, 2, 3>>)
 
@@ -68,7 +68,7 @@ defmodule HAP.HAPSessionTransportTest do
     {encrypted_data, auth_tag} =
       :crypto.crypto_one_time_aead(
         :chacha20_poly1305,
-        <<1>>,
+        :binary.copy(<<1>>, 32),
         <<0::32, 0::integer-size(64)-little>>,
         <<1, 2, 3>>,
         <<3::integer-size(16)-little>>,
