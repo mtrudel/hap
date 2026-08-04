@@ -239,6 +239,13 @@ defmodule HAP.AccessoryServer do
           case map do
             %{"value" => value} ->
               case HAP.Characteristic.put_value(characteristic, value) do
+                {:ok, response} ->
+                  if map["r"] do
+                    %{aid: aid, iid: iid, status: 0, value: response}
+                  else
+                    %{aid: aid, iid: iid, status: 0}
+                  end
+
                 :ok ->
                   if map["r"] do
                     %{aid: aid, iid: iid, status: 0, value: value}
