@@ -20,11 +20,11 @@ defmodule HAP.AccessoryServer do
   * `name`: The name to assign to this device, for example 'HAP Bridge'
   * `model`: The model name to assign to this device, for example 'HAP Co. Super Bridge III'
   * `identifier`: A unique identifier string in the form "AA:BB:CC:DD:EE:FF"
-  * `pairing_code`: A pairing code of the form 123-45-678 to be used for pairing. 
+  * `pairing_code`: A pairing code of the form 123-45-678 to be used for pairing.
   If not specified one will be defined dynamically.
-  * `setup_id`: A 4 character string used as part of the accessory discovery process. 
+  * `setup_id`: A 4 character string used as part of the accessory discovery process.
   If not specified one will be defined dynamically.
-  * `display_module`: An optional implementation of `HAP.Display` used to present pairing 
+  * `display_module`: An optional implementation of `HAP.Display` used to present pairing
   and other information to the user. If not specified then a basic console-based
   display is used.
   * `data_path`: The path to where HAP will store its internal data. Will be created if
@@ -83,8 +83,8 @@ defmodule HAP.AccessoryServer do
   @type setup_id :: String.t()
 
   @typedoc """
-  A HAP specified value indicating the primary function of this device as found 
-  in Section 13 of Apple's [HomeKit Accessory Protocol Specification](https://developer.apple.com/homekit/). 
+  A HAP specified value indicating the primary function of this device as found
+  in Section 13 of Apple's [HomeKit Accessory Protocol Specification](https://developer.apple.com/homekit/).
   Valid values include:
     1. Other
     2. Bridge
@@ -119,9 +119,10 @@ defmodule HAP.AccessoryServer do
   @default_data_path if(Mix.target() == :host, do: "hap_data", else: "/root/hap_data")
 
   # credo:disable-for-this-file Credo.Check.Refactor.Nesting
+  # credo:disable-for-this-file Credo.Check.Refactor.CyclomaticComplexity
 
   @doc """
-  Generates the pairing url to be used to pair with this accessory server. This 
+  Generates the pairing url to be used to pair with this accessory server. This
   URL can be encoded in a QR code to enable pairing directly from an iOS device
   """
   @spec pairing_url(t()) :: String.t()
