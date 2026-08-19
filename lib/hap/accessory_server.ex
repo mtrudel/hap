@@ -119,6 +119,7 @@ defmodule HAP.AccessoryServer do
   @default_data_path if(Mix.target() == :host, do: "hap_data", else: "/root/hap_data")
 
   # credo:disable-for-this-file Credo.Check.Refactor.Nesting
+   # credo:disable-for-this-file Credo.Check.Refactor.CyclomaticComplexity
 
   @doc """
   Generates the pairing url to be used to pair with this accessory server. This 
