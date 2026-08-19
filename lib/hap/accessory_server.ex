@@ -120,6 +120,7 @@ defmodule HAP.AccessoryServer do
 
   # credo:disable-for-this-file Credo.Check.Refactor.Nesting
    # credo:disable-for-this-file Credo.Check.Refactor.CyclomaticComplexity
+  # credo:disable-for-this-file Credo.Check.Refactor.CyclomaticComplexity
 
   @doc """
   Generates the pairing url to be used to pair with this accessory server. This 
