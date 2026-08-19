@@ -11,7 +11,8 @@ defmodule HAP.CharacteristicsTest do
             services: [
               %HAP.Services.LightBulb{
                 on: {HAP.Test.TestValueStore, value_name: :lightbulb},
-                brightness: {HAP.Test.TestValueStore, value_name: :brightness}
+                brightness: {HAP.Test.TestValueStore, value_name: :brightness},
+                hue: {HAP.Test.TestValueStore, value_name: :hue, write_response: 42}
               }
             ]
           }
@@ -294,6 +295,50 @@ defmodule HAP.CharacteristicsTest do
                  %{"iid" => 1027, "aid" => 1, "status" => 0, "value" => true}
                ]
              }
+    end
+
+    test "it should return the value store's response value for write responses", context do
+      # Setup an encrypted session
+      :ok = HAP.Test.HTTPClient.setup_encrypted_session(context.client)
+
+      request = %{
+        characteristics: [
+          %{"iid" => 1031, "value" => 120, "aid" => 1, "r" => true}
+        ]
+      }
+
+      {:ok, 207, headers, body} =
+        HAP.Test.HTTPClient.put(context.client, "/characteristics", Jason.encode!(request),
+          "content-type": "application/hap+json"
+        )
+
+      assert Keyword.get(headers, :"content-type") == "application/hap+json"
+
+      assert Jason.decode!(body) == %{
+               "characteristics" => [
+                 %{"iid" => 1031, "aid" => 1, "status" => 0, "value" => 42}
+               ]
+             }
+
+      # The written value is stored; only the response differs
+      assert HAP.AccessoryServerManager.get_characteristics([%{iid: 1031, aid: 1}], :pr) ==
+               [%{iid: 1031, value: 120, aid: 1, status: 0}]
+    end
+
+    test "it should not return a response value unless requested", context do
+      # Setup an encrypted session
+      :ok = HAP.Test.HTTPClient.setup_encrypted_session(context.client)
+
+      request = %{
+        characteristics: [
+          %{"iid" => 1031, "value" => 240, "aid" => 1}
+        ]
+      }
+
+      {:ok, 204, _headers, _body} =
+        HAP.Test.HTTPClient.put(context.client, "/characteristics", Jason.encode!(request),
+          "content-type": "application/hap+json"
+        )
     end
 
     test "it should require an authenticated session", context do

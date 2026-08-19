@@ -53,9 +53,16 @@ defmodule HAP.ValueStore do
   is as specified in the hosting `HAP.Configuration` and can be used to distinguish a
   particular value within a larger value store (perhaps by GPIO pin or similar)
 
-  Returns `:ok` or `{:error, reason}`
+  Returns `:ok`, or `{:ok, response}` to return a response value distinct from the
+  written value ("Write Response" per HAP specification section 6.7.2.4). The response
+  value is returned to controllers which request it by setting `"r": true` on the write;
+  characteristics using this should include `"wr"` in their permissions. Control-point
+  characteristics (such as NFC Access Control Point) require this to answer commands.
+
+  Returns `{:error, reason}` on failure
   """
-  @callback put_value(value :: HAP.Characteristic.value(), opts :: opts()) :: :ok | {:error, String.t()}
+  @callback put_value(value :: HAP.Characteristic.value(), opts :: opts()) ::
+              :ok | {:ok, HAP.Characteristic.value()} | {:error, String.t()}
 
   @doc """
 
