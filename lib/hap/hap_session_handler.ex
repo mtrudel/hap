@@ -44,5 +44,6 @@ defmodule HAP.HAPSessionHandler do
     {:noreply, {socket, state}}
   end
 
-  def handle_info(msg, state), do: Bandit.HTTP1.Handler.handle_info(msg, state)
+  def handle_info(msg, {%ThousandIsland.Socket{}, _} = state),
+    do: Bandit.HTTP1.Handler.handle_info(msg, state)
 end
