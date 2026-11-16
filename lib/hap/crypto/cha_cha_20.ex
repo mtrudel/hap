@@ -18,8 +18,7 @@ defmodule HAP.Crypto.ChaCha20 do
   @spec decrypt_and_verify(ciphertext_with_authdata(), key(), nonce(), aad()) ::
           {:ok, plaintext()} | {:error, String.t()}
   def decrypt_and_verify(encrypted_data, key, nonce, aad \\ <<>>) do
-    encrypted_data_length = byte_size(encrypted_data) - 16
-    <<encrypted_data::binary-size(encrypted_data_length), auth_tag::binary-16>> = encrypted_data
+    {encrypted_data, auth_tag} = :erlang.split_binary(encrypted_data, byte_size(encrypted_data) - 16)
 
     case :crypto.crypto_one_time_aead(:chacha20_poly1305, key, pad(nonce), encrypted_data, aad, auth_tag, false) do
       :error -> {:error, "Message decryption error"}

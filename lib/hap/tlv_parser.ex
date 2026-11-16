@@ -40,8 +40,7 @@ defmodule HAP.TLVParser do
         {{_, next_value}, next_rest} = next_tag(<<next_tag>> <> rest)
         {{tag, value <> next_value}, next_rest}
 
-      <<tag::8, length::8, rest::binary>> ->
-        <<value::binary-size(length), rest::binary>> = rest
+      <<tag::8, length::8, value::binary-size(length), rest::binary>> ->
         {{tag, value}, rest}
 
       <<>> ->
